@@ -219,3 +219,13 @@ export function stripAnsiChars(input: string) {
 	const ansiRegex = /\x1B\[[0-9;]*m/g;
 	return input.toString().replace(ansiRegex, '');
 }
+
+export function stripUrlProtocol(url: string) {
+	return url.replace(/^https?:\/\//, '');
+}
+
+export async function hbFetch(endpoint: string) {
+	const response = await fetch(`${window.hyperbeamUrl}${endpoint}`);
+	if (endpoint.includes('serialize~json@1.0')) return await response.json();
+	return await response.text();
+}

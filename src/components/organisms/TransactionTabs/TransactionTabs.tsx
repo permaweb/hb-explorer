@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 import { useTheme } from 'styled-components';
 
-import { GQLNodeResponseType } from '@permaweb/libs';
+import { Types } from '@permaweb/libs';
 
 import { ViewWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
@@ -18,10 +18,11 @@ import { checkValidAddress, formatAddress, getTagValue } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { ConsoleInstance } from '../ConsoleInstance';
+import { HyperPath } from '../HyperPath';
 
 import * as S from './styles';
 
-export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
+export default function TransactionTabs(props: { type: 'hb-explorer' | 'legacy-explorer' | 'aos' }) {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const theme = useTheme();
@@ -33,6 +34,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
+	const [baseUrl, _setBaseUrl] = React.useState<string>(props.type === 'aos' ? URLS.aos : URLS.explorer);
 	const [transactions, setTransactions] = React.useState<TransactionTabType[]>(() => {
 		const stored = localStorage.getItem(storageKey);
 		return stored && JSON.parse(stored).length > 0 ? JSON.parse(stored) : [{ id: '', label: '', type: null }];
@@ -64,21 +66,29 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 	React.useEffect(() => {
 		const { txId, subPath } = extractTxDetailsFromPath(location.pathname);
 
-		if (txId && !transactions.some((tab) => tab.id === txId)) {
-			if (transactions.length === 1 && transactions[0].id === '') {
-				setTransactions((prev) => {
-					const updated = [...prev];
-					updated[0] = { id: txId, label: txId, type: 'message' };
-					return updated;
-				});
-				setActiveTabIndex(0);
-			} else {
-				const newIndex = transactions.length;
-				setTransactions((prev) => [...prev, { id: txId, label: txId, type: 'message' }]);
-				setActiveTabIndex(newIndex);
-			}
+		if (txId) {
+			const existingTabIndex = transactions.findIndex((tab) => tab.id === txId);
 
-			navigate(`${URLS[props.type]}${txId}${subPath}`);
+			if (existingTabIndex !== -1) {
+				// Tab exists, just set it as active
+				setActiveTabIndex(existingTabIndex);
+			} else {
+				// Tab doesn't exist, create new one
+				if (transactions.length === 1 && transactions[0].id === '') {
+					setTransactions((prev) => {
+						const updated = [...prev];
+						updated[0] = { id: txId, label: txId, type: 'message' };
+						return updated;
+					});
+					setActiveTabIndex(0);
+				} else {
+					const newIndex = transactions.length;
+					setTransactions((prev) => [...prev, { id: txId, label: txId, type: 'message' }]);
+					setActiveTabIndex(newIndex);
+				}
+
+				navigate(`${baseUrl}${txId}${subPath}`);
+			}
 		}
 	}, [location.pathname]);
 
@@ -106,21 +116,31 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 
 	function extractTxDetailsFromPath(pathname: string) {
 		const parts = pathname.replace(/#.*/, '').split('/').filter(Boolean);
-		const txId = parts[1] || '';
-		const subPath = parts.slice(2).join('/') || '';
 
-		return { txId, subPath: subPath ? `/${subPath}` : '' };
+		if (props.type === 'hb-explorer') {
+			const txId = parts.slice(1).join('/') || '';
+			return { txId, subPath: '' };
+		} else {
+			const txId = parts[1] || '';
+			const subPath = parts.slice(2).join('/') || '';
+			return { txId, subPath: subPath ? `/${subPath}` : '' };
+		}
 	}
 
 	function getInitialIndex() {
 		if (transactions.length <= 0) return 0;
-		let currentTxId = location.pathname.replace(`${URLS[props.type]}/`, '');
 
-		const parts = location.pathname.split('/');
-		for (const part of parts) {
-			if (checkValidAddress(part)) {
-				currentTxId = part;
-				break;
+		let currentTxId;
+		if (props.type === 'hb-explorer') {
+			currentTxId = location.pathname.replace(`${baseUrl}/`, '');
+		} else {
+			currentTxId = location.pathname.replace(`${baseUrl}/`, '');
+			const parts = location.pathname.split('/');
+			for (const part of parts) {
+				if (checkValidAddress(part)) {
+					currentTxId = part;
+					break;
+				}
 			}
 		}
 
@@ -131,7 +151,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 		return 0;
 	}
 
-	const handleTxChange = (tabIndex: number, newTx: GQLNodeResponseType) => {
+	const handleTxChange = (tabIndex: number, newTx: Types.GQLNodeResponseType) => {
 		if (isClearing) return;
 
 		const name = getTagValue(newTx.node.tags, 'Name');
@@ -159,9 +179,9 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 		const currentParts = window.location.hash.replace('#', '').split('/');
 		const currentRoute = currentParts[currentParts.length - 1];
 
-		let toRoute = `${URLS[props.type]}${newTx.node.id}`;
+		let toRoute = `${baseUrl}${newTx.node.id}`;
 
-		if (props.type === 'explorer') {
+		if (props.type === 'legacy-explorer') {
 			switch (currentRoute) {
 				case 'info':
 					toRoute = URLS.explorerInfo(newTx.node.id);
@@ -189,9 +209,32 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 		navigate(toRoute);
 	};
 
+	const handlePathChange = (tabIndex: number, id: string, path: string) => {
+		if (isClearing) return;
+
+		setTransactions((prev) => {
+			const updated = [...prev];
+			if (updated[tabIndex]) {
+				updated[tabIndex] = {
+					...updated[tabIndex],
+					id: id,
+					label: path,
+					type: 'message',
+				};
+			} else {
+				updated.push({
+					id: id,
+					label: path,
+					type: 'message',
+				});
+			}
+			return updated;
+		});
+	};
+
 	const handleTabRedirect = (index: number) => {
 		setActiveTabIndex(index);
-		navigate(`${URLS[props.type]}${transactions[index].id}`);
+		navigate(`${baseUrl}${transactions[index].id}`);
 	};
 
 	const handleAddTab = (id?: string) => {
@@ -216,7 +259,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 			}
 		}, 0);
 
-		navigate(id ? `${URLS[props.type]}${id}` : URLS[props.type]);
+		navigate(id ? `${baseUrl}${id}` : baseUrl);
 	};
 
 	const handleDeleteTab = (deletedIndex: number) => {
@@ -244,7 +287,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 
 		if (updatedTransactions.length > 0) {
 			const newId = updatedTransactions[newActiveIndex]?.id ?? '';
-			navigate(`${URLS[props.type]}${newId}`);
+			navigate(`${baseUrl}${newId}`);
 		} else {
 			handleClearTabs();
 		}
@@ -257,7 +300,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 			setActiveTabIndex(0);
 		});
 
-		navigate(URLS[props.type], { replace: true });
+		navigate(baseUrl, { replace: true });
 
 		setTimeout(() => setIsClearing(false), 50);
 		setShowClearConfirmation(false);
@@ -305,13 +348,21 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 
 	function getTab(tx: TransactionTabType, index: number) {
 		switch (props.type) {
-			case 'explorer':
+			case 'hb-explorer':
+				return (
+					<HyperPath
+						path={tx.label}
+						onPathChange={(id: string, path: string) => handlePathChange(index, id, path)}
+						active={index === activeTabIndex}
+					/>
+				);
+			case 'legacy-explorer':
 				return (
 					<Transaction
 						txId={tx.id}
 						type={tx.type}
 						active={index === activeTabIndex}
-						onTxChange={(newTx: GQLNodeResponseType) => handleTxChange(index, newTx)}
+						onTxChange={(newTx: Types.GQLNodeResponseType) => handleTxChange(index, newTx)}
 						handleMessageOpen={(id: string) => handleAddTab(id)}
 					/>
 				);
@@ -320,7 +371,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 					<ConsoleInstance
 						processId={tx.id}
 						active={index === activeTabIndex}
-						onTxChange={(newTx: GQLNodeResponseType) => handleTxChange(index, newTx)}
+						onTxChange={(newTx: Types.GQLNodeResponseType) => handleTxChange(index, newTx)}
 					/>
 				);
 		}
@@ -331,7 +382,7 @@ export default function TransactionTabs(props: { type: 'explorer' | 'aos' }) {
 			<S.Wrapper>
 				<S.HeaderWrapper>
 					<ViewHeader
-						header={language[props.type]}
+						header={props.type === 'aos' ? 'AOS' : language.explorer}
 						actions={[
 							<Button
 								type={'primary'}

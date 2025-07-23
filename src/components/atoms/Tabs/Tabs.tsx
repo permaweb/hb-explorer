@@ -2,6 +2,7 @@ import React from 'react';
 import { ReactSVG } from 'react-svg';
 import PropTypes from 'prop-types';
 
+import { ViewWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
 import { TabType } from 'helpers/types';
 
@@ -62,7 +63,7 @@ class Tab extends React.Component<any, any> {
 	}
 }
 
-export default class Tabs extends React.Component<{ children: any; onTabPropClick: any; type: TabType }, any> {
+export default class Tabs extends React.Component<{ children: any; onTabClick: any; type: TabType }, any> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
@@ -74,7 +75,7 @@ export default class Tabs extends React.Component<{ children: any; onTabPropClic
 
 	onClickTabItem = (tab: any) => {
 		this.setState({ activeTab: tab });
-		this.props.onTabPropClick(tab);
+		this.props.onTabClick(tab);
 	};
 
 	render() {
@@ -101,27 +102,35 @@ export default class Tabs extends React.Component<{ children: any; onTabPropClic
 			</S.Container>
 		) : (
 			<S.Container>
-				<S.List>
-					{children!.map((child: any) => {
-						const { label, icon } = child.props;
-						return (
-							<Tab
-								activeTab={activeTab}
-								key={label}
-								icon={icon}
-								label={label}
-								onClick={onClickTabItem}
-								type={this.props.type}
-							/>
-						);
-					})}
-				</S.List>
-				<S.Content>
-					{children!.map((child: any) => {
-						if (child.props.label !== activeTab) return undefined;
-						return child.props.children;
-					})}
-				</S.Content>
+				<S.Header>
+					<S.PlaceholderFull id={'placeholder-start'} />
+					<ViewWrapper>
+						<S.List>
+							{children!.map((child: any, index: number) => {
+								const { label, icon } = child.props;
+								return (
+									<Tab
+										activeTab={activeTab}
+										key={index}
+										icon={icon}
+										label={label}
+										onClick={onClickTabItem}
+										type={this.props.type}
+									/>
+								);
+							})}
+						</S.List>
+					</ViewWrapper>
+					<S.PlaceholderFull id={'placeholder-end'} />
+				</S.Header>
+				<ViewWrapper>
+					<S.Content>
+						{children!.map((child: any) => {
+							if (child.props.label !== activeTab) return undefined;
+							return child.props.children;
+						})}
+					</S.Content>
+				</ViewWrapper>
 			</S.Container>
 		);
 	}

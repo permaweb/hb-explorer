@@ -95,8 +95,7 @@ export default function App() {
 					<Routes>
 						{getRoute(URLS.base, <Landing />)}
 						{getRoute(URLS.explorer, <Explorer />)}
-						{getRoute(`${URLS.explorer}:txid`, <Explorer />)}
-						{getRoute(`${URLS.explorer}:txid/:active`, <Explorer />)}
+						{getRoute(`${URLS.explorer}:rest/*`, <Explorer />)}
 						{getRoute(URLS.notFound, <NotFound />)}
 						{getRoute(`*`, <NotFound />)}
 					</Routes>

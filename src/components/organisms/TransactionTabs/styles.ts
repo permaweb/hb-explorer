@@ -37,13 +37,6 @@ export const TabsContent = styled.div`
 	padding: 0 1px 1.5px 1px;
 `;
 
-export const TabDivider = styled.div`
-	height: 22.5px;
-	width: 1px;
-	margin: 3.5px 0 0 0;
-	border-left: 1px solid ${(props) => props.theme.colors.border.primary};
-`;
-
 export const DeleteAction = styled.div`
 	display: none;
 	position: absolute;

@@ -11,6 +11,9 @@ import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
+// TODO: window.location.origin in production
+window.hyperbeamUrl = 'https://forward.computer';
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<Provider store={store}>
 		<PersistGate loading={null} persistor={persistor}>

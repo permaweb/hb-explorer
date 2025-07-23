@@ -5,7 +5,7 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 	align-items: center;
 	gap: 7.5px;
 	p {
-		color: ${(props) => (props.disabled ? props.theme.colors.font.alt2 : props.theme.colors.font.primary)} !important;
+		color: ${(props) => (props.disabled ? props.theme.colors.font.alt2 : props.theme.colors.font.alt1)} !important;
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};

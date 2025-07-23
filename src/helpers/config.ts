@@ -31,6 +31,7 @@ export const ASSETS = {
 	filter: getTxEndpoint('S7PKyYrmK3EbqWBTAHG66B9rzeVXXkL3VzmyE6jU8Io'),
 	fullscreen: getTxEndpoint('eW1yhAoA__WirNKXh6uykdz0DmU033qkUS2fqiZjsok'),
 	go: getTxEndpoint('uPGHtrtkOiGXWvpn77GGh76CxFuQDIEMRStynGz7mAs'),
+	graphic: getTxEndpoint('tJd9JJa8ap5dHHvRAAPOE4Gh6VAY4h8KpBY1gzrtVWo'),
 	header1: getTxEndpoint('Me8rAW3kmQxPclDnl7lupTXyWg2t3vV3yfFdCzyXbNA'),
 	header2: getTxEndpoint('6U8907x3L_phk9loiiBCHIXqDBWaV5IfK19IJnH8Q4A'),
 	header3: getTxEndpoint('fBTN-aLZM0VFaLGw7VhBiGSdHuNDGcO0qGKbtXLiwnA'),
@@ -78,7 +79,7 @@ export const ASSETS = {
 	video: getTxEndpoint('T2astk8vaCBLLP8PD2rXgLKbwhNYkdHXllXvGbk-Wps'),
 	wallet: getTxEndpoint('_t97i0BzskALIFERWR6iDs_uX7U6bbd4-3Pqq3HDkfI'),
 	wander: getTxEndpoint('XQOALlQ0rLluskwDip0gcT3suhue1v7CdMFvIVuItoU'),
-	warning: getTxEndpoint('BASlMnOWcLCcLUSrO2wUybQL_06231dLONeVkdTWs3o'),
+	warning: getTxEndpoint('L9ymn1hzygjLzs34VCL-75HZ_s0foZ4CYzI_IJbN-Yw'),
 	write: getTxEndpoint('SUWTk8Qtcub9EsP5PDF6-vzgKsP5Irg1bB9b8NImDDk'),
 	x: getTxEndpoint('8j0KOYorbeN1EI2_tO-o9tUYi4LJkDwFCDStu0sWMV8'),
 	youtube: getTxEndpoint('vEToNqLt0U4CXLW-u7DykeGNqFLfuzKWebnu_1d5FRs'),
@@ -188,4 +189,49 @@ export const LINKS = {
 	arweave: `https://arweave.org`,
 	ao: `https://ao.arweave.net`,
 	wander: `https://wander.app`,
+	hbDocs: `https://hyperbeam.arweave.net`,
+};
+
+export const HB_ENDPOINTS = {
+	info: '/~meta@1.0/info',
+	devices: '/~meta@1.0/info/preloaded_devices/serialize~json@1.0',
+	metrics: `/~hyperbuddy@1.0/metrics`,
+	operator: '/~meta@1.0/info/address',
+	ledger: `/ledger~node-process@1.0/now/balance/serialize~json@1.0`,
+};
+
+export const HB_METRIC_CATEGORIES = {
+	'AO Events': ['event'],
+	'System Stats': ['process_uptime_seconds', 'system_load', 'outbound_connections'],
+	'HTTP & Requests': [
+		'cowboy_requests_total',
+		'cowboy_protocol_upgrades_total',
+		'cowboy_spawned_processes_total',
+		'cowboy_errors_total',
+		'cowboy_early_errors_total',
+		'cowboy_request_duration_seconds',
+		'http_request_duration_seconds',
+		'cowboy_receive_body_duration_seconds',
+	],
+	Memory: [
+		'erlang_vm_memory_atom_bytes_total',
+		'erlang_vm_memory_bytes_total',
+		'erlang_vm_memory_dets_tables',
+		'erlang_vm_memory_ets_tables',
+		'erlang_vm_memory_processes_bytes_total',
+		'erlang_vm_memory_system_bytes_total',
+	],
+	'Network Stats': ['http_client_uploaded_bytes_total', 'http_client_downloaded_bytes_total', 'gun_requests_total'],
+	Telemetry: [
+		'telemetry_scrape_size_bytes',
+		'telemetry_scrape_duration_seconds',
+		'telemetry_scrape_encoded_size_bytes',
+	],
+	'VM Stats': [
+		'erlang_vm_msacc_aux_seconds_total',
+		'erlang_vm_msacc_check_io_seconds_total',
+		'erlang_vm_msacc_emulator_seconds_total',
+		'erlang_vm_msacc_gc_seconds_total',
+		'erlang_vm_msacc_other_seconds_total',
+	],
 };

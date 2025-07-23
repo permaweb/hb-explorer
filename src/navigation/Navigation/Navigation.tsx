@@ -9,8 +9,8 @@ import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Toggle } from 'components/atoms/Toggle';
 import { TxAddress } from 'components/atoms/TxAddress';
-import { ASSETS, STYLING, URLS } from 'helpers/config';
-import { checkValidAddress, formatAddress, getTagValue } from 'helpers/utils';
+import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
+import { checkValidAddress, formatAddress, getTagValue, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { usePermawebProvider } from 'providers/PermawebProvider';
@@ -29,6 +29,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 
 	const [_desktop, setDesktop] = React.useState(checkWindowCutoff(parseInt(STYLING.cutoffs.desktop)));
 
+	const [operatorAddress, setOperatorAddress] = React.useState<string | null>(null);
 	const [searchOpen, setSearchOpen] = React.useState<boolean>(false);
 	const [inputTxId, setInputTxId] = React.useState<string>('');
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
@@ -68,6 +69,18 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 			window.removeEventListener('resize', debouncedResize);
 		};
 	}, [debouncedResize]);
+
+	React.useEffect(() => {
+		(async function () {
+			try {
+				const address = await hbFetch(HB_ENDPOINTS.operator);
+				setOperatorAddress(address);
+			} catch (e: any) {
+				console.error(e);
+				setOperatorAddress('Error');
+			}
+		})();
+	}, []);
 
 	React.useEffect(() => {
 		(async function () {
@@ -144,7 +157,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						value={inputTxId}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputTxId(e.target.value)}
 						onFocus={() => setTxOutputOpen(true)}
-						placeholder={language.processOrMessageId}
+						placeholder={language.pathOrId}
 						invalid={{ status: inputTxId ? !checkValidAddress(inputTxId) : false, message: null }}
 						disabled={loadingTx}
 						hideErrorMessage
@@ -194,6 +207,20 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						</CloseHandler>
 					</S.DSearchWrapper>
 					<S.ActionsWrapper>
+						<S.DOperator className={'border-wrapper-alt3'}>
+							<span>Operator: </span>
+							{operatorAddress ? (
+								<>
+									{checkValidAddress(operatorAddress) ? (
+										<TxAddress address={operatorAddress} />
+									) : (
+										<span>{operatorAddress}</span>
+									)}
+								</>
+							) : (
+								<span>Loading...</span>
+							)}
+						</S.DOperator>
 						<S.MSearchWrapper>
 							<CloseHandler active={searchOpen} disabled={!searchOpen} callback={() => setSearchOpen(false)}>
 								<IconButton
@@ -226,10 +253,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 								}}
 							/>
 						</S.MMenuWrapper>
-						<S.DOperator className={'border-wrapper-alt3'}>
-							<span>Operator: </span>
-							<TxAddress address={'uf_FqRvLqjnFMc8ZzGkF4qWKuNmUIQcYP0tPlCGORQk'} />
-						</S.DOperator>
 						<Toggle
 							options={[
 								{ label: 'light-primary', icon: ASSETS.light },

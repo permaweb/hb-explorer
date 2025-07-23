@@ -1,71 +1,166 @@
 import React from 'react';
 
+import { Button } from 'components/atoms/Button';
 import { Loader } from 'components/atoms/Loader';
-import { MetricChart } from 'components/molecules/MetricChart';
-import { getTxEndpoint } from 'helpers/endpoints';
-import { MetricDataPoint } from 'helpers/types';
-import { usePermawebProvider } from 'providers/PermawebProvider';
+import { HB_METRIC_CATEGORIES } from 'helpers/config';
+import { formatCount } from 'helpers/utils';
 
 import * as S from './styles';
 
-export default function Metrics() {
-	const permawebProvider = usePermawebProvider();
-
-	const [metrics, setMetrics] = React.useState<MetricDataPoint[] | null>(null);
+export default function Metrics(props: { metrics: any }) {
+	const [activeCategory, setActiveCategory] = React.useState<string>('AO Events');
+	const [groups, setGroups] = React.useState<any>(null);
 
 	React.useEffect(() => {
-		(async function () {
-			try {
-				const response = await permawebProvider.libs.getGQLData({
-					owners: ['yqRGaljOLb2IvKkYVa87Wdcc8m_4w6FI58Gej05gorA'],
-					recipients: ['vdpaKV_BQNISuDgtZpLDfDlMJinKHqM3d2NWd3bzeSk'],
-					tags: [{ name: 'Action', values: ['Update-Stats'] }],
-					paginator: 1,
+		if (props.metrics) {
+			const metricsIndex: any = {};
+			for (const type in props.metrics) {
+				props.metrics[type].forEach((metric) => {
+					metricsIndex[metric.name] = { metric, type };
 				});
-
-				const updateId = response?.data?.[0]?.node?.id;
-				const data = await fetch(getTxEndpoint(updateId));
-				const json = await data.json();
-				const interval = Array.isArray(json) ? json.slice(-30) : json;
-				setMetrics(interval);
-			} catch (e: any) {
-				console.error(e);
 			}
-		})();
-	}, [permawebProvider.libs]);
 
-	return (
+			const updatedGroups: any = {};
+			for (const key in HB_METRIC_CATEGORIES) {
+				updatedGroups[key] = {};
+				for (const subKey of HB_METRIC_CATEGORIES[key]) {
+					if (metricsIndex[subKey]) {
+						updatedGroups[key][subKey] = metricsIndex[subKey];
+					} else {
+					}
+				}
+			}
+
+			setGroups(updatedGroups);
+		}
+	}, [props.metrics]);
+
+	function getSubGroups(metric: any, metricRegex: any, labelRegex: any) {
+		const events = {};
+
+		metric.values.forEach((value) => {
+			const match = value.label.match(metricRegex);
+			if (match) {
+				const group = match[1];
+				if (!events[group]) {
+					events[group] = [];
+				}
+
+				const labelMatch = value.label.match(labelRegex);
+
+				events[group].push({ label: labelMatch ? labelMatch[1] : value.label, data: value.data ?? 0 });
+			}
+		});
+
+		return events;
+	}
+
+	function buildGroupBody(key: string) {
+		const metric = groups[activeCategory][key].metric;
+
+		switch (key) {
+			case 'event':
+			case 'cowboy_requests_total':
+			case 'cowboy_spawned_processes_total':
+			case 'cowboy_errors_total':
+			case 'cowboy_request_duration_seconds':
+			case 'cowboy_receive_body_duration_seconds':
+			case 'http_request_duration_seconds':
+				let metricRegex: RegExp;
+				let labelRegex: RegExp;
+				let labelPrefix: string;
+
+				if (key === 'event') {
+					metricRegex = /topic="([^"]+)"/;
+					labelRegex = /event="([^"]+)"/;
+					labelPrefix = 'Topic';
+				} else {
+					if (key === 'http_request_duration_seconds') {
+						metricRegex = /http_method="([^"]+)"/;
+						labelRegex = /route="([^"]+)"/;
+					} else {
+						metricRegex = /method="([^"]+)"/;
+						labelRegex = /reason="([^"]+)"/;
+					}
+					labelPrefix = 'Method';
+				}
+
+				const subGroups = getSubGroups(metric, metricRegex, labelRegex);
+
+				return (
+					<>
+						{Object.keys(subGroups).map((key) => {
+							return (
+								<S.SubGroup key={key}>
+									<S.SubGroupHeader>
+										<p>{`${labelPrefix}: ${key}`}</p>
+									</S.SubGroupHeader>
+									<S.SubGroupBody>
+										{Object.keys(subGroups[key]).map((element: any, index) => {
+											const value = subGroups[key][element];
+
+											return (
+												<S.SubGroupLine key={`${value.label}-${index}`}>
+													<p>{value.label}</p>
+													{value.data !== null && typeof value.data === 'number' && (
+														<span>{formatCount(value.data.toString())}</span>
+													)}
+												</S.SubGroupLine>
+											);
+										})}
+									</S.SubGroupBody>
+								</S.SubGroup>
+							);
+						})}
+					</>
+				);
+		}
+
+		return (
+			<>
+				{metric.values.map((value: any) => {
+					return (
+						<S.GroupLine key={value.label}>
+							<p>{value.label}</p>
+							{value.data !== null && <span>{formatCount(value.data.toString())}</span>}
+						</S.GroupLine>
+					);
+				})}
+			</>
+		);
+	}
+
+	return props.metrics && groups ? (
 		<S.Wrapper>
-			{metrics ? (
-				<>
-					<MetricChart
-						dataList={metrics}
-						metric={'tx_count'}
-						totalField={'tx_count_rolling'}
-						chartLabel={'Total Messages'}
-					/>
-					<MetricChart
-						dataList={metrics}
-						metric={'transfer_count'}
-						totalField={'transfer_count'}
-						chartLabel={'Transfers'}
-					/>
-					<MetricChart dataList={metrics} metric={'active_users'} totalField={'active_users'} chartLabel={'Users'} />
-					<MetricChart
-						dataList={metrics}
-						metric={'active_processes'}
-						totalField={'active_processes'}
-						chartLabel={'Processes'}
-					/>
-				</>
-			) : (
-				<>
-					<S.Placeholder className={'border-wrapper-alt3'} />
-					<S.Placeholder className={'border-wrapper-alt3'} />
-					<S.Placeholder className={'border-wrapper-alt3'} />
-					<S.Placeholder className={'border-wrapper-alt3'} />
-				</>
-			)}
+			<S.Navigation>
+				{Object.keys(HB_METRIC_CATEGORIES).map((category) => {
+					return (
+						<Button
+							key={category}
+							type={'primary'}
+							label={category}
+							handlePress={() => setActiveCategory(category)}
+							active={category === activeCategory}
+							height={37.5}
+							fullWidth
+						/>
+					);
+				})}
+			</S.Navigation>
+			<S.Body className={'border-wrapper-primary scroll-wrapper-hidden'}>
+				{Object.keys(groups[activeCategory]).map((key) => {
+					return (
+						<S.Group key={key}>
+							<S.GroupHeader>
+								<p>{key}</p>
+							</S.GroupHeader>
+							<S.GroupBody>{buildGroupBody(key)}</S.GroupBody>
+						</S.Group>
+					);
+				})}
+			</S.Body>
 		</S.Wrapper>
+	) : (
+		<Loader sm relative />
 	);
 }

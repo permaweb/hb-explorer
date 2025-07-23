@@ -270,7 +270,7 @@ export const LogoWrapper = styled.div`
 export const DNavWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 30px;
+	gap: 25px;
 
 	@media (max-width: ${STYLING.cutoffs.tablet}) {
 		display: none;
@@ -281,7 +281,7 @@ export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 		font-family: ${(props) => props.theme.typography.family.alt1};
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.small};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		text-transform: uppercase;
 		letter-spacing: 0.35px;
@@ -348,6 +348,7 @@ export const DOperator = styled.div`
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
+		text-transform: uppercase;
 	}
 
 	p {
