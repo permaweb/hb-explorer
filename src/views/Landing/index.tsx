@@ -222,8 +222,6 @@ export default function Landing() {
 					<S.Tab label={'Ledger'}>
 						<Ledger />
 					</S.Tab>
-					<S.Tab label={'Console'}></S.Tab>
-					<S.Tab label={'Cache'}></S.Tab>
 				</Tabs>
 			</S.TabsWrapper>
 			<S.Graphic>

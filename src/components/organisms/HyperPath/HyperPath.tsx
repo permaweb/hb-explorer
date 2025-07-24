@@ -38,6 +38,10 @@ export default function HyperPath(props: {
 	const [pathNotFound, setPathNotFound] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
+		setInputPath(props.path);
+	}, [props.path]);
+
+	React.useEffect(() => {
 		if (!inputPath) {
 			return;
 		}

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 const views = (import.meta as any).glob('../views/**/index.tsx');
 
@@ -29,10 +29,20 @@ function getLazyImport(view: string) {
 }
 
 export default function App() {
+	const navigate = useNavigate();
+	const location = useLocation();
+
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const { settings, updateSettings } = useSettingsProvider();
+
+	React.useEffect(() => {
+		const { pathname, search, hash } = window.location;
+		if (hash.startsWith('#/explorer')) return;
+		if (pathname === '/' || pathname.includes('~hyperbuddy@1.0/index') || pathname === '') return;
+		window.location.replace(`${window.location.origin}/#${URLS.explorerBase}${pathname}${search}`);
+	}, [location.pathname]);
 
 	if (process.env.NODE_ENV === 'development') {
 		const suppressed = 'ResizeObserver loop completed with undelivered notifications.';

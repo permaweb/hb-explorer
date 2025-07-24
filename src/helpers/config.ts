@@ -165,12 +165,14 @@ function createURLs() {
 	const base = `/`;
 
 	const docs = `${base}docs/`;
-	const explorer = `${base}explorer/`;
+	const explorerBase = `${base}explorer`;
+	const explorer = `${explorerBase}/`;
 	const nodes = `${base}nodes/`;
 	const aos = `${base}aos/`;
 
 	return {
 		base: base,
+		explorerBase: explorerBase,
 		explorer: explorer,
 		explorerInfo: (id: string) => `${explorer}${id}/info`,
 		explorerMessages: (id: string) => `${explorer}${id}/messages`,

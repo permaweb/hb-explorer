@@ -1,28 +1,25 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 import { debounce } from 'lodash';
-
-import { Types } from '@permaweb/libs';
 
 import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Toggle } from 'components/atoms/Toggle';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
-import { checkValidAddress, formatAddress, getTagValue, hbFetch } from 'helpers/utils';
+import { checkValidAddress, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
 import { CloseHandler } from 'wrappers/CloseHandler';
 
 import * as S from './styles';
 
 export default function Navigation(props: { open: boolean; toggle: () => void }) {
+	const navigate = useNavigate();
 	const location = useLocation();
 
-	const permawebProvider = usePermawebProvider();
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 	const { settings, updateSettings } = useSettingsProvider();
@@ -31,10 +28,9 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 
 	const [operatorAddress, setOperatorAddress] = React.useState<string | null>(null);
 	const [searchOpen, setSearchOpen] = React.useState<boolean>(false);
-	const [inputTxId, setInputTxId] = React.useState<string>('');
+	const [inputPath, setInputPath] = React.useState<string>('');
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
-	const [loadingTx, setLoadingTx] = React.useState<boolean>(false);
-	const [txResponse, setTxResponse] = React.useState<Types.GQLNodeResponseType | null>(null);
+	const [loadingPath, setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
 
 	const paths = React.useMemo(() => {
@@ -84,89 +80,38 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		})();
 	}, []);
 
-	React.useEffect(() => {
-		(async function () {
-			if (inputTxId && checkValidAddress(inputTxId)) {
-				setTxOutputOpen(true);
-				setLoadingTx(true);
-				try {
-					const response = await permawebProvider.libs.getGQLData({
-						ids: [inputTxId],
-						tags: [
-							{ name: 'Data-Protocol', values: ['ao'] },
-							{ name: 'Variant', values: ['ao.TN.1'] },
-						],
-					});
-					const responseData = response?.data?.[0];
-					setTxResponse(responseData ?? null);
-				} catch (e: any) {
-					console.error(e);
-				}
-				setLoadingTx(false);
-			} else {
-				setTxResponse(null);
-				setTxOutputOpen(false);
-			}
-		})();
-	}, [inputTxId]);
-
-	const searchOutput = React.useMemo(() => {
-		if (loadingTx) {
-			return (
-				<S.SearchOutputPlaceholder>
-					<p>{`${language.loading}...`}</p>
-				</S.SearchOutputPlaceholder>
-			);
-		}
-
-		if (txResponse) {
-			const name = getTagValue(txResponse.node.tags, 'Name');
-			return (
-				<S.SearchResult>
-					<Link
-						to={`${URLS.explorer}${txResponse.node.id}`}
-						onClick={() => {
-							setTxResponse(null);
-							setInputTxId('');
-							setTxOutputOpen(false);
-							setSearchOpen(false);
-						}}
-					>
-						{name ?? formatAddress(txResponse.node.id, false)}
-						<ReactSVG src={ASSETS.go} />
-					</Link>
-				</S.SearchResult>
-			);
-		}
-
-		if (checkValidAddress(inputTxId)) {
-			return (
-				<S.SearchOutputPlaceholder>
-					<p>{language.txNotFound}</p>
-				</S.SearchOutputPlaceholder>
-			);
-		}
-
-		return null;
-	}, [loadingTx, txResponse]);
-
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
 				<S.SearchInputWrapper>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
-						value={inputTxId}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputTxId(e.target.value)}
+						value={inputPath}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
 						onFocus={() => setTxOutputOpen(true)}
 						placeholder={language.pathOrId}
-						invalid={{ status: inputTxId ? !checkValidAddress(inputTxId) : false, message: null }}
-						disabled={loadingTx}
+						invalid={{ status: false, message: null }}
+						disabled={loadingPath}
 						hideErrorMessage
 						sm
 					/>
 				</S.SearchInputWrapper>
-				{txOutputOpen && checkValidAddress(inputTxId) && <S.SearchOutputWrapper>{searchOutput}</S.SearchOutputWrapper>}
+				<S.SubmitWrapper>
+					<IconButton
+						type={'primary'}
+						src={ASSETS.go}
+						handlePress={() => {
+							navigate(`${URLS.explorer}${inputPath}`);
+							setInputPath('');
+						}}
+						disabled={loadingPath || !inputPath}
+						dimensions={{
+							wrapper: 32.5,
+							icon: 17.5,
+						}}
+						tooltip={loadingPath ? `${language.loading}...` : language.run}
+					/>
+				</S.SubmitWrapper>
 			</S.SearchWrapper>
 		);
 	}
@@ -210,7 +155,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 					</S.DSearchWrapper>
 					<S.ActionsWrapper>
 						<S.DOperator>
-							{/* <span>Operator: </span> */}
 							{operatorAddress ? (
 								<>
 									{checkValidAddress(operatorAddress) ? (

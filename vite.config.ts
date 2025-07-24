@@ -51,9 +51,20 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'dist',
-		sourcemap: process.env.NODE_ENV !== 'production',
+		emptyOutDir: true,
+		cssCodeSplit: false,
+		assetsInlineLimit: 10_000_000,
 		rollupOptions: {
+			input: path.resolve('src', 'index.tsx'),
 			plugins: [polyfillNode()],
+			output: {
+				inlineDynamicImports: true,
+				manualChunks: undefined,
+				entryFileNames: `bundle.js`,
+				chunkFileNames: `bundle.js`,
+				assetFileNames: `[name][extname]`,
+				format: 'es',
+			},
 		},
 	},
 	server: {

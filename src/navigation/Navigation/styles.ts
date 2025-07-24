@@ -147,10 +147,16 @@ export const PanelFooter = styled.div<{ open: boolean }>`
 	}
 `;
 
-export const SearchWrapper = styled.div`
+export const SearchWrapper = styled.form`
 	width: 510px;
 	max-width: 100%;
 	position: relative;
+`;
+
+export const SubmitWrapper = styled.div`
+	position: absolute;
+	top: 2.5px;
+	right: 4.5px;
 `;
 
 export const SearchInputWrapper = styled.div`
