@@ -7,11 +7,11 @@ import { useTheme } from 'styled-components';
 import { DefaultGQLResponseType, GQLNodeResponseType } from '@permaweb/libs';
 
 import { Button } from 'components/atoms/Button';
+import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Panel } from 'components/atoms/Panel';
-import { TxAddress } from 'components/atoms/TxAddress';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, DEFAULT_ACTIONS, DEFAULT_MESSAGE_TAGS, URLS } from 'helpers/config';
 import { arweaveEndpoint, getTxEndpoint } from 'helpers/endpoints';
@@ -130,7 +130,7 @@ function Message(props: {
 
 		return (
 			<S.From>
-				<TxAddress address={from ?? props.element.node.owner.address} />
+				<Copyable value={from ?? props.element.node.owner.address} />
 			</S.From>
 		);
 	}
@@ -138,7 +138,7 @@ function Message(props: {
 	function getTo() {
 		return (
 			<S.To>
-				<TxAddress address={props.element.node.recipient} />
+				<Copyable value={props.element.node.recipient} />
 			</S.To>
 		);
 	}
@@ -196,7 +196,7 @@ function Message(props: {
 	const OverlayLine = ({ label, value, render }: { label: string; value: any; render?: (v: any) => JSX.Element }) => {
 		const defaultRender = (v: any) => {
 			if (typeof v === 'string' && checkValidAddress(v)) {
-				return <TxAddress address={v} />;
+				return <Copyable value={v} />;
 			}
 			return <p>{v}</p>;
 		};
@@ -240,7 +240,7 @@ function Message(props: {
 							<S.OverlayInfoLineValue>
 								<p>{`${language.message}: `}</p>
 							</S.OverlayInfoLineValue>
-							<TxAddress address={props.element.node.id} />
+							<Copyable value={props.element.node.id} />
 						</S.OverlayInfoLine>
 						<S.OverlayInfoLine>{getAction(false)}</S.OverlayInfoLine>
 						{showViewData && (
@@ -289,7 +289,7 @@ function Message(props: {
 						tooltipPosition={'right'}
 					/>
 
-					<TxAddress address={props.element.node.id} />
+					<Copyable value={props.element.node.id} />
 				</S.ID>
 				{getAction(true)}
 				{getFrom()}

@@ -3,10 +3,10 @@ import { ReactSVG } from 'react-svg';
 
 import { Types } from '@permaweb/libs';
 
+import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Notification } from 'components/atoms/Notification';
-import { TxAddress } from 'components/atoms/TxAddress';
 import { URLTabs } from 'components/atoms/URLTabs';
 import { MessageList } from 'components/molecules/MessageList';
 import { MessageResult } from 'components/molecules/MessageResult';
@@ -101,7 +101,7 @@ export default function Transaction(props: {
 	const OverviewLine = ({ label, value, render }: { label: string; value: any; render?: (v: any) => JSX.Element }) => {
 		const defaultRender = (v: any) => {
 			if (typeof v === 'string' && checkValidAddress(v)) {
-				return <TxAddress address={v} />;
+				return <Copyable value={v} />;
 			}
 			return <p>{v}</p>;
 		};
@@ -183,23 +183,23 @@ export default function Transaction(props: {
 											<p>{language.messageInfo}</p>
 											<S.MessageInfoLine>
 												<span>{`${language.id}: `}</span>
-												<TxAddress address={txResponse?.node?.id} />
+												<Copyable value={txResponse?.node?.id} />
 											</S.MessageInfoLine>
 										</S.MessageInfoHeader>
 										<S.MessageInfoBody>
 											<S.MessageInfoLine>
 												<span>{`${language.from}: `}</span>
-												<TxAddress
-													address={getTagValue(txResponse.node.tags, 'From-Process') ?? txResponse.node.owner.address}
+												<Copyable
+													value={getTagValue(txResponse.node.tags, 'From-Process') ?? txResponse.node.owner.address}
 												/>
 											</S.MessageInfoLine>
 											<S.MessageInfoLine>
 												<span>{`${language.to}: `}</span>
-												<TxAddress address={txResponse?.node?.recipient} />
+												<Copyable value={txResponse?.node?.recipient} />
 											</S.MessageInfoLine>
 											<S.MessageInfoLine>
 												<span>{`${language.owner}: `}</span>
-												<TxAddress address={txResponse?.node?.owner?.address} />
+												<Copyable value={txResponse?.node?.owner?.address} />
 											</S.MessageInfoLine>
 											<S.MessageInfoLine>
 												<span>{`${language.blockHeight}: `}</span>

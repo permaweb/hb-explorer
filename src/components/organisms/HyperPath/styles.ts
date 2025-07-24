@@ -1,8 +1,12 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { STYLING } from 'helpers/config';
 
-export const Wrapper = styled.div``;
+export const Wrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+`;
 
 export const HeaderWrapper = styled.form`
 	width: 100%;
@@ -11,9 +15,11 @@ export const HeaderWrapper = styled.form`
 	align-items: center;
 	justify-content: space-between;
 	gap: 20px;
+	position: relative;
+	z-index: 1;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		flex-direction: column;
+		flex-direction: column-reverse;
 		align-items: flex-start;
 	}
 `;
@@ -22,142 +28,217 @@ export const HeaderActionsWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 20px;
-`;
-
-export const BodyWrapper = styled.div`
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	gap: 25px;
-`;
-
-export const InfoWrapper = styled.div`
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	gap: 25px;
-
-	@media (max-width: ${STYLING.cutoffs.initial}) {
-		flex-direction: column-reverse;
-	}
-`;
-
-export const MessageInfo = styled.div`
-	width: 100%;
-`;
-
-export const MessageInfoHeader = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 15px;
-	background: ${(props) => props.theme.colors.container.alt1.background};
-	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-top-left-radius: ${STYLING.dimensions.radius.alt1};
-	border-top-right-radius: ${STYLING.dimensions.radius.alt1};
-	padding: 15px;
-	p {
-		font-size: ${(props) => props.theme.typography.size.lg};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.primary};
-	}
-
-	> div {
-		padding: 0 !important;
-		border-right: none !important;
-	}
-`;
-
-export const MessageInfoBody = styled.div`
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-
-	> {
-		&:last-child,
-		&:nth-child(3) {
-			justify-content: flex-end;
-			text-align: right;
-			border-right: none;
-		}
-
-		&:first-child,
-		&:nth-child(2),
-		&:nth-child(3) {
-			border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-		}
-
-		&:nth-child(2),
-		&:nth-child(5) {
-			padding: 7.5px 15px;
-		}
-	}
-`;
-
-export const MessageInfoLine = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 7.5px;
-	padding: 7.5px 15px;
-	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
-	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.alt1};
-	}
-	p {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.primary};
-	}
-`;
-
-export const MessagesWrapper = styled.div`
-	width: 100%;
-`;
-
-export const Section = styled.div`
-	height: fit-content;
-	flex: 1;
-	padding: 15px;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		width: 100%;
 	}
 `;
 
-export const SectionFull = styled.div`
+export const ContentWrapper = styled.div`
 	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	gap: 25px;
+	position: relative;
+	z-index: 1;
+
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		flex-direction: column;
+	}
 `;
 
-export const SectionHeader = styled.div`
+export const InfoWrapper = styled.div`
+	width: 510px;
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		width: 100%;
+	}
+`;
+
+export const BodyWrapper = styled.div`
+	width: calc(100% - 535px);
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
+
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		width: 100%;
+	}
+`;
+
+export const InfoSection = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+`;
+
+export const InfoHeader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin: 0 0 15px 0;
+
+	padding: 12.5px;
+	background: ${(props) => props.theme.colors.container.alt1.background};
+	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+
+	span {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt2};
+	}
+`;
+
+export const InfoTitle = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
 	p {
-		font-size: ${(props) => props.theme.typography.size.lg};
+		font-size: ${(props) => props.theme.typography.size.base};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+	}
+
+	svg {
+		height: 15px;
+		width: 15px;
+		margin: 8.5px 0 0 0;
+		color: ${(props) => props.theme.colors.font.primary};
+		fill: ${(props) => props.theme.colors.font.primary};
+	}
+`;
+
+export const InfoBody = styled.div`
+	max-height: 400px;
+	display: flex;
+	flex-direction: column;
+
+	> * {
+		&:not(:last-child) {
+			border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+		}
+	}
+
+	> *:nth-child(even) {
+		background: ${(props) => props.theme.colors.container.alt1.background};
+	}
+
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		max-height: none;
+	}
+`;
+
+export const SignatureBody = styled(InfoBody)`
+	> * {
+		&:not(:last-child) {
+			border-bottom: none;
+		}
+	}
+`;
+
+export const InfoFooter = styled.div`
+	padding: 12.5px;
+	background: ${(props) => props.theme.colors.container.alt1.background};
+	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt2};
+	}
+`;
+
+export const InfoLine = styled.div<{ isAddress: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 7.5px;
+	padding: 12.5px;
+
+	p,
+	span {
+		display: block;
+		max-width: calc(65% - 15px);
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	span {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt2};
+	}
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+	}
+
+	svg {
+		height: 12.5px;
+		width: 12.5px;
+		margin: 7.5px 0 0 0;
+		color: ${(props) => props.theme.colors.font.primary};
+		fill: ${(props) => props.theme.colors.font.primary};
+	}
+
+	${(props) =>
+		props.isAddress &&
+		css`
+			&:hover {
+				cursor: pointer;
+				background: ${props.theme.colors.container.alt2.background};
+			}
+		`}
+`;
+
+export const SignatureLine = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 7.5px;
+	padding: 10px 12.5px;
+
+	p,
+	span {
+		display: block;
+		max-width: calc(50% - 15px);
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	span {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt2};
+	}
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;
 
-export const SectionHeaderFull = styled(SectionHeader)`
-	padding: 15px;
-	margin: 0;
-	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-left: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-top-right-radius: ${STYLING.dimensions.radius.alt1};
-	border-top-left-radius: ${STYLING.dimensions.radius.alt1};
-`;
-
-export const SectionFullUpdateWrapper = styled.div`
-	padding: 0 15px 15px 15px;
+export const InfoLineHeader = styled.div`
+	width: 75%;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 `;
 
 export const SearchWrapper = styled.div`
@@ -204,6 +285,10 @@ export const PathInfoWrapper = styled.div`
 	align-items: center;
 	gap: 15px;
 	flex-wrap: wrap;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		width: 100%;
+	}
 `;
 
 export const UpdateWrapper = styled.div`
@@ -223,6 +308,11 @@ export const UpdateWrapper = styled.div`
 		color: ${(props) => props.theme.colors.font.light1};
 		text-align: center;
 		text-transform: uppercase;
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		width: 100%;
+		padding: 7.5px 15px;
 	}
 `;
 
@@ -244,83 +334,6 @@ export const Indicator = styled.div`
 			background: ${(props) => props.theme.colors.indicator.primary};
 			transform: scale(1.15);
 		}
-	}
-`;
-
-export const OverviewWrapper = styled.div`
-	height: fit-content;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-
-	@media (max-width: ${STYLING.cutoffs.secondary}) {
-		gap: 20px;
-	}
-`;
-
-export const OverviewLine = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-
-	p,
-	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-	}
-
-	p {
-		color: ${(props) => props.theme.colors.font.primary};
-		text-align: right;
-		text-align: right;
-		max-width: 65%;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	span {
-		color: ${(props) => props.theme.colors.font.alt1};
-	}
-
-	@media (max-width: ${STYLING.cutoffs.secondary}) {
-		flex-direction: column;
-		align-items: flex-start;
-		justify-content: flex-start;
-		gap: 5px;
-
-		p {
-			text-align: left;
-		}
-	}
-`;
-
-export const OverviewDivider = styled.div`
-	height: 1px;
-	width: 100%;
-	margin: 5px 0 0 0;
-	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
-`;
-
-export const MessagesSection = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-`;
-
-export const MessagesPlaceholder = styled.div`
-	padding: 0 15px 15px 15px;
-	border-left: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-bottom-left-radius: ${STYLING.dimensions.radius.alt1};
-	border-bottom-right-radius: ${STYLING.dimensions.radius.alt1};
-
-	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
 	}
 `;
 
@@ -380,5 +393,24 @@ export const PlaceholderDescription = styled.div`
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
+	}
+`;
+
+export const Graphic = styled.div`
+	video {
+		width: 100%;
+		max-width: ${STYLING.cutoffs.max};
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9275 : 0)});
+		opacity: 0.35;
+		position: fixed;
+		z-index: 0;
+		top: 25px;
+		left: 0;
+		left: 50%;
+		transform: translate(-50%, 0);
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		display: none;
 	}
 `;

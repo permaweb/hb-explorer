@@ -130,7 +130,7 @@ export const Alt1 = styled(Primary)`
 			? props.theme.colors.button.alt1.active.background
 			: props.disabled
 			? props.theme.colors.button.alt1.disabled.background
-			: 'transparent'};
+			: props.theme.colors.button.alt1.background};
 	border: 1px solid
 		${(props) =>
 			props.active

@@ -340,10 +340,8 @@ export const MMenuWrapper = styled.div`
 export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 7.5px;
-	padding: 4.5px 12.5px;
 
-	span {
+	/* span {
 		color: ${(props) => props.theme.colors.font.alt1};
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
@@ -353,7 +351,7 @@ export const DOperator = styled.div`
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-	}
+	} */
 `;
 
 export const MSearchContainer = styled.div`

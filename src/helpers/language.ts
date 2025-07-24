@@ -126,7 +126,7 @@ export const language = {
 		sortOldestToNewest: `Oldest to Newest`,
 		source: `Source`,
 		submit: `Submit`,
-		tabsDeleteConfirmationInfo: `Are you sure you want to clear your tabs ? All persisted transactions will be removed from local storage.`,
+		tabsDeleteConfirmationInfo: `Are you sure you want to clear your tabs ?`,
 		tags: `Tags`,
 		themes: `Themes`,
 		time: `Time`,

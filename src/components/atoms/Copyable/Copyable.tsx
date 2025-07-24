@@ -1,12 +1,14 @@
 import React from 'react';
+import { ReactSVG } from 'react-svg';
 
+import { ASSETS } from 'helpers/config';
 import { formatAddress } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import * as S from './styles';
 import { IProps } from './types';
 
-export default function TxAddress(props: IProps) {
+export default function Copyable(props: IProps) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -14,22 +16,36 @@ export default function TxAddress(props: IProps) {
 
 	const copyAddress = React.useCallback(
 		async (e: any) => {
-			if (props.address) {
-				if (props.address.length > 0) {
+			if (props.value) {
+				if (props.value.length > 0) {
 					e.stopPropagation();
-					await navigator.clipboard.writeText(props.address);
+					await navigator.clipboard.writeText(props.value);
 					setCopied(true);
 					setTimeout(() => setCopied(false), 2000);
 				}
 			}
 		},
-		[props.address]
+		[props.value]
 	);
+
+	function getDisplayValue() {
+		if (props.format) {
+			switch (props.format) {
+				case 'truncate':
+					return `${props.value.substring(0, 36)}...`
+				case 'address':
+					return formatAddress(props.value, props.wrap)			
+			}
+		}
+		return formatAddress(props.value, props.wrap)
+	}
 
 	return (
 		<>
 			<S.Wrapper disabled={copied} onClick={copied ? () => {} : (e) => copyAddress(e)}>
-				<p>{copied ? `${language.copied}!` : formatAddress(props.address, props.wrap)}</p>
+				{props.helpText && <span>{props.helpText}:</span>}
+				<p>{copied ? `${language.copied}!` : getDisplayValue()}</p>
+				<ReactSVG src={ASSETS.copy} />
 			</S.Wrapper>
 		</>
 	);

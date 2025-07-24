@@ -80,7 +80,7 @@ export default function _JSONTree(props: {
 		base00:
 			props.noWrapper && !fullScreenMode
 				? currentTheme.colors.view.background
-				: currentTheme.colors.container.alt1.background,
+				: currentTheme.colors.container.primary.background,
 		base01: currentTheme.colors.container.alt7.background,
 		base02: currentTheme.colors.container.alt7.background,
 		base03: currentTheme.colors.container.alt7.background,
@@ -100,7 +100,7 @@ export default function _JSONTree(props: {
 
 	return (
 		<S.Wrapper
-			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-alt3 '}scroll-wrapper`}
+			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-primary '}scroll-wrapper`}
 			maxHeight={props.maxHeight}
 			noWrapper={props.noWrapper && !fullScreenMode}
 			ref={readerRef}

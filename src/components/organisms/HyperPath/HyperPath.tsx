@@ -1,12 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 
+import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Notification } from 'components/atoms/Notification';
-import { ASSETS } from 'helpers/config';
-import { stripUrlProtocol } from 'helpers/utils';
+import { ASSETS, URLS } from 'helpers/config';
+import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
+
+import { HyperLinks } from '../HyperLinks';
 
 import * as S from './styles';
 
@@ -15,15 +19,41 @@ export default function HyperPath(props: {
 	active: boolean;
 	onPathChange?: (id: string, path: string) => void;
 }) {
+	const navigate = useNavigate();
+
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const [inputPath, setInputPath] = React.useState<string>(props.path);
-	const [pathResponse, setPathResponse] = React.useState<any>(null);
+
+	const [fullResponse, setFullResponse] = React.useState<any>(null);
+	const [headers, setHeaders] = React.useState<any>(null);
+	const [links, setLinks] = React.useState<any>(null);
+	const [signature, setSignature] = React.useState<string | null>(null);
+	const [signer, setSigner] = React.useState<string | null>(null);
+
 	const [loadingPath, setLoadingPath] = React.useState<boolean>(false);
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
 	const [pathNotFound, setPathNotFound] = React.useState<boolean>(false);
+
+	React.useEffect(() => {
+		if (!inputPath) {
+			return;
+		}
+
+		const timeoutId = setTimeout(
+			async () => {
+				handleSubmit();
+			},
+			checkValidAddress(inputPath) ? 0 : 1000
+		);
+
+		return () => {
+			clearTimeout(timeoutId);
+			setLoadingPath(false);
+		};
+	}, [inputPath]);
 
 	async function handleSubmit() {
 		if (inputPath) {
@@ -37,6 +67,8 @@ export default function HyperPath(props: {
 					return;
 				}
 
+				setFullResponse(response);
+
 				const raw = joinHeaders(response.headers).trim();
 				const parsed = parseHeaders(raw);
 
@@ -47,11 +79,23 @@ export default function HyperPath(props: {
 
 					const signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
 
-					console.log(signature);
-					console.log(signer);
+					setSignature(signature);
+					setSigner(signer);
 				}
 
-				props.onPathChange(signature ?? inputPath, inputPath);
+				const sigInputRaw = parsed['signature-input']?.data;
+				setHeaders(sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed);
+
+				let linkHeaders = {};
+				for (const key of Object.keys(parsed)) {
+					if (key.includes('+link')) {
+						linkHeaders[key] = parsed[key];
+					}
+				}
+
+				setLinks(linkHeaders);
+
+				props.onPathChange(inputPath, inputPath);
 				setPathNotFound(false);
 			} catch (e: any) {
 				console.error(e);
@@ -181,8 +225,44 @@ export default function HyperPath(props: {
 		}
 	}, []);
 
+	function buildInfoSection(label: string, icon: string, data: any) {
+		if (data && Object.keys(data).length > 0) {
+			return (
+				<S.InfoSection className={'border-wrapper-primary'}>
+					<S.InfoHeader>
+						<S.InfoTitle>
+							<ReactSVG src={icon} />
+							<p>{label}</p>
+						</S.InfoTitle>
+						<span>{`(${Object.keys(data).length}) `}</span>
+					</S.InfoHeader>
+					<S.InfoBody className={'scroll-wrapper-hidden'}>
+						{Object.keys(data).map((key) => {
+							const isAddress = checkValidAddress(data[key].data);
+
+							return (
+								<S.InfoLine
+									key={key}
+									isAddress={isAddress}
+									onClick={() => (isAddress ? navigate(`${URLS.explorer}${data[key].data}`) : {})}
+								>
+									<S.InfoLineHeader>
+										{isAddress && <ReactSVG src={ASSETS.newTab} />}
+										<span>{`${key}`}</span>
+									</S.InfoLineHeader>
+									{isAddress ? <Copyable value={data[key].data} format={'address'} /> : <p>{data[key].data}</p>}
+								</S.InfoLine>
+							);
+						})}
+					</S.InfoBody>
+				</S.InfoSection>
+			);
+		}
+		return null;
+	}
+
 	function getPath() {
-		if (!inputPath || !pathResponse || pathNotFound) {
+		if (!inputPath || loadingPath || pathNotFound || !fullResponse) {
 			return (
 				<S.Placeholder>
 					<S.PlaceholderIcon>
@@ -195,7 +275,31 @@ export default function HyperPath(props: {
 			);
 		}
 
-		return <p>HB Tab</p>;
+		return (
+			<>
+				<S.InfoWrapper>
+					{buildInfoSection('Signed Headers', ASSETS.headers, headers)}
+					{buildInfoSection('Links', ASSETS.link, links)}
+				</S.InfoWrapper>
+				{fullResponse && (
+					<S.BodyWrapper>
+						<S.InfoSection className={'border-wrapper-alt3'}>
+							<S.InfoHeader>
+								<p>Signature</p>
+								{signature ? <Copyable value={signature} format={'truncate'} /> : <p>-</p>}
+							</S.InfoHeader>
+							<S.SignatureBody>
+								<S.SignatureLine>
+									<span>Signer</span>
+									{signer ? <Copyable value={signer} format={'address'} /> : <p>-</p>}
+								</S.SignatureLine>
+							</S.SignatureBody>
+						</S.InfoSection>
+						<HyperLinks path={inputPath} />
+					</S.BodyWrapper>
+				)}
+			</>
+		);
 	}
 
 	return props.active ? (
@@ -248,7 +352,10 @@ export default function HyperPath(props: {
 						</S.PathInfoWrapper>
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
-				<S.BodyWrapper>{getPath()}</S.BodyWrapper>
+				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
+				<S.Graphic>
+					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
+				</S.Graphic>
 			</S.Wrapper>
 			{error && (
 				<Notification

@@ -23,7 +23,7 @@ export const Options = styled.div`
 	align-items: center;
 	gap: 2.5px;
 	padding: 1.5px 2.5px;
-	background: ${(props) => props.theme.colors.container.alt1.background};
+	background: ${(props) => props.theme.colors.container.alt2.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-radius: 50px;
 

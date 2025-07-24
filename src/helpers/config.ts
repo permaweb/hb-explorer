@@ -38,6 +38,7 @@ export const ASSETS = {
 	header4: getTxEndpoint('aqARgutUdTd6PLAkAsWnIwWIfnUeB-1QQuS9cQKtPAM'),
 	header5: getTxEndpoint('U5_VxgILAlOzUaHriKRfBWG7BaYa-_4fOdLJQNujb4U'),
 	header6: getTxEndpoint('FNHeUsqLSBi2lqkkwovy2Boba9MHoCWcCnUzfxz7Ayg'),
+	headers: getTxEndpoint('6Qtxyz8eXZxoZnvOy3htjOPPx1T7QFiI5e6VH13dhOY'),
 	help: getTxEndpoint('827_dxZR1WAnw_hqxfwwb4jgP5m2fpkSrTMtdjRUWw4'),
 	image: getTxEndpoint('357HeJjvG10nK28juQ8YMp6DlvHhGbmU7pOvZphEhUk'),
 	info: getTxEndpoint('QQ4EJ_wH2EY1_ElfSNKffixnzVcbnvd2547lmluvT-0'),
@@ -133,7 +134,7 @@ export const STYLING = {
 	cutoffs: {
 		desktop: '1200px',
 		initial: '1024px',
-		max: '2000px',
+		max: '1600px',
 		tablet: '840px',
 		tabletSecondary: '768px',
 		secondary: '540px',
@@ -165,6 +166,7 @@ function createURLs() {
 
 	const docs = `${base}docs/`;
 	const explorer = `${base}explorer/`;
+	const nodes = `${base}nodes/`;
 	const aos = `${base}aos/`;
 
 	return {
@@ -176,6 +178,7 @@ function createURLs() {
 		explorerWrite: (id: string) => `${explorer}${id}/write`,
 		explorerSource: (id: string) => `${explorer}${id}/source`,
 		explorerAOS: (id: string) => `${explorer}${id}/aos`,
+		nodes: nodes,
 		aos: aos,
 		docs: docs,
 		docsIntro: `${docs}overview/introduction`,
@@ -194,6 +197,7 @@ export const LINKS = {
 
 export const HB_ENDPOINTS = {
 	info: '/~meta@1.0/info',
+	cache: `/~cacheviz@1.0/json`,
 	devices: '/~meta@1.0/info/preloaded_devices/serialize~json@1.0',
 	metrics: `/~hyperbuddy@1.0/metrics`,
 	operator: '/~meta@1.0/info/address',

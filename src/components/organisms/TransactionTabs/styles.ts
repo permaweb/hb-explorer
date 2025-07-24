@@ -7,11 +7,15 @@ export const Wrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 25px;
+	position: relative;
+	z-index: 1;
 `;
 
 export const HeaderWrapper = styled.div`
 	width: 100%;
 	background: ${(props) => props.theme.colors.container.alt1.background};
+	position: relative;
+	z-index: 1;
 `;
 
 export const TabsWrapper = styled.div`

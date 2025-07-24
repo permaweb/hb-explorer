@@ -6,7 +6,21 @@ export const Wrapper = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
+	gap: 15px;
+`;
+
+export const HeaderWrapper = styled.div`
+	position: relative;
+	z-index: 1;
+`;
+
+export const BodyWrapper = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
 	gap: 35px;
+	position: relative;
+	z-index: 1;
 `;
 
 export const RouterWrapper = styled.div`
@@ -66,7 +80,7 @@ export const NodeWrapper = styled.a`
 	flex-direction: column;
 	gap: 25px;
 	padding: 17.5px;
-	background: ${(props) => props.theme.colors.container.primary.background};
+	background: ${(props) => props.theme.colors.container.alt1.background};
 
 	&:hover {
 		background: ${(props) => props.theme.colors.container.primary.active};
@@ -85,7 +99,9 @@ export const NodeHeader = styled.div`
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.link.primary};
+		color: ${(props) => props.theme.colors.font.alt1};
+		text-decoration: underline;
+		text-decoration-thickness: 1.25px;
 	}
 
 	span {
@@ -109,23 +125,32 @@ export const IndicatorWrapper = styled.div`
 	}
 `;
 
-export const Indicator = styled.div`
+export const Indicator = styled.div<{ status: 'healthy' | 'unhealthy' }>`
 	height: 11.5px;
 	width: 11.5px;
 	margin: 1.5px 0 0 0;
 	border-radius: 50%;
+	background: ${(props) => props.status === 'healthy' ? props.theme.colors.indicator.active : props.theme.colors.warning.primary};
 
-	animation: pulse 1.075s infinite;
+	animation: ${(props) => props.status === 'healthy' ? 'pulse-healthy' : 'pulse-unhealthy'} 1.075s infinite;
 
-	@keyframes pulse {
+	@keyframes pulse-healthy {
 		0%,
 		100% {
-			background: ${(props) => props.theme.colors.indicator.active};
 			transform: scale(1);
 		}
 		50% {
-			background: ${(props) => props.theme.colors.indicator.primary};
 			transform: scale(1.15);
+		}
+	}
+
+	@keyframes pulse-unhealthy {
+		0%,
+		100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1);
 		}
 	}
 `;
@@ -181,4 +206,22 @@ export const Subheader = styled.div`
 export const Placeholder = styled.div`
 	height: 150px;
 	width: 100%;
+`;
+
+export const Graphic = styled.div`
+	video {
+		width: 100%;
+		max-width: ${STYLING.cutoffs.max};
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9275 : 0)});
+		position: fixed;
+		opacity: 0.35;
+		z-index: 0;
+		top: -88.5px;
+		left: 50%;
+    	transform: translate(-50%, 0);
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		display: none;
+	}
 `;

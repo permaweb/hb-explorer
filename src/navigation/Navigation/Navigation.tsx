@@ -5,10 +5,10 @@ import { debounce } from 'lodash';
 
 import { Types } from '@permaweb/libs';
 
+import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Toggle } from 'components/atoms/Toggle';
-import { TxAddress } from 'components/atoms/TxAddress';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
 import { checkValidAddress, formatAddress, getTagValue, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
@@ -41,13 +41,15 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		return [
 			{
 				path: URLS.base,
-				icon: ASSETS.app,
 				label: language.dashboard,
 			},
 			{
 				path: URLS.explorer,
-				icon: ASSETS.explorer,
 				label: language.explorer,
+			},
+			{
+				path: URLS.nodes,
+				label: language.nodes,
 			},
 		];
 	}, []);
@@ -207,12 +209,12 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						</CloseHandler>
 					</S.DSearchWrapper>
 					<S.ActionsWrapper>
-						<S.DOperator className={'border-wrapper-alt3'}>
-							<span>Operator: </span>
+						<S.DOperator>
+							{/* <span>Operator: </span> */}
 							{operatorAddress ? (
 								<>
 									{checkValidAddress(operatorAddress) ? (
-										<TxAddress address={operatorAddress} />
+										<Copyable value={operatorAddress} helpText={'Operator'} />
 									) : (
 										<span>{operatorAddress}</span>
 									)}

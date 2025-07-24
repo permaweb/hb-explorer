@@ -9,21 +9,6 @@ export const Wrapper = styled.div`
 	gap: 25px;
 `;
 
-export const Graphic = styled.div`
-	video {
-		width: 100%;
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9275 : 0)});
-		position: fixed;
-		z-index: 0;
-		top: ${STYLING.dimensions.nav.height};
-		top: -80px;
-	}
-
-	@media (max-width: ${STYLING.cutoffs.initial}) {
-		display: none;
-	}
-`;
-
 export const MetricsWrapper = styled.div`
 	position: relative;
 	z-index: 1;
@@ -130,5 +115,23 @@ export const Indicator = styled.div`
 			background: ${(props) => props.theme.colors.indicator.primary};
 			transform: scale(1.15);
 		}
+	}
+`;
+
+export const Graphic = styled.div`
+	video {
+		width: 100%;
+		max-width: ${STYLING.cutoffs.max};
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9275 : 0)});
+		position: fixed;
+		opacity: 0.35;
+		z-index: 0;
+		top: -80px;
+		left: 50%;
+		transform: translate(-50%, 0);
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		display: none;
 	}
 `;
