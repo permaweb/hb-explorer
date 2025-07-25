@@ -64,10 +64,7 @@ export const DeleteAction = styled.div`
 `;
 
 export const TabAction = styled.div<{ active: boolean }>`
-	font-size: ${(props) => props.theme.typography.size.xSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
-	font-family: ${(props) => props.theme.typography.family.primary};
-	color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt3)};
+	max-width: 200px;
 	cursor: pointer;
 	position: relative;
 	z-index: 1;
@@ -75,7 +72,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 	justify-content: center;
 	align-items: center;
 	gap: 12.5px;
-	padding: 12.5px 25.5px 10.5px 21.5px;
+	padding: 12.5px 25.5px 13.5px 21.5px;
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
@@ -102,7 +99,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 
 	.normal-icon {
 		svg {
-			margin: 0 0 2.5px 0;
+			margin: 0 0 5.5px 0;
 		}
 	}
 
@@ -130,6 +127,16 @@ export const TabAction = styled.div<{ active: boolean }>`
 		}
 	}
 
+	span {
+		max-width: 125px;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt3)};
+	}
+
 	svg {
 		height: 12.5px;
 		width: 12.5px;
@@ -138,7 +145,9 @@ export const TabAction = styled.div<{ active: boolean }>`
 	}
 
 	&:hover {
-		color: ${(props) => props.theme.colors.font.primary};
+		span {
+			color: ${(props) => props.theme.colors.font.primary};
+		}
 
 		svg {
 			color: ${(props) => props.theme.colors.font.primary};
@@ -179,7 +188,7 @@ export const NewTab = styled(TabAction)`
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary} !important;
 
 	svg {
-		margin: 0 1.5px -1.5px 0;
+		margin: 0 1.5px 0 0;
 	}
 `;
 

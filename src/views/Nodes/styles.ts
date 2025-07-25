@@ -130,9 +130,10 @@ export const Indicator = styled.div<{ status: 'healthy' | 'unhealthy' }>`
 	width: 11.5px;
 	margin: 1.5px 0 0 0;
 	border-radius: 50%;
-	background: ${(props) => props.status === 'healthy' ? props.theme.colors.indicator.active : props.theme.colors.warning.primary};
+	background: ${(props) =>
+		props.status === 'healthy' ? props.theme.colors.indicator.active : props.theme.colors.warning.primary};
 
-	animation: ${(props) => props.status === 'healthy' ? 'pulse-healthy' : 'pulse-unhealthy'} 1.075s infinite;
+	animation: ${(props) => (props.status === 'healthy' ? 'pulse-healthy' : 'pulse-unhealthy')} 1.075s infinite;
 
 	@keyframes pulse-healthy {
 		0%,
@@ -218,7 +219,7 @@ export const Graphic = styled.div`
 		z-index: 0;
 		top: -88.5px;
 		left: 50%;
-    	transform: translate(-50%, 0);
+		transform: translate(-50%, 0);
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {

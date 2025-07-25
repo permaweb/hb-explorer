@@ -21,6 +21,7 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 		font-family: ${(props) => props.theme.typography.family.alt2} !important;
 		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
 		max-width: 100% !important;
+		white-space: nowrap;
 		letter-spacing: -0.15px;
 	}
 
@@ -32,13 +33,14 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
 		text-transform: uppercase;
 		display: block;
+		white-space: nowrap;
 		margin: 0.5px 0 0 0;
 	}
 
 	svg {
-		height: 11.5px;
-		width: 11.5px;
-		margin: 2.5px 0 0 2.5px;
+		height: 11.5px !important;
+		width: 11.5px !important;
+		margin: 2.5px 0 0 2.5px !important;
 		color: ${(props) =>
 			props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
 		fill: ${(props) =>

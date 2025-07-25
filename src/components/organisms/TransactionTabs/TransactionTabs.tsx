@@ -332,14 +332,13 @@ export default function TransactionTabs(props: { type: 'hb-explorer' | 'legacy-e
 										/>
 									</div>
 								</div>
-								{label}
+								<span>{label}</span>
 							</S.TabAction>
 						</React.Fragment>
 					);
 				})}
 				<S.NewTab active={false} onClick={() => handleAddTab()}>
-					<ReactSVG src={ASSETS.add} />
-					{language.newTab}
+					<span>{language.newTab}</span>
 				</S.NewTab>
 				<S.Placeholder />
 			</S.TabsContent>

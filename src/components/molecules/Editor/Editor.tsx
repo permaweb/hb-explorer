@@ -12,11 +12,12 @@ import * as S from './styles';
 
 export default function _Editor(props: {
 	initialData: string;
-	language: string;
+	language?: string;
 	readOnly?: boolean;
 	noFullScreen?: boolean;
 	setEditorData?: (data: string) => void;
 	header?: string;
+	height?: number;
 	useFixedHeight?: boolean;
 	loading: boolean;
 }) {
@@ -57,7 +58,7 @@ export default function _Editor(props: {
 
 	function getColors(theme: DefaultTheme) {
 		return {
-			'editor.background': theme.colors.container.alt1.background,
+			'editor.background': theme.colors.container.primary.background,
 			'editorLineNumber.foreground': theme.colors.font.alt1,
 			'editorCursor.foreground': theme.colors.font.alt1,
 			'editorBracketHighlight.foreground1': theme.colors.editor.alt5,
@@ -162,7 +163,11 @@ export default function _Editor(props: {
 			)}
 			<S.EditorWrapper
 				ref={editorRef}
-				style={{ width: '100%', height: props.useFixedHeight ? '100%' : `${height}px`, overflow: 'hidden' }}
+				style={{
+					width: '100%',
+					height: props.height ? `${props.height.toString()}px` : props.useFixedHeight ? '100%' : `${height}px`,
+					overflow: 'hidden',
+				}}
 				useFixedHeight={props.useFixedHeight}
 				className={'border-wrapper-alt2 scroll-wrapper'}
 			>

@@ -32,12 +32,12 @@ export default function Copyable(props: IProps) {
 		if (props.format) {
 			switch (props.format) {
 				case 'truncate':
-					return `${props.value.substring(0, 36)}...`
+					return `${props.value.substring(0, 36)}...`;
 				case 'address':
-					return formatAddress(props.value, props.wrap)			
+					return formatAddress(props.value, props.wrap);
 			}
 		}
-		return formatAddress(props.value, props.wrap)
+		return formatAddress(props.value, props.wrap);
 	}
 
 	return (

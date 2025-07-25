@@ -114,6 +114,11 @@ export const InfoTitle = styled.div`
 	}
 `;
 
+export const SignatureHeader = styled(InfoHeader)`
+	border-bottom: none;
+	padding: 12.5px 12.5px 8.5px 12.5px;
+`;
+
 export const InfoBody = styled.div`
 	max-height: 400px;
 	display: flex;
@@ -135,6 +140,7 @@ export const InfoBody = styled.div`
 `;
 
 export const SignatureBody = styled(InfoBody)`
+	padding: 2.5px 0;
 	> * {
 		&:not(:last-child) {
 			border-bottom: none;
@@ -225,12 +231,18 @@ export const SignatureLine = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
+`;
 
+export const SignatureStatus = styled(SignatureLine)<{ valid: boolean }>`
 	p {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.primary};
+		color: ${(props) => props.theme.colors.font.light1};
+		padding: 3.5px 8.5px 3.5px 9.5px;
+		text-transform: uppercase;
+		background: ${(props) => (props.valid ? props.theme.colors.indicator.active : props.theme.colors.warning.primary)};
+		border-radius: ${STYLING.dimensions.radius.alt1};
 	}
 `;
 

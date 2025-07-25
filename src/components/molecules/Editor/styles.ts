@@ -38,11 +38,11 @@ export const Editor = styled.div`
 	flex: 1;
 	position: relative;
 	padding: 18.5px 0 0 0;
-	background: ${(props) => props.theme.colors.container.alt1.background};
+	background: ${(props) => props.theme.colors.container.primary.background};
 
 	> div {
 		height: 100% !important;
-		background: ${(props) => props.theme.colors.container.alt1.background} !important;
+		background: ${(props) => props.theme.colors.container.primary.background} !important;
 	}
 
 	> * {

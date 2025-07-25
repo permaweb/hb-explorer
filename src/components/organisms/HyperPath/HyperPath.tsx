@@ -6,7 +6,10 @@ import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Notification } from 'components/atoms/Notification';
+import { Editor } from 'components/molecules/Editor';
+import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, URLS } from 'helpers/config';
+import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
 import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -27,10 +30,15 @@ export default function HyperPath(props: {
 	const [inputPath, setInputPath] = React.useState<string>(props.path);
 
 	const [fullResponse, setFullResponse] = React.useState<any>(null);
+
+	const [responseBody, setResponseBody] = React.useState<any>(null);
+	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
+
 	const [headers, setHeaders] = React.useState<any>(null);
 	const [links, setLinks] = React.useState<any>(null);
 	const [signature, setSignature] = React.useState<string | null>(null);
 	const [signer, setSigner] = React.useState<string | null>(null);
+	const [signatureValid, setSignatureValid] = React.useState<boolean | null>(null);
 
 	const [loadingPath, setLoadingPath] = React.useState<boolean>(false);
 	const [copied, setCopied] = React.useState<boolean>(false);
@@ -82,9 +90,11 @@ export default function HyperPath(props: {
 					const signatureInput = parsed['signature-input']?.data ?? '';
 
 					const signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
+					const isValid = signatureInput ? await verifySignature(signature, signatureInput, response) : false;
 
 					setSignature(signature);
 					setSigner(signer);
+					setSignatureValid(isValid);
 				}
 
 				const sigInputRaw = parsed['signature-input']?.data;
@@ -103,43 +113,36 @@ export default function HyperPath(props: {
 				setPathNotFound(false);
 			} catch (e: any) {
 				console.error(e);
+
 				setPathNotFound(true);
 			}
 			setLoadingPath(false);
 		}
 	}
 
-	/**
-	 * Parse a Signature-Input header value into structured entries.
-	 * @param {string} inputHeader – the raw Signature-Input header *value* (no “Signature-Input:” prefix)
-	 */
-	function parseSignatureInput(inputHeader) {
-		return inputHeader.split(/\s*,\s*/).map((entry) => {
-			// Label is everything before the first '='
-			const eq = entry.indexOf('=');
-			const label = entry.slice(0, eq).trim();
-
-			// Fields are inside the first "(...)"
-			const parenMatch = entry.match(/=\(\s*([^)]+)\s*\)/);
-			const fields = parenMatch ? Array.from(parenMatch[1].matchAll(/"([^"]+)"/g), (m) => m[1]) : [];
-
-			// Pull out any ;key="value" pairs
-			const paramRegex = /;\s*([^=;\s]+)\s*=\s*"([^"]*)"/g;
-			const params: any = {};
-			let m;
-			while ((m = paramRegex.exec(entry)) !== null) {
-				params[m[1]] = m[2];
+	React.useEffect(() => {
+		(async function () {
+			if (fullResponse) {
+				if (props.path?.includes('serialize~json@1.0')) {
+					setBodyType('json');
+					try {
+						const body = await fullResponse.json();
+						setResponseBody(body);
+					} catch (e: any) {
+						console.error(e);
+					}
+				} else {
+					setBodyType('raw');
+					try {
+						const body = await fullResponse.text();
+						setResponseBody(body);
+					} catch (e: any) {
+						console.error(e);
+					}
+				}
 			}
-
-			return {
-				label,
-				fields,
-				alg: params.alg || '',
-				keyid: params.keyid || '',
-				...(params.tag ? { tag: params.tag } : {}),
-			};
-		});
-	}
+		})();
+	}, [fullResponse, props.path]);
 
 	/**
 	 * Given your parsed headers object (from parseHeaders) and the raw
@@ -184,19 +187,6 @@ export default function HyperPath(props: {
 			.replace(/=+$/, '');
 
 		return address;
-	}
-
-	/** Decode base64url string → Uint8Array */
-	function base64UrlToUint8Array(b64url) {
-		let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
-		// Pad to multiple of 4
-		while (b64.length % 4) b64 += '=';
-		const bin = atob(b64);
-		const arr = new Uint8Array(bin.length);
-		for (let i = 0; i < bin.length; i++) {
-			arr[i] = bin.charCodeAt(i);
-		}
-		return arr;
 	}
 
 	function parseHeaders(input) {
@@ -282,23 +272,36 @@ export default function HyperPath(props: {
 		return (
 			<>
 				<S.InfoWrapper>
+					<S.InfoSection className={'border-wrapper-alt3'}>
+						<S.SignatureHeader>
+							<p>Signature</p>
+							{signature ? <Copyable value={signature} format={'truncate'} /> : <p>-</p>}
+						</S.SignatureHeader>
+						<S.SignatureBody>
+							<S.SignatureStatus valid={signatureValid}>
+								<span>Status</span>
+								<p>{signatureValid === true ? 'Verified' : signatureValid === false ? 'Invalid' : 'Pending'}</p>
+							</S.SignatureStatus>
+							<S.SignatureLine>
+								<span>Signer</span>
+								{signer ? <Copyable value={signer} format={'address'} /> : <p>-</p>}
+							</S.SignatureLine>
+						</S.SignatureBody>
+					</S.InfoSection>
 					{buildInfoSection('Signed Headers', ASSETS.headers, headers)}
 					{buildInfoSection('Links', ASSETS.link, links)}
 				</S.InfoWrapper>
 				{fullResponse && (
 					<S.BodyWrapper>
-						<S.InfoSection className={'border-wrapper-alt3'}>
-							<S.InfoHeader>
-								<p>Signature</p>
-								{signature ? <Copyable value={signature} format={'truncate'} /> : <p>-</p>}
-							</S.InfoHeader>
-							<S.SignatureBody>
-								<S.SignatureLine>
-									<span>Signer</span>
-									{signer ? <Copyable value={signer} format={'address'} /> : <p>-</p>}
-								</S.SignatureLine>
-							</S.SignatureBody>
-						</S.InfoSection>
+						{responseBody && (
+							<>
+								{bodyType === 'json' ? (
+									<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
+								) : (
+									<Editor initialData={responseBody} header={'Body'} language={'html'} loading={false} readOnly />
+								)}
+							</>
+						)}
 						<HyperLinks path={inputPath} />
 					</S.BodyWrapper>
 				)}
@@ -357,9 +360,9 @@ export default function HyperPath(props: {
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
 				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
-				<S.Graphic>
+				{/* <S.Graphic>
 					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-				</S.Graphic>
+				</S.Graphic> */}
 			</S.Wrapper>
 			{error && (
 				<Notification
