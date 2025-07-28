@@ -55,14 +55,14 @@ export default defineConfig({
 		cssCodeSplit: false,
 		assetsInlineLimit: 10_000_000,
 		rollupOptions: {
-			input: path.resolve('src', 'index.tsx'),
+			input: path.resolve('index.html'),
 			plugins: [polyfillNode()],
 			output: {
 				inlineDynamicImports: true,
 				manualChunks: undefined,
-				entryFileNames: `bundle.js`,
-				chunkFileNames: `bundle.js`,
-				assetFileNames: `[name][extname]`,
+				entryFileNames: `assets/[name].js`,
+				chunkFileNames: `assets/[name].js`,
+				assetFileNames: `assets/[name].[ext]`,
 				format: 'es',
 			},
 		},

@@ -1,6 +1,8 @@
 import React from 'react';
-import Editor, { BeforeMount, OnMount } from '@monaco-editor/react';
+import { BeforeMount, OnMount } from '@monaco-editor/react';
 import { DefaultTheme, useTheme } from 'styled-components';
+
+import LazyMonacoEditor from 'components/molecules/LazyMonacoEditor';
 
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
@@ -172,7 +174,7 @@ export default function _Editor(props: {
 				className={'border-wrapper-alt2 scroll-wrapper'}
 			>
 				<S.Editor>
-					<Editor
+					<LazyMonacoEditor
 						height={'100%'}
 						defaultLanguage={props.language}
 						value={stripAnsiChars(data)}
@@ -180,7 +182,7 @@ export default function _Editor(props: {
 						beforeMount={handleBeforeMount}
 						onMount={handleEditorMount}
 						theme={themeName}
-						loading={null}
+						loading={<Loader sm relative />}
 						options={{
 							readOnly: props.loading || props.readOnly,
 							automaticLayout: true,

@@ -293,7 +293,7 @@ export default function HyperPath(props: {
 				</S.InfoWrapper>
 				{fullResponse && (
 					<S.BodyWrapper>
-						{responseBody && (
+						{responseBody && bodyType === 'json' && (
 							<>
 								{bodyType === 'json' ? (
 									<JSONReader data={responseBody} header={'Body'} maxHeight={700} />

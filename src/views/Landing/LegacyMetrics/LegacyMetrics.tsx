@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { MetricChart } from 'components/molecules/MetricChart';
+import LazyMetricChart from 'components/molecules/LazyMetricChart';
 import { getTxEndpoint } from 'helpers/endpoints';
 import { MetricDataPoint } from 'helpers/types';
 import { usePermawebProvider } from 'providers/PermawebProvider';
@@ -37,20 +37,25 @@ export default function LegacyMetrics() {
 		<S.Wrapper>
 			{metrics ? (
 				<>
-					<MetricChart
+					<LazyMetricChart
 						dataList={metrics}
 						metric={'tx_count'}
 						totalField={'tx_count_rolling'}
 						chartLabel={'Total Messages'}
 					/>
-					<MetricChart
+					<LazyMetricChart
 						dataList={metrics}
 						metric={'transfer_count'}
 						totalField={'transfer_count'}
 						chartLabel={'Transfers'}
 					/>
-					<MetricChart dataList={metrics} metric={'active_users'} totalField={'active_users'} chartLabel={'Users'} />
-					<MetricChart
+					<LazyMetricChart
+						dataList={metrics}
+						metric={'active_users'}
+						totalField={'active_users'}
+						chartLabel={'Users'}
+					/>
+					<LazyMetricChart
 						dataList={metrics}
 						metric={'active_processes'}
 						totalField={'active_processes'}

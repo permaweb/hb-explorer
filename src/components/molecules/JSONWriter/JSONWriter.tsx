@@ -1,6 +1,8 @@
 import React from 'react';
-import Editor, { BeforeMount, OnMount } from '@monaco-editor/react';
+import { BeforeMount, OnMount } from '@monaco-editor/react';
 import { DefaultTheme, useTheme } from 'styled-components';
+
+import LazyMonacoEditor from 'components/molecules/LazyMonacoEditor';
 
 import { Button } from 'components/atoms/Button';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -125,7 +127,7 @@ export default function JSONWriter(props: {
 		<S.Wrapper>
 			<S.EditorWrapper className={'border-wrapper-alt2 scroll-wrapper'}>
 				<S.Editor>
-					<Editor
+					<LazyMonacoEditor
 						height={'100%'}
 						defaultLanguage={'json'}
 						value={jsonString}
