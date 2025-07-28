@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+
 import { Loader } from 'components/atoms/Loader';
 
 const MonacoEditor = lazy(() => import('@monaco-editor/react'));

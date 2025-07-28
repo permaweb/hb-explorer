@@ -195,6 +195,7 @@ export const LINKS = {
 	ao: `https://ao.arweave.net`,
 	wander: `https://wander.app`,
 	hbDocs: `https://hyperbeam.arweave.net`,
+	github: `https://github.com/permaweb/hb-explorer`,
 };
 
 export const HB_ENDPOINTS = {

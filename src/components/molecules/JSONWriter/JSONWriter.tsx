@@ -2,9 +2,8 @@ import React from 'react';
 import { BeforeMount, OnMount } from '@monaco-editor/react';
 import { DefaultTheme, useTheme } from 'styled-components';
 
-import LazyMonacoEditor from 'components/molecules/LazyMonacoEditor';
-
 import { Button } from 'components/atoms/Button';
+import LazyMonacoEditor from 'components/molecules/LazyMonacoEditor';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import * as S from './styles';

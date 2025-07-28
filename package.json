@@ -5,15 +5,13 @@
 	"main": "index.tsx",
 	"author": "",
 	"license": "ISC",
-	"bundle": "CjlcS8GJtOm4PsLEMisWYqVzMEo1CNpju9LzNQKH0Rw",
+	"bundle": "WQ9o2UucD8V9GbaZCdNwnQn_mMYyW9mYzUJeuRh_ca8",
 	"scripts": {
 		"clean:install": "rm -rf node_modules package-lock.json || true && npm cache clean --force && npm install",
 		"start:development": "NODE_ENV=development vite",
 		"start:staging": "NODE_ENV=development vite",
 		"format": "eslint --fix . && npx prettier --write .",
-		"build": "NODE_ENV=production vite build",
-		"deploy:main": "npm run build && permaweb-deploy --arns-name <>",
-		"deploy:staging": "npm run build && permaweb-deploy --arns-name <> --undername staging"
+		"build": "NODE_ENV=production vite build"
 	},
 	"dependencies": {
 		"@monaco-editor/react": "^4.7.0",

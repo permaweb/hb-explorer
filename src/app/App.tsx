@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
 const views = (import.meta as any).glob('../views/**/index.tsx');
 
@@ -29,7 +29,6 @@ function getLazyImport(view: string) {
 }
 
 export default function App() {
-	const navigate = useNavigate();
 	const location = useLocation();
 
 	const languageProvider = useLanguageProvider();
@@ -78,13 +77,8 @@ export default function App() {
 						<S.Footer navigationOpen={settings.sidebarOpen}>
 							<p>{language.app}</p>
 							<p>
-								Built on{' '}
-								<a href={LINKS.arweave} target={'_blank'}>
-									Arweave
-								</a>{' '}
-								and{' '}
-								<a href={LINKS.ao} target={'_blank'}>
-									AO
+								<a href={LINKS.github} target={'_blank'}>
+									GitHub
 								</a>
 							</p>
 						</S.Footer>

@@ -1,10 +1,6 @@
 # HyperBEAM Explorer
 
-A web-based explorer interface for [HyperBEAM](https://github.com/permaweb/HyperBEAM)
-
-## Overview
-
-HyperBEAM Explorer provides a comprehensive dashboard and interface for monitoring, exploring, and interacting with HyperBEAM nodes. HyperBEAM is an Erlang-based implementation of AO-Core that enables flexible, distributed computing through a "decentralized operating system" model.
+HyperBEAM Explorer provides an interface for monitoring, exploring, and interacting with [HyperBEAM](https://github.com/permaweb/HyperBEAM) nodes.
 
 ## Getting Started
 
@@ -17,7 +13,7 @@ HyperBEAM Explorer provides a comprehensive dashboard and interface for monitori
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/permaweb/hb-explorer
 cd hb-explorer
 
 # Install dependencies
@@ -32,9 +28,6 @@ npm run start:development
 ```bash
 # Create production build
 npm run build
-
-# Deploy to Permaweb (requires configuration)
-npm run deploy:main
 ```
 
 ## Development
@@ -44,9 +37,6 @@ npm run deploy:main
 - `npm run start:development` - Start development server
 - `npm run build` - Create production build
 - `npm run format` - Format code with ESLint and Prettier
-- `npm run test` - Run tests
-- `npm run deploy:main` - Deploy to main environment
-- `npm run deploy:staging` - Deploy to staging environment
 
 ### Project Structure
 
@@ -88,16 +78,10 @@ Environment-specific settings can be configured through the settings provider an
 
 This project is licensed under the ISC License.
 
-## Related Projects
-
-- [HyperBEAM](https://github.com/permaweb/HyperBEAM) - The core computational protocol
-- [AO](https://ao.arweave.dev/) - Actor-oriented compute protocol
-- [Arweave](https://arweave.org/) - Permanent data storage network
-
 ## Support
 
 For issues and questions:
 
-- Check the [HyperBEAM documentation](https://github.com/permaweb/HyperBEAM)
+- Check the [HyperBEAM documentation](https://hyperbeam.arweave.net/)
 - Open an issue in this repository
 - Join the Arweave/AO community discussions

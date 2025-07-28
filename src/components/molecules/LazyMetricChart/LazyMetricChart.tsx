@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+
 import { Loader } from 'components/atoms/Loader';
 import { MetricDataPoint } from 'helpers/types';
 
