@@ -2,6 +2,10 @@ import styled from 'styled-components';
 
 import { STYLING } from 'helpers/config';
 
+export const Wrapper = styled.div`
+	width: 100%;
+`;
+
 export const Container = styled.div`
 	width: 100%;
 	position: relative;
@@ -37,17 +41,18 @@ export const PlaceholderFull = styled(Placeholder)`
 	}
 `;
 
-export const List = styled.div`
+export const List = styled.div<{ useGap: boolean }>`
 	width: 100%;
 	display: flex;
+	gap: ${(props) => (props.useGap ? '20px' : '0')};
 `;
 
-export const Content = styled.div`
+export const Content = styled.div<{ top?: number }>`
 	width: 100%;
 	display: flex;
 	align-items: center;
 	position: relative;
-	margin: 40px 0 0 0;
+	margin: ${(props) => (props.top ? `${props.top.toString()}px 0 0 0` : '40px 0 0 0')};
 `;
 
 export const Tab = styled.div``;

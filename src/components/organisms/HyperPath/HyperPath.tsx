@@ -5,12 +5,14 @@ import { ReactSVG } from 'react-svg';
 import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
+import { Loader } from 'components/atoms/Loader';
 import { Notification } from 'components/atoms/Notification';
+import { Tabs } from 'components/atoms/Tabs';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, URLS } from 'helpers/config';
 import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
-import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
+import { checkValidAddress, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { HyperLinks } from '../HyperLinks';
@@ -32,12 +34,16 @@ export default function HyperPath(props: {
 	const [fullResponse, setFullResponse] = React.useState<any>(null);
 
 	const [responseBody, setResponseBody] = React.useState<any>(null);
+	const [hyperbuddyData, setHyperbuddyData] = React.useState<any>(null);
 	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
 
+	const [id, setId] = React.useState<string | null>(null);
 	const [headers, setHeaders] = React.useState<any>(null);
 	const [links, setLinks] = React.useState<any>(null);
 	const [signature, setSignature] = React.useState<string | null>(null);
 	const [signer, setSigner] = React.useState<string | null>(null);
+	const [signatureAlg, setSignatureAlg] = React.useState<string | null>(null);
+	const [signatureKeyId, setSignatureKeyId] = React.useState<string | null>(null);
 	const [signatureValid, setSignatureValid] = React.useState<boolean | null>(null);
 
 	const [loadingPath, setLoadingPath] = React.useState<boolean>(false);
@@ -73,6 +79,9 @@ export default function HyperPath(props: {
 			try {
 				const response = await fetch(`${window.hyperbeamUrl}/${inputPath}`);
 
+				const hyperbuddyResponse = await hbFetch(`/${inputPath}/format~hyperbuddy@1.0`);
+				setHyperbuddyData(hyperbuddyResponse);
+
 				if (!response.ok) {
 					setPathNotFound(true);
 					setLoadingPath(false);
@@ -83,22 +92,28 @@ export default function HyperPath(props: {
 
 				const raw = joinHeaders(response.headers).trim();
 				const parsed = parseHeaders(raw);
-
 				const signature = response.headers.get('signature');
 
+				const sigInputRaw = parsed['signature-input']?.data;
+				setHeaders(sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed);
+
 				if (signature) {
+					const messageId = await getMessageIdFromSig(signature);
+					setId(messageId);
+
 					const signatureInput = parsed['signature-input']?.data ?? '';
 
 					const signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
 					const isValid = signatureInput ? await verifySignature(signature, signatureInput, response) : false;
+					const alg = getSignatureAlg(sigInputRaw);
+					const keyid = getSignatureKeyId(sigInputRaw);
 
 					setSignature(signature);
 					setSigner(signer);
 					setSignatureValid(isValid);
+					setSignatureAlg(alg);
+					setSignatureKeyId(keyid);
 				}
-
-				const sigInputRaw = parsed['signature-input']?.data;
-				setHeaders(sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed);
 
 				let linkHeaders = {};
 				for (const key of Object.keys(parsed)) {
@@ -143,6 +158,64 @@ export default function HyperPath(props: {
 			}
 		})();
 	}, [fullResponse, props.path]);
+
+	/**
+	 * Extracts the last `alg` value from a comma-separated signature header.
+	 * @param header A string like
+	 *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
+	 * @returns the last alg (e.g. "hmac-sha256"), or null if none found
+	 */
+	function getSignatureAlg(header: string): string | null {
+		// gather all alg="…" matches
+		const matches = Array.from(header.matchAll(/;alg="([^"]+)"/g));
+		if (matches.length === 0) return null;
+		// return the capture group of the last match
+		return matches[matches.length - 1][1];
+	}
+
+	/**
+	 * Extracts the last `keyid` value from a comma-separated signature header.
+	 * @param header A string like
+	 *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
+	 * @returns the last keyid (e.g. "bar"), or null if none found
+	 */
+	function getSignatureKeyId(header: string): string | null {
+		const matches = Array.from(header.matchAll(/;keyid="([^"]+)"/g));
+		if (matches.length === 0) return null;
+		return matches[matches.length - 1][1];
+	}
+
+	/**
+	 * @param {string} fullSig  A string like "sig-<b64urlSig>:…"
+	 * @returns {Promise<string>}  The Base64URL-encoded SHA-256 hash of the signature
+	 */
+	async function getMessageIdFromSig(fullSig) {
+		// Grab the part after "sig-" and before the first ":"
+		let [sigPart] = fullSig.split(':');
+		if (!sigPart.startsWith('sig-')) {
+			throw new Error('Expected signature to start with "sig-"');
+		}
+		sigPart = sigPart.slice(4);
+
+		// Base64url → Base64
+		const b64 =
+			sigPart.replace(/-/g, '+').replace(/_/g, '/') +
+			// Pad to multiple of 4
+			'='.repeat((4 - (sigPart.length % 4)) % 4);
+
+		// Decode to bytes
+		const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+		// Hash it
+		const hashBuf = await crypto.subtle.digest('SHA-256', raw);
+
+		// Hash → Base64URL (no padding)
+		const hashBytes = new Uint8Array(hashBuf);
+		let hashB64 = btoa(String.fromCharCode(...hashBytes));
+		const hashB64url = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+		return hashB64url;
+	}
 
 	/**
 	 * Given your parsed headers object (from parseHeaders) and the raw
@@ -222,7 +295,7 @@ export default function HyperPath(props: {
 	function buildInfoSection(label: string, icon: string, data: any) {
 		if (data && Object.keys(data).length > 0) {
 			return (
-				<S.InfoSection className={'border-wrapper-primary'}>
+				<S.InfoSection className={'border-wrapper-primary fade-in'}>
 					<S.InfoHeader>
 						<S.InfoTitle>
 							<ReactSVG src={icon} />
@@ -272,7 +345,15 @@ export default function HyperPath(props: {
 		return (
 			<>
 				<S.InfoWrapper>
-					<S.InfoSection className={'border-wrapper-alt3'}>
+					{/* {id && (
+						<S.InfoSection className={'border-wrapper-primary fade-in'}>
+							<S.IDHeader>
+								<p>Message ID</p>
+								<Copyable value={id} />
+							</S.IDHeader>
+						</S.InfoSection>
+					)} */}
+					<S.InfoSection className={'border-wrapper-alt3 fade-in'}>
 						<S.SignatureHeader>
 							<p>Signature</p>
 							{signature ? <Copyable value={signature} format={'truncate'} /> : <p>-</p>}
@@ -286,25 +367,46 @@ export default function HyperPath(props: {
 								<span>Signer</span>
 								{signer ? <Copyable value={signer} format={'address'} /> : <p>-</p>}
 							</S.SignatureLine>
+							{signatureAlg && (
+								<S.SignatureLine>
+									<span>Format</span>
+									<p>{signatureAlg}</p>
+								</S.SignatureLine>
+							)}
+							{signatureKeyId && (
+								<S.SignatureLine>
+									<span>Key</span>
+									<p>{signatureKeyId}</p>
+								</S.SignatureLine>
+							)}
 						</S.SignatureBody>
 					</S.InfoSection>
 					{buildInfoSection('Signed Headers', ASSETS.headers, headers)}
 					{buildInfoSection('Links', ASSETS.link, links)}
 				</S.InfoWrapper>
-				{fullResponse && (
-					<S.BodyWrapper>
-						<HyperLinks path={inputPath} />
-						{responseBody && (
+				<S.BodyWrapper>
+					<Tabs onTabClick={() => {}} type={'primary'}>
+						<S.Tab label={'Hyperbuddy'}>
+							{hyperbuddyData ? (
+								<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
+							) : (
+								<Loader sm relative />
+							)}
+						</S.Tab>
+						<S.Tab label={'Body'}>
 							<>
 								{bodyType === 'json' ? (
 									<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
 								) : (
-									<Editor initialData={responseBody} header={'Body'} language={'html'} loading={false} readOnly />
+									<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
 								)}
 							</>
-						)}
-					</S.BodyWrapper>
-				)}
+						</S.Tab>
+						<S.Tab label={'Graph'}>
+							<HyperLinks path={inputPath} id={id} />
+						</S.Tab>
+					</Tabs>
+				</S.BodyWrapper>
 			</>
 		);
 	}
@@ -360,9 +462,6 @@ export default function HyperPath(props: {
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
 				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
-				{/* <S.Graphic>
-					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-				</S.Graphic> */}
 			</S.Wrapper>
 			{error && (
 				<Notification

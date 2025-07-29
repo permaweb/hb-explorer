@@ -154,19 +154,11 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						</CloseHandler>
 					</S.DSearchWrapper>
 					<S.ActionsWrapper>
-						<S.DOperator>
-							{operatorAddress ? (
-								<>
-									{checkValidAddress(operatorAddress) ? (
-										<Copyable value={operatorAddress} helpText={'Operator'} />
-									) : (
-										<span>{operatorAddress}</span>
-									)}
-								</>
-							) : (
-								<span>Loading...</span>
-							)}
-						</S.DOperator>
+						{operatorAddress && checkValidAddress(operatorAddress) && (
+							<S.DOperator className={'fade-in'}>
+								<Copyable value={operatorAddress} helpText={'Operator'} />
+							</S.DOperator>
+						)}
 						<S.MSearchWrapper>
 							<CloseHandler active={searchOpen} disabled={!searchOpen} callback={() => setSearchOpen(false)}>
 								<IconButton

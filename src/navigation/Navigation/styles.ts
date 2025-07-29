@@ -347,6 +347,13 @@ export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
 
+	span {
+		color: ${(props) => props.theme.colors.font.alt1};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+	}
+
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		display: none;
 	}

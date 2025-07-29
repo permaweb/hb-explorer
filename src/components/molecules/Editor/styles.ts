@@ -24,7 +24,7 @@ export const Header = styled.div`
 `;
 
 export const EditorWrapper = styled.div<{ useFixedHeight: boolean }>`
-	min-height: 125px;
+	min-height: 175px;
 	max-height: ${(props) => (props.useFixedHeight ? '100%' : 'calc(100vh - 190px)')};
 	width: 100%;
 	display: flex;
