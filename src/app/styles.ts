@@ -365,6 +365,8 @@ export const Footer = styled.footer<{ navigationOpen: boolean }>`
 		font-family: ${(props) => props.theme.typography.family.alt1};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
+		text-decoration: underline;
+		text-decoration-thickness: 1.25px;
 
 		&:hover {
 			color: ${(props) => props.theme.colors.link.color} !important;

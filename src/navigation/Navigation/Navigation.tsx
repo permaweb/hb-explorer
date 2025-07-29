@@ -30,7 +30,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [searchOpen, setSearchOpen] = React.useState<boolean>(false);
 	const [inputPath, setInputPath] = React.useState<string>('');
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
-	const [loadingPath, setLoadingTx] = React.useState<boolean>(false);
+	const [loadingPath, _setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
 
 	const paths = React.useMemo(() => {

@@ -314,7 +314,7 @@ export const DSearchWrapper = styled.div`
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	@media (max-width: ${STYLING.cutoffs.initial}) {
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		display: none;
 	}
 `;
@@ -326,7 +326,7 @@ export const MSearchWrapper = styled.div`
 		padding: 3.5px 0 0 0 !important;
 	}
 
-	@media (max-width: ${STYLING.cutoffs.initial}) {
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		display: block;
 	}
 `;
@@ -347,17 +347,9 @@ export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
 
-	/* span {
-		color: ${(props) => props.theme.colors.font.alt1};
-		font-size: ${(props) => props.theme.typography.size.xxxSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		text-transform: uppercase;
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		display: none;
 	}
-
-	p {
-		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-	} */
 `;
 
 export const MSearchContainer = styled.div`
@@ -382,6 +374,7 @@ export const MSearchHeader = styled.div`
 
 export const MWrapper = styled.div`
 	display: none;
+
 	@media (max-width: ${STYLING.cutoffs.secondary}) {
 		display: block;
 	}

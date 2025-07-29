@@ -5,7 +5,7 @@
 	"main": "index.tsx",
 	"author": "",
 	"license": "ISC",
-	"bundle": "WQ9o2UucD8V9GbaZCdNwnQn_mMYyW9mYzUJeuRh_ca8",
+	"bundle": "zrc7a1TJflIVZ8rUReWNbrM2P4HgawpaH5YnFPZkkjo",
 	"scripts": {
 		"clean:install": "rm -rf node_modules package-lock.json || true && npm cache clean --force && npm install",
 		"start:development": "NODE_ENV=development vite",
