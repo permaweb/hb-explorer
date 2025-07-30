@@ -10,6 +10,9 @@ export interface HyperBeamRequestState {
 	signature: string | null;
 	signer: string | null;
 	signatureValid: boolean | null;
+	signatureAlg: string | null;
+	signatureKeyId: string | null;
+	id: string | null;
 	error: boolean;
 	hasContent: boolean;
 	lastSuccessfulResponse: Response | null;
@@ -84,6 +87,42 @@ async function getSignerAddress(sigInputRaw: string): Promise<string> {
 	}
 }
 
+function getSignatureAlg(header: string): string | null {
+	const matches = Array.from(header.matchAll(/;alg="([^"]+)"/g));
+	if (matches.length === 0) return null;
+	return matches[matches.length - 1][1];
+}
+
+function getSignatureKeyId(header: string): string | null {
+	const matches = Array.from(header.matchAll(/;keyid="([^"]+)"/g));
+	if (matches.length === 0) return null;
+	return matches[matches.length - 1][1];
+}
+
+async function getMessageIdFromSig(fullSig: string): Promise<string> {
+	let [sigPart] = fullSig.split(':');
+	if (!sigPart.startsWith('sig-')) {
+		throw new Error('Expected signature to start with "sig-"');
+	}
+	sigPart = sigPart.slice(4);
+
+	// Base64url → Base64
+	const b64 = sigPart.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (sigPart.length % 4)) % 4);
+
+	// Decode to bytes
+	const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+	// Hash it
+	const hashBuf = await crypto.subtle.digest('SHA-256', raw);
+
+	// Hash → Base64URL (no padding)
+	const hashBytes = new Uint8Array(hashBuf);
+	let hashB64 = btoa(String.fromCharCode(...hashBytes));
+	const hashB64url = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+	return hashB64url;
+}
+
 export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 	const [state, setState] = React.useState<HyperBeamRequestState>({
 		loading: false,
@@ -93,6 +132,9 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 		signature: null,
 		signer: null,
 		signatureValid: null,
+		signatureAlg: null,
+		signatureKeyId: null,
+		id: null,
 		error: false,
 		hasContent: false,
 		lastSuccessfulResponse: null,
@@ -125,11 +167,23 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 			const signature = response.headers.get('signature');
 			let signer: string | null = null;
 			let signatureValid: boolean | null = null;
+			let signatureAlg: string | null = null;
+			let signatureKeyId: string | null = null;
+			let id: string | null = null;
 
 			if (signature) {
 				const signatureInput = parsed['signature-input']?.data ?? '';
 				signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
 				signatureValid = signatureInput ? await verifySignature(signature, signatureInput, response) : false;
+				signatureAlg = signatureInput ? getSignatureAlg(signatureInput) : null;
+				signatureKeyId = signatureInput ? getSignatureKeyId(signatureInput) : null;
+
+				try {
+					id = await getMessageIdFromSig(signature);
+				} catch (e) {
+					console.error('Error getting message ID:', e);
+					id = null;
+				}
 			}
 
 			// Filter headers for signed content
@@ -154,6 +208,9 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 				signature,
 				signer,
 				signatureValid,
+				signatureAlg,
+				signatureKeyId,
+				id,
 				error: false,
 				hasContent: true,
 				submittedPath: path,
@@ -178,6 +235,9 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 			signature: null,
 			signer: null,
 			signatureValid: null,
+			signatureAlg: null,
+			signatureKeyId: null,
+			id: null,
 			error: false,
 			hasContent: false,
 			lastSuccessfulResponse: null,
