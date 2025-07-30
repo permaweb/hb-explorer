@@ -52,6 +52,10 @@ export default function HyperPath(props: {
 
 	React.useEffect(() => {
 		setInputPath(props.path);
+		// Auto-submit when path is provided via props (e.g., from navigation)
+		if (props.path && props.path.trim() !== '') {
+			handleSubmit(props.path);
+		}
 	}, [props.path]);
 
 	// Check cache validity in real-time as user types

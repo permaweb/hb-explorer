@@ -108,6 +108,13 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		return () => clearTimeout(timeoutId);
 	}, [inputPath]);
 
+	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter' && inputPath) {
+			navigate(`${URLS.explorer}${inputPath}`);
+			setInputPath('');
+		}
+	};
+
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
@@ -116,6 +123,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 					<FormField
 						value={inputPath}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
+						onKeyPress={handleKeyPress}
 						onFocus={() => setTxOutputOpen(true)}
 						placeholder={language.pathOrId}
 						invalid={{ status: false, message: null }}
