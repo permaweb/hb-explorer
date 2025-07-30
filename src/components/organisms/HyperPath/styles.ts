@@ -134,10 +134,10 @@ export const TabButtonGroup = styled.div`
 
 export const TabButton = styled.button<{ active: boolean }>`
 	padding: 6px 12px;
-	border: 1px solid ${(props) => props.theme.colors.border.primary};
+	border: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
 	border-radius: ${STYLING.dimensions.radius.primary};
-	background: ${(props) => (props.active ? props.theme.colors.button.primary.background : 'transparent')};
-	color: ${(props) => (props.active ? props.theme.colors.button.primary.color : props.theme.colors.font.alt1)};
+	background: ${(props) => (props.active ? props.theme.colors.container.alt8.background : 'transparent')};
+	color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.alt1)};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
 	font-weight: ${(props) => props.theme.typography.weight.medium};
 	font-family: ${(props) => props.theme.typography.family.primary};
@@ -146,13 +146,13 @@ export const TabButton = styled.button<{ active: boolean }>`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${(props) => (props.active ? props.theme.colors.button.primary.background : props.theme.colors.container.alt1.background)};
-		color: ${(props) => (props.active ? props.theme.colors.button.primary.color : props.theme.colors.font.primary)};
+		background: ${(props) => (props.active ? props.theme.colors.container.alt8.background : props.theme.colors.container.alt1.background)};
+		color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.primary)};
 	}
 
 	&:focus {
 		outline: none;
-		box-shadow: 0 0 0 2px ${(props) => props.theme.colors.border.alt5};
+		box-shadow: none;
 	}
 `;
 
