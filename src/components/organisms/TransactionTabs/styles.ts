@@ -72,7 +72,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 	justify-content: space-between;
 	align-items: center;
 	gap: 12.5px;
-	padding: 12.5px 25.5px 13.5px 21.5px;
+	padding: 12.5px 18px 13.5px 21.5px;
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
