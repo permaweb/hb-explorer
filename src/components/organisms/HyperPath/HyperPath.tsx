@@ -5,12 +5,15 @@ import { ReactSVG } from 'react-svg';
 import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
+import { Loader } from 'components/atoms/Loader';
 import { Notification } from 'components/atoms/Notification';
+import { Tabs } from 'components/atoms/Tabs';
 import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, URLS } from 'helpers/config';
-import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
+import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
+import { checkValidAddress, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
 import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
 import { usePathValidation } from 'hooks/usePathValidation';
@@ -34,6 +37,7 @@ export default function HyperPath(props: {
 	const [inputPath, setInputPath] = React.useState<string>(props.path);
 
 	const [responseBody, setResponseBody] = React.useState<any>(null);
+	const [hyperbuddyData, setHyperbuddyData] = React.useState<any>(null);
 	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
@@ -148,7 +152,7 @@ export default function HyperPath(props: {
 	function buildInfoSection(label: string, icon: string, data: any) {
 		if (data && Object.keys(data).length > 0) {
 			return (
-				<S.InfoSection className={'border-wrapper-primary'}>
+				<S.InfoSection className={'border-wrapper-primary fade-in'}>
 					<S.InfoHeader>
 						<S.InfoTitle>
 							<ReactSVG src={icon} />
@@ -216,7 +220,15 @@ export default function HyperPath(props: {
 		return (
 			<>
 				<S.InfoWrapper>
-					<S.InfoSection className={'border-wrapper-alt3'}>
+					{/* {id && (
+						<S.InfoSection className={'border-wrapper-primary fade-in'}>
+							<S.IDHeader>
+								<p>Message ID</p>
+								<Copyable value={id} />
+							</S.IDHeader>
+						</S.InfoSection>
+					)} */}
+					<S.InfoSection className={'border-wrapper-alt3 fade-in'}>
 						<S.SignatureHeader>
 							<p>Signature</p>
 							{hyperBeamRequest.signature ? (
@@ -240,6 +252,18 @@ export default function HyperPath(props: {
 								<span>Signer</span>
 								{hyperBeamRequest.signer ? <Copyable value={hyperBeamRequest.signer} format={'address'} /> : <p>-</p>}
 							</S.SignatureLine>
+							{hyperBeamRequest.signatureAlg && (
+								<S.SignatureLine>
+									<span>Format</span>
+									<p>{hyperBeamRequest.signatureAlg}</p>
+								</S.SignatureLine>
+							)}
+							{hyperBeamRequest.signatureKeyId && (
+								<S.SignatureLine>
+									<span>Key</span>
+									<p>{hyperBeamRequest.signatureKeyId}</p>
+								</S.SignatureLine>
+							)}
 						</S.SignatureBody>
 					</S.InfoSection>
 					{buildInfoSection('Signed Headers', ASSETS.headers, hyperBeamRequest.headers)}
@@ -247,16 +271,29 @@ export default function HyperPath(props: {
 				</S.InfoWrapper>
 				{responseToUse && (
 					<S.BodyWrapper>
-						<HyperLinks path={hyperBeamRequest.submittedPath} />
-						{responseBody && (
-							<>
-								{bodyType === 'json' ? (
-									<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
+						<Tabs onTabClick={() => {}} type={'primary'}>
+							<S.Tab label={'Hyperbuddy'}>
+								{hyperbuddyData ? (
+									<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
 								) : (
-									<Editor initialData={responseBody} header={'Body'} language={'html'} loading={false} readOnly />
+									<Loader sm relative />
 								)}
-							</>
-						)}
+							</S.Tab>
+							<S.Tab label={'Body'}>
+								{responseBody && (
+									<>
+										{bodyType === 'json' ? (
+											<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
+										) : (
+											<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
+										)}
+									</>
+								)}
+							</S.Tab>
+							<S.Tab label={'Graph'}>
+								<HyperLinks path={hyperBeamRequest.submittedPath} id={hyperBeamRequest.id} />
+							</S.Tab>
+						</Tabs>
 					</S.BodyWrapper>
 				)}
 			</>

@@ -78,7 +78,10 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 		this.props.onTabClick(tab);
 	};
 
+	Wrapper = this.props.type === 'alt1' ? ViewWrapper : S.Wrapper;
+
 	render() {
+		const Wrapper = this.Wrapper;
 		const singleChild = !Array.isArray(this.props.children);
 
 		const {
@@ -89,7 +92,7 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 
 		return singleChild ? (
 			<S.Container>
-				<S.List>
+				<S.List useGap={false}>
 					<Tab
 						activeTab={activeTab}
 						key={this.props.children!.props.label}
@@ -103,9 +106,9 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 		) : (
 			<S.Container>
 				<S.Header>
-					<S.PlaceholderFull id={'placeholder-start'} />
-					<ViewWrapper>
-						<S.List>
+					{this.props.type === 'alt1' && <S.PlaceholderFull id={'placeholder-start'} />}
+					<Wrapper>
+						<S.List useGap={this.props.type === 'primary'}>
 							{children!.map((child: any, index: number) => {
 								const { label, icon } = child.props;
 								return (
@@ -120,17 +123,17 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 								);
 							})}
 						</S.List>
-					</ViewWrapper>
-					<S.PlaceholderFull id={'placeholder-end'} />
+					</Wrapper>
+					{this.props.type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
 				</S.Header>
-				<ViewWrapper>
-					<S.Content>
+				<Wrapper>
+					<S.Content top={this.props.type === 'alt1' ? 40 : 25}>
 						{children!.map((child: any) => {
 							if (child.props.label !== activeTab) return undefined;
 							return child.props.children;
 						})}
 					</S.Content>
-				</ViewWrapper>
+				</Wrapper>
 			</S.Container>
 		);
 	}

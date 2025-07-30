@@ -50,20 +50,19 @@ export default defineConfig({
 		include: ['buffer', 'process', 'crypto', 'stream', 'util'],
 	},
 	build: {
-		outDir: 'dist',
-		emptyOutDir: true,
+		lib: {
+			entry: path.resolve(__dirname, 'src/index.tsx'),
+			name: 'App',
+			fileName: () => 'bundle',
+			formats: ['iife'],
+		},
 		cssCodeSplit: false,
 		assetsInlineLimit: 10_000_000,
 		rollupOptions: {
-			input: path.resolve('index.html'),
 			plugins: [polyfillNode()],
 			output: {
-				inlineDynamicImports: true,
-				manualChunks: undefined,
-				entryFileNames: `assets/[name].js`,
-				chunkFileNames: `assets/[name].js`,
-				assetFileNames: `assets/[name].[ext]`,
-				format: 'es',
+				entryFileNames: 'bundle.js',
+				assetFileNames: '[name].[ext]',
 			},
 		},
 	},

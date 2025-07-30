@@ -5,7 +5,7 @@
 	"main": "index.tsx",
 	"author": "",
 	"license": "ISC",
-	"bundle": "zrc7a1TJflIVZ8rUReWNbrM2P4HgawpaH5YnFPZkkjo",
+	"bundle": "pHZrLcEMD6M8ya3LeangaEDuKWgBU-_y5WQojqhnD9Q",
 	"scripts": {
 		"clean:install": "rm -rf node_modules package-lock.json || true && npm cache clean --force && npm install",
 		"start:development": "NODE_ENV=development vite",
@@ -19,6 +19,7 @@
 		"@permaweb/aoconnect": "^0.0.79",
 		"@permaweb/libs": "0.0.42",
 		"arweave": "^1.15.5",
+		"cytoscape": "^3.33.0",
 		"http-message-signatures": "^1.0.4",
 		"jwt-decode": "^4.0.0",
 		"monaco-editor": "^0.52.2",

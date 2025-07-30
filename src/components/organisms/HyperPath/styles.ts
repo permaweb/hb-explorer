@@ -63,11 +63,14 @@ export const BodyWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 25px;
+	position: relative;
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		width: 100%;
 	}
 `;
+
+export const Tab = styled.div<{ label: string }>``;
 
 export const InfoSection = styled.div`
 	width: 100%;
@@ -85,6 +88,13 @@ export const InfoHeader = styled.div`
 	background: ${(props) => props.theme.colors.container.alt1.background};
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 
+	p {
+		font-size: ${(props) => props.theme.typography.size.base};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+	}
+
 	span {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.alt1};
@@ -98,13 +108,6 @@ export const InfoTitle = styled.div`
 	align-items: center;
 	gap: 10px;
 
-	p {
-		font-size: ${(props) => props.theme.typography.size.base};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.primary};
-	}
-
 	svg {
 		height: 15px;
 		width: 15px;
@@ -112,6 +115,11 @@ export const InfoTitle = styled.div`
 		color: ${(props) => props.theme.colors.font.primary};
 		fill: ${(props) => props.theme.colors.font.primary};
 	}
+`;
+
+export const IDHeader = styled(InfoHeader)`
+	border-bottom: none;
+	padding: 12.5px 12.5px 11.5px 12.5px;
 `;
 
 export const SignatureHeader = styled(InfoHeader)`
@@ -223,6 +231,13 @@ export const SignatureLine = styled.div`
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		overflow: hidden;
+	}
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
 	}
 
 	span {
