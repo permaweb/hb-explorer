@@ -7,7 +7,6 @@ import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Notification } from 'components/atoms/Notification';
-import { Tabs } from 'components/atoms/Tabs';
 import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
@@ -42,6 +41,7 @@ export default function HyperPath(props: {
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
 	const [resultsReady, setResultsReady] = React.useState<boolean>(false);
+	const [activeTab, setActiveTab] = React.useState<'hyperbuddy' | 'body' | 'graph'>('hyperbuddy');
 
 	// Use shared HyperBEAM request hook
 	const hyperBeamRequest = useHyperBeamRequest();
@@ -141,6 +141,26 @@ export default function HyperPath(props: {
 		})();
 	}, [hyperBeamRequest.response, props.path]);
 
+	// Fetch hyperbuddy data when path changes
+	React.useEffect(() => {
+		(async function () {
+			if (hyperBeamRequest.submittedPath) {
+				try {
+					const hyperbuddyResponse = await fetch(`${window.hyperbeamUrl}/${hyperBeamRequest.submittedPath}/format~hyperbuddy@1.0`);
+					if (hyperbuddyResponse.ok) {
+						const data = await hyperbuddyResponse.text();
+						setHyperbuddyData(data);
+					} else {
+						setHyperbuddyData(null);
+					}
+				} catch (e) {
+					console.error('Error fetching hyperbuddy data:', e);
+					setHyperbuddyData(null);
+				}
+			}
+		})();
+	}, [hyperBeamRequest.submittedPath]);
+
 	const copyInput = React.useCallback(async (value: string) => {
 		if (value?.length > 0) {
 			await navigator.clipboard.writeText(value);
@@ -148,6 +168,31 @@ export default function HyperPath(props: {
 			setTimeout(() => setCopied(false), 2000);
 		}
 	}, []);
+
+	const renderTabContent = () => {
+		switch (activeTab) {
+			case 'hyperbuddy':
+				return hyperbuddyData ? (
+					<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
+				) : (
+					<Loader sm relative />
+				);
+			case 'body':
+				return responseBody ? (
+					<>
+						{bodyType === 'json' ? (
+							<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
+						) : (
+							<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
+						)}
+					</>
+				) : null;
+			case 'graph':
+				return <HyperLinks path={hyperBeamRequest.submittedPath} id={hyperBeamRequest.id} />;
+			default:
+				return null;
+		}
+	};
 
 	function buildInfoSection(label: string, icon: string, data: any) {
 		if (data && Object.keys(data).length > 0) {
@@ -271,29 +316,7 @@ export default function HyperPath(props: {
 				</S.InfoWrapper>
 				{responseToUse && (
 					<S.BodyWrapper>
-						<Tabs onTabClick={() => {}} type={'primary'}>
-							<S.Tab label={'Hyperbuddy'}>
-								{hyperbuddyData ? (
-									<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
-								) : (
-									<Loader sm relative />
-								)}
-							</S.Tab>
-							<S.Tab label={'Body'}>
-								{responseBody && (
-									<>
-										{bodyType === 'json' ? (
-											<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
-										) : (
-											<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
-										)}
-									</>
-								)}
-							</S.Tab>
-							<S.Tab label={'Graph'}>
-								<HyperLinks path={hyperBeamRequest.submittedPath} id={hyperBeamRequest.id} />
-							</S.Tab>
-						</Tabs>
+						{renderTabContent()}
 					</S.BodyWrapper>
 				)}
 			</>
@@ -356,6 +379,28 @@ export default function HyperPath(props: {
 						/>
 					</S.SearchWrapper>
 					<S.HeaderActionsWrapper>
+						{(hyperBeamRequest.response || hyperBeamRequest.lastSuccessfulResponse) && (
+							<S.TabButtonGroup>
+								<S.TabButton 
+									active={activeTab === 'hyperbuddy'} 
+									onClick={() => setActiveTab('hyperbuddy')}
+								>
+									Hyperbuddy
+								</S.TabButton>
+								<S.TabButton 
+									active={activeTab === 'body'} 
+									onClick={() => setActiveTab('body')}
+								>
+									Body
+								</S.TabButton>
+								<S.TabButton 
+									active={activeTab === 'graph'} 
+									onClick={() => setActiveTab('graph')}
+								>
+									Graph
+								</S.TabButton>
+							</S.TabButtonGroup>
+						)}
 						<S.PathInfoWrapper>
 							<S.UpdateWrapper>
 								<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
