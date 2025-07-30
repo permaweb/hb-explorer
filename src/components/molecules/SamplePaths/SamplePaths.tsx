@@ -29,13 +29,13 @@ const SAMPLE_PATHS = [
 		description: 'List computational devices available on this node',
 		icon: ASSETS.tools,
 	},
-	
+
 	{
 		path: '~meta@1.0/info/address',
 		label: 'Operator Address',
 		description: 'Get the wallet address of the node operator',
 		icon: ASSETS.wallet,
-	}
+	},
 ];
 
 interface SamplePathsProps {
@@ -50,9 +50,7 @@ export default function SamplePaths({ onPathSelect }: SamplePathsProps) {
 					<h3>Useful Paths</h3>
 					<ReactSVG src={ASSETS.newTab} style={{ marginRight: 8, verticalAlign: 'middle' }} />
 				</S.HeaderTitle>
-				<S.HeaderDescription>
-					Explore helpful HyperBEAM paths on this node
-				</S.HeaderDescription>
+				<S.HeaderDescription>Explore helpful HyperBEAM paths on this node</S.HeaderDescription>
 			</S.Header>
 			<S.PathGrid>
 				{SAMPLE_PATHS.map((sample, index) => (

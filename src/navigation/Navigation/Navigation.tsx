@@ -7,9 +7,12 @@ import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Toggle } from 'components/atoms/Toggle';
+import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
 import { checkValidAddress, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
+import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
+import { usePathValidation } from 'hooks/usePathValidation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
 import { CloseHandler } from 'wrappers/CloseHandler';
@@ -32,7 +35,23 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
 	const [loadingPath, _setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
-	const [cacheStatus, setCacheStatus] = React.useState<'default' | 'success' | 'error'>('default');
+	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
+	const inputRef = React.useRef<HTMLInputElement>(null);
+
+	// Use shared validation hook
+	const { validationStatus } = usePathValidation({ path: inputPath });
+
+	// Use shared autocomplete hook
+	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
+		useDeviceAutocomplete({
+			inputValue: inputPath,
+			cursorPosition,
+			inputRef,
+			onValueChange: (value, newCursorPosition) => {
+				setInputPath(value);
+				setCursorPosition(newCursorPosition);
+			},
+		});
 
 	const paths = React.useMemo(() => {
 		return [
@@ -81,32 +100,13 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		})();
 	}, []);
 
-	// Check path validity in real-time as user types
-	React.useEffect(() => {
-		if (!inputPath) {
-			setCacheStatus('default');
-			return;
-		}
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value;
+		const newCursorPosition = e.target.selectionStart || 0;
 
-		const checkPath = async () => {
-			try {
-				const mainRes = await fetch(`${window.hyperbeamUrl}/${inputPath}`);
-				
-				if (mainRes.status === 404) {
-					setCacheStatus('error'); // Red: invalid path
-				} else if (mainRes.ok) {
-					setCacheStatus('success'); // Green: valid path
-				} else {
-					setCacheStatus('default'); // Orange: other status
-				}
-			} catch (e: any) {
-				setCacheStatus('error'); // Red: network error
-			}
-		};
-
-		const timeoutId = setTimeout(checkPath, 300); // Debounce for 300ms
-		return () => clearTimeout(timeoutId);
-	}, [inputPath]);
+		setInputPath(newValue);
+		setCursorPosition(newCursorPosition);
+	};
 
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter' && inputPath) {
@@ -118,11 +118,16 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper cacheStatus={cacheStatus}>
+				<S.SearchInputWrapper
+					cacheStatus={validationStatus}
+					hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
+				>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
+						ref={inputRef}
 						value={inputPath}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
+						onChange={handleInputChange}
+						onKeyDown={handleKeyDown}
 						onKeyPress={handleKeyPress}
 						onFocus={() => setTxOutputOpen(true)}
 						placeholder={language.pathOrId}
@@ -130,6 +135,13 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						disabled={loadingPath}
 						hideErrorMessage
 						sm
+					/>
+					<AutocompleteDropdown
+						options={autocompleteOptions}
+						selectedIndex={selectedOptionIndex}
+						onSelect={acceptAutocomplete}
+						visible={showAutocomplete}
+						showTabHint={true}
 					/>
 				</S.SearchInputWrapper>
 				<S.SubmitWrapper>
