@@ -49,12 +49,12 @@ export const PathCard = styled.div`
 	background: ${(props) => props.theme.colors.container.primary.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-radius: 12px;
-	padding: 20px;
+	padding: 12px 16px;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	display: flex;
 	align-items: flex-start;
-	gap: 16px;
+	gap: 12px;
 
 	&:hover {
 		border-color: ${(props) => props.theme.colors.border.alt4};
@@ -67,12 +67,23 @@ export const PathCard = styled.div`
 export const PathIcon = styled.div`
 	background: ${(props) => props.theme.colors.container.alt3.background};
 	border-radius: 8px;
-	padding: 12px;
+	padding: 8px;
 	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	& > div {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 18px;
+		width: 18px;
+	}
 
 	svg {
-		height: 20px;
-		width: 20px;
+		height: 18px;
+		width: 18px;
 		fill: ${(props) => props.theme.colors.font.primary};
 	}
 `;
@@ -84,17 +95,17 @@ export const PathContent = styled.div`
 
 export const PathLabel = styled.h4`
 	color: ${(props) => props.theme.colors.font.primary};
-	font-size: 16px;
+	font-size: 15px;
 	font-weight: 600;
-	margin: 0 0 8px 0;
-	line-height: 1.3;
+	margin: 0 0 4px 0;
+	line-height: 1.2;
 `;
 
 export const PathDescription = styled.p`
 	color: ${(props) => props.theme.colors.font.alt1};
-	font-size: 14px;
-	margin: 0 0 12px 0;
-	line-height: 1.4;
+	font-size: 13px;
+	margin: 0 0 8px 0;
+	line-height: 1.3;
 `;
 
 export const PathValue = styled.div`
@@ -102,8 +113,8 @@ export const PathValue = styled.div`
 		background: ${(props) => props.theme.colors.container.alt4.background};
 		color: ${(props) => props.theme.colors.font.alt4};
 		font-family: 'JetBrains Mono', monospace;
-		font-size: 13px;
-		padding: 4px 8px;
+		font-size: 12px;
+		padding: 2px 6px;
 		border-radius: 4px;
 		border: 1px solid ${(props) => props.theme.colors.border.alt1};
 	}
@@ -111,11 +122,11 @@ export const PathValue = styled.div`
 
 export const PathAction = styled.div`
 	flex-shrink: 0;
-	margin-top: 4px;
+	margin-top: 2px;
 
 	svg {
-		height: 16px;
-		width: 16px;
+		height: 14px;
+		width: 14px;
 		fill: ${(props) => props.theme.colors.font.alt1};
 		transition: transform 0.2s ease;
 	}

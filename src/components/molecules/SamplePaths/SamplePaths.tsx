@@ -12,6 +12,12 @@ const SAMPLE_PATHS = [
 		icon: ASSETS.info,
 	},
 	{
+		path: '~hyperbuddy@1.0/metrics',
+		label: 'Node Metrics',
+		description: 'View performance metrics and statistics',
+		icon: ASSETS.info,
+	},
+	{
 		path: '~cacheviz@1.0/json',
 		label: 'Cache Visualization',
 		description: 'View the current cache state as JSON',
@@ -23,36 +29,13 @@ const SAMPLE_PATHS = [
 		description: 'List computational devices available on this node',
 		icon: ASSETS.tools,
 	},
-	{
-		path: '~hyperbuddy@1.0/metrics',
-		label: 'Node Metrics',
-		description: 'View performance metrics and statistics',
-		icon: ASSETS.graphic,
-	},
+	
 	{
 		path: '~meta@1.0/info/address',
 		label: 'Operator Address',
 		description: 'Get the wallet address of the node operator',
 		icon: ASSETS.wallet,
-	},
-	{
-		path: 'ledger~node-process@1.0/now/balance/serialize~json@1.0',
-		label: 'Ledger Balance',
-		description: 'View current ledger balance information',
-		icon: ASSETS.wallet,
-	},
-	{
-		path: 'ao.TN.1/Info',
-		label: 'AO Network Information',
-		description: 'Get network status and info for the AO computer',
-		icon: ASSETS.info,
-	},
-	{
-		path: 'process_id/State',
-		label: 'Process State',
-		description: 'View the current state of any AO process',
-		icon: ASSETS.process,
-	},
+	}
 ];
 
 interface SamplePathsProps {
@@ -64,11 +47,11 @@ export default function SamplePaths({ onPathSelect }: SamplePathsProps) {
 		<S.Wrapper>
 			<S.Header>
 				<S.HeaderTitle>
-					<ReactSVG src={ASSETS.help} />
-					<h3>Sample Paths</h3>
+					<h3>Useful Paths</h3>
+					<ReactSVG src={ASSETS.newTab} style={{ marginRight: 8, verticalAlign: 'middle' }} />
 				</S.HeaderTitle>
 				<S.HeaderDescription>
-					Click any path below to explore the HyperBEAM network and AO ecosystem
+					Explore helpful HyperBEAM paths on this node
 				</S.HeaderDescription>
 			</S.Header>
 			<S.PathGrid>

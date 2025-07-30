@@ -69,7 +69,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 	position: relative;
 	z-index: 1;
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
 	gap: 12.5px;
 	padding: 12.5px 25.5px 13.5px 21.5px;
@@ -80,6 +80,13 @@ export const TabAction = styled.div<{ active: boolean }>`
 
 	white-space: nowrap;
 	transition: all 100ms;
+
+	.right-icons {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-left: 8px;
+	}
 
 	.icon-wrapper {
 		position: relative;

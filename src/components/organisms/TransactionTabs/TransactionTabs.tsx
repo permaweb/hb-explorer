@@ -317,22 +317,24 @@ export default function TransactionTabs(props: { type: 'hb-explorer' | 'legacy-e
 					return (
 						<React.Fragment key={index}>
 							<S.TabAction active={index === activeTabIndex} onClick={() => handleTabRedirect(index)}>
-								<div className={'icon-wrapper'}>
-									<div className={'normal-icon'}>
-										<ReactSVG src={ASSETS[tx.type] ?? ASSETS.transaction} />
-									</div>
-									<div className={'delete-icon'}>
-										<IconButton
-											type={'primary'}
-											src={ASSETS.close}
-											handlePress={() => {
-												handleDeleteTab(index);
-											}}
-											dimensions={{ wrapper: 10, icon: 10 }}
-										/>
+								<span>{label}</span>
+								<div className={'right-icons'}>
+									<div className={'icon-wrapper'}>
+										<div className={'normal-icon'}>
+											<ReactSVG src={ASSETS[tx.type] ?? ASSETS.transaction} />
+										</div>
+										<div className={'delete-icon'}>
+											<IconButton
+												type={'primary'}
+												src={ASSETS.close}
+												handlePress={() => {
+													handleDeleteTab(index);
+												}}
+												dimensions={{ wrapper: 10, icon: 10 }}
+											/>
+										</div>
 									</div>
 								</div>
-								<span>{label}</span>
 							</S.TabAction>
 						</React.Fragment>
 					);

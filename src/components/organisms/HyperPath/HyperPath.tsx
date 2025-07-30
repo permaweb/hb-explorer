@@ -8,7 +8,7 @@ import { IconButton } from 'components/atoms/IconButton';
 import { Notification } from 'components/atoms/Notification';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
-import { ASSETS, URLS } from 'helpers/config';
+import { ASSETS, URLS, HB_ENDPOINTS } from 'helpers/config';
 import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
 import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -45,34 +45,54 @@ export default function HyperPath(props: {
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
 	const [pathNotFound, setPathNotFound] = React.useState<boolean>(false);
+	const [hasContent, setHasContent] = React.useState<boolean>(false);
+	const [lastSuccessfulResponse, setLastSuccessfulResponse] = React.useState<any>(null);
+	const [submittedPath, setSubmittedPath] = React.useState<string>('');
+	const [cacheStatus, setCacheStatus] = React.useState<'default' | 'success' | 'error'>('default');
 
 	React.useEffect(() => {
 		setInputPath(props.path);
 	}, [props.path]);
 
+	// Check cache validity in real-time as user types
 	React.useEffect(() => {
 		if (!inputPath) {
+			setCacheStatus('default');
 			return;
 		}
 
-		const timeoutId = setTimeout(
-			async () => {
-				handleSubmit();
-			},
-			checkValidAddress(inputPath) ? 0 : 1000
-		);
-
-		return () => {
-			clearTimeout(timeoutId);
-			setLoadingPath(false);
+		const checkPath = async () => {
+			try {
+				const validationPath = `${inputPath}/~cacheviz@1.0/index`;
+				const mainRes = await fetch(`${window.hyperbeamUrl}/${validationPath}`);
+				
+				if (mainRes.status === 200) {
+					setCacheStatus('success'); // Green: valid path
+				} else {
+					setCacheStatus('error'); // Red: invalid path
+				}
+			} catch (e: any) {
+				setCacheStatus('error'); // Red: network error
+			}
 		};
+
+		const timeoutId = setTimeout(checkPath, 300); // Debounce for 300ms
+		return () => clearTimeout(timeoutId);
 	}, [inputPath]);
 
-	async function handleSubmit() {
-		if (inputPath) {
+
+	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter') {
+			handleSubmit();
+		}
+	};
+
+	async function handleSubmit(pathToSubmit?: string) {
+		const pathValue = pathToSubmit || inputPath;
+		if (pathValue) {
 			setLoadingPath(true);
 			try {
-				const response = await fetch(`${window.hyperbeamUrl}/${inputPath}`);
+				const response = await fetch(`${window.hyperbeamUrl}/${pathValue}`);
 
 				if (!response.ok) {
 					setPathNotFound(true);
@@ -81,6 +101,8 @@ export default function HyperPath(props: {
 				}
 
 				setFullResponse(response);
+				setLastSuccessfulResponse(response);
+				setSubmittedPath(pathValue);
 
 				const raw = joinHeaders(response.headers).trim();
 				const parsed = parseHeaders(raw);
@@ -110,8 +132,9 @@ export default function HyperPath(props: {
 
 				setLinks(linkHeaders);
 
-				props.onPathChange(inputPath, inputPath);
+				props.onPathChange(pathValue, pathValue);
 				setPathNotFound(false);
+				setHasContent(true);
 			} catch (e: any) {
 				console.error(e);
 
@@ -257,7 +280,8 @@ export default function HyperPath(props: {
 	}
 
 	function getPath() {
-		if (!inputPath || loadingPath || pathNotFound || !fullResponse) {
+		// Only show placeholder when actually loading or when we have an error/no results
+		if ((loadingPath && !hasContent) || (pathNotFound && !hasContent) || (!fullResponse && !hasContent)) {
 			return (
 				<S.Placeholder>
 					<S.PlaceholderIcon>
@@ -268,6 +292,12 @@ export default function HyperPath(props: {
 					</S.PlaceholderDescription>
 				</S.Placeholder>
 			);
+		}
+		
+		// If we don't have a current response but we have previous content, use the last successful response
+		const responseToUse = fullResponse || lastSuccessfulResponse;
+		if (!responseToUse) {
+			return null;
 		}
 
 		return (
@@ -292,9 +322,9 @@ export default function HyperPath(props: {
 					{buildInfoSection('Signed Headers', ASSETS.headers, headers)}
 					{buildInfoSection('Links', ASSETS.link, links)}
 				</S.InfoWrapper>
-				{fullResponse && (
+				{responseToUse && (
 					<S.BodyWrapper>
-						<HyperLinks path={inputPath} />
+						<HyperLinks path={submittedPath} />
 						{responseBody && (
 							<>
 								{bodyType === 'json' ? (
@@ -315,11 +345,31 @@ export default function HyperPath(props: {
 			<S.Wrapper>
 				<S.HeaderWrapper>
 					<S.SearchWrapper>
-						<S.SearchInputWrapper>
+						<S.SearchInputWrapper cacheStatus={cacheStatus}>
 							<ReactSVG src={ASSETS.search} />
 							<FormField
 								value={inputPath}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									const newValue = e.target.value;
+									setInputPath(newValue);
+									
+									// Reset state when input is cleared
+									if (newValue === '') {
+										setHasContent(false);
+										setFullResponse(null);
+										setLastSuccessfulResponse(null);
+										setSubmittedPath('');
+										setResponseBody(null);
+										setHeaders(null);
+										setLinks(null);
+										setSignature(null);
+										setSigner(null);
+										setSignatureValid(null);
+										setPathNotFound(false);
+										setCacheStatus('default');
+									}
+								}}
+								onKeyPress={handleKeyPress}
 								placeholder={language.pathOrId}
 								invalid={{ status: false, message: null }}
 								disabled={loadingPath}
@@ -361,8 +411,11 @@ export default function HyperPath(props: {
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
 				<S.ContentWrapper>
-					{!inputPath && !loadingPath && !pathNotFound ? (
-						<SamplePaths onPathSelect={setInputPath} />
+					{inputPath === '' && !hasContent ? (
+						<SamplePaths onPathSelect={(path) => {
+							setInputPath(path);
+							handleSubmit(path);
+						}} />
 					) : (
 						getPath()
 					)}

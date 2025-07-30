@@ -159,13 +159,53 @@ export const SubmitWrapper = styled.div`
 	right: 4.5px;
 `;
 
-export const SearchInputWrapper = styled.div`
+export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error' }>`
 	width: 100%;
 	position: relative;
 
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
+		border: 2px solid ${(props) => {
+			switch (props.cacheStatus) {
+				case 'success':
+					return props.theme.colors.form.valid.outline;
+				case 'error':
+					return props.theme.colors.form.invalid.outline;
+				default:
+					return props.theme.colors.form.border;
+			}
+		}} !important;
+		outline: none !important;
+		box-shadow: none !important;
+		
+		&:focus {
+			border: 2px solid ${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.default.outline;
+				}
+			}} !important;
+			outline: none !important;
+			box-shadow: none !important;
+		}
+		
+		&:hover {
+			border: 2px solid ${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.border;
+				}
+			}} !important;
+		}
 	}
 
 	svg {

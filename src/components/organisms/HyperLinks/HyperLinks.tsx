@@ -6,7 +6,7 @@ import { HB_ENDPOINTS } from 'helpers/config';
 
 import * as S from './styles';
 
-export default function HyperLinks(props: { path: string }) {
+export default function HyperLinks(props: { path: string; onError?: (hasError: boolean) => void }) {
 	const [links, setLinks] = React.useState<any>(null);
 
 	React.useEffect(() => {
@@ -14,9 +14,16 @@ export default function HyperLinks(props: { path: string }) {
 			if (props.path) {
 				try {
 					const cacheRes = await fetch(`${window.hyperbeamUrl}/${props.path}${HB_ENDPOINTS.cache}`);
-					setLinks(await cacheRes.json());
+					if (cacheRes.status === 404 && props.onError) {
+						props.onError(true);
+						setLinks({});
+					} else {
+						if (props.onError) props.onError(false);
+						setLinks(await cacheRes.json());
+					}
 				} catch (e: any) {
 					console.error(e);
+					if (props.onError) props.onError(true);
 					setLinks({});
 				}
 			}

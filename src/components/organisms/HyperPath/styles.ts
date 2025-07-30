@@ -262,7 +262,7 @@ export const SearchWrapper = styled.div`
 	position: relative;
 `;
 
-export const SearchInputWrapper = styled.div`
+export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error' }>`
 	width: 510px;
 	max-width: 100%;
 	position: relative;
@@ -270,6 +270,46 @@ export const SearchInputWrapper = styled.div`
 	input {
 		max-width: 100%;
 		padding: 10px 10px 10px 42.5px !important;
+		border: 2px solid ${(props) => {
+			switch (props.cacheStatus) {
+				case 'success':
+					return props.theme.colors.form.valid.outline;
+				case 'error':
+					return props.theme.colors.form.invalid.outline;
+				default:
+					return props.theme.colors.form.border;
+			}
+		}} !important;
+		outline: none !important;
+		box-shadow: none !important;
+		
+		&:focus {
+			border: 2px solid ${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.default.outline;
+				}
+			}} !important;
+			outline: none !important;
+			box-shadow: none !important;
+		}
+		
+		&:hover {
+			border: 2px solid ${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.border;
+				}
+			}} !important;
+		}
 	}
 
 	svg {

@@ -32,6 +32,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
 	const [loadingPath, _setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
+	const [cacheStatus, setCacheStatus] = React.useState<'default' | 'success' | 'error'>('default');
 
 	const paths = React.useMemo(() => {
 		return [
@@ -80,10 +81,37 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		})();
 	}, []);
 
+	// Check path validity in real-time as user types
+	React.useEffect(() => {
+		if (!inputPath) {
+			setCacheStatus('default');
+			return;
+		}
+
+		const checkPath = async () => {
+			try {
+				const mainRes = await fetch(`${window.hyperbeamUrl}/${inputPath}`);
+				
+				if (mainRes.status === 404) {
+					setCacheStatus('error'); // Red: invalid path
+				} else if (mainRes.ok) {
+					setCacheStatus('success'); // Green: valid path
+				} else {
+					setCacheStatus('default'); // Orange: other status
+				}
+			} catch (e: any) {
+				setCacheStatus('error'); // Red: network error
+			}
+		};
+
+		const timeoutId = setTimeout(checkPath, 300); // Debounce for 300ms
+		return () => clearTimeout(timeoutId);
+	}, [inputPath]);
+
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper>
+				<S.SearchInputWrapper cacheStatus={cacheStatus}>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
 						value={inputPath}
