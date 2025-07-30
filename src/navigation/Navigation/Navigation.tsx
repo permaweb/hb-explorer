@@ -100,6 +100,21 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		})();
 	}, []);
 
+	React.useEffect(() => {
+		const handleGlobalKeyDown = (e: KeyboardEvent) => {
+			if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+				e.preventDefault();
+				inputRef.current?.focus();
+			}
+		};
+
+		document.addEventListener('keydown', handleGlobalKeyDown);
+
+		return () => {
+			document.removeEventListener('keydown', handleGlobalKeyDown);
+		};
+	}, []);
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = e.target.value;
 		const newCursorPosition = e.target.selectionStart || 0;
