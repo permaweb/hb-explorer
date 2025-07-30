@@ -146,7 +146,9 @@ export default function HyperPath(props: {
 		(async function () {
 			if (hyperBeamRequest.submittedPath) {
 				try {
-					const hyperbuddyResponse = await fetch(`${window.hyperbeamUrl}/${hyperBeamRequest.submittedPath}/format~hyperbuddy@1.0`);
+					const hyperbuddyResponse = await fetch(
+						`${window.hyperbeamUrl}/${hyperBeamRequest.submittedPath}/format~hyperbuddy@1.0`
+					);
 					if (hyperbuddyResponse.ok) {
 						const data = await hyperbuddyResponse.text();
 						setHyperbuddyData(data);
@@ -314,11 +316,7 @@ export default function HyperPath(props: {
 					{buildInfoSection('Signed Headers', ASSETS.headers, hyperBeamRequest.headers)}
 					{buildInfoSection('Links', ASSETS.link, hyperBeamRequest.links)}
 				</S.InfoWrapper>
-				{responseToUse && (
-					<S.BodyWrapper>
-						{renderTabContent()}
-					</S.BodyWrapper>
-				)}
+				{responseToUse && <S.BodyWrapper>{renderTabContent()}</S.BodyWrapper>}
 			</>
 		);
 	}
@@ -381,22 +379,13 @@ export default function HyperPath(props: {
 					<S.HeaderActionsWrapper>
 						{(hyperBeamRequest.response || hyperBeamRequest.lastSuccessfulResponse) && (
 							<S.TabButtonGroup>
-								<S.TabButton 
-									active={activeTab === 'hyperbuddy'} 
-									onClick={() => setActiveTab('hyperbuddy')}
-								>
+								<S.TabButton active={activeTab === 'hyperbuddy'} onClick={() => setActiveTab('hyperbuddy')}>
 									Hyperbuddy
 								</S.TabButton>
-								<S.TabButton 
-									active={activeTab === 'body'} 
-									onClick={() => setActiveTab('body')}
-								>
+								<S.TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
 									Body
 								</S.TabButton>
-								<S.TabButton 
-									active={activeTab === 'graph'} 
-									onClick={() => setActiveTab('graph')}
-								>
+								<S.TabButton active={activeTab === 'graph'} onClick={() => setActiveTab('graph')}>
 									Graph
 								</S.TabButton>
 							</S.TabButtonGroup>

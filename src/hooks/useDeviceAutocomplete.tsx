@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { searchDeviceNames } from 'helpers/deviceNames';
+import { searchDeviceNamesSync } from 'helpers/deviceNames';
 
 export interface UseDeviceAutocompleteProps {
 	inputValue: string;
@@ -42,7 +42,7 @@ export function useDeviceAutocomplete({
 		const currentSegment = segments[segments.length - 1];
 
 		if (currentSegment && currentSegment.length > 0) {
-			const matches = searchDeviceNames(currentSegment);
+			const matches = searchDeviceNamesSync(currentSegment);
 			if (matches.length > 0) {
 				setAutocompleteOptions(matches);
 				setShowAutocomplete(true);

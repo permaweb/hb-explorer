@@ -135,7 +135,7 @@ export const TabButtonGroup = styled.div`
 export const TabButton = styled.button<{ active: boolean }>`
 	padding: 6px 12px;
 	border: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
-	border-radius: ${STYLING.dimensions.radius.primary};
+	border-radius: ${STYLING.dimensions.radius.alt2};
 	background: ${(props) => (props.active ? props.theme.colors.container.alt8.background : 'transparent')};
 	color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.alt1)};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
@@ -146,7 +146,8 @@ export const TabButton = styled.button<{ active: boolean }>`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${(props) => (props.active ? props.theme.colors.container.alt8.background : props.theme.colors.container.alt1.background)};
+		background: ${(props) =>
+			props.active ? props.theme.colors.container.alt8.background : props.theme.colors.container.alt1.background};
 		color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.primary)};
 	}
 

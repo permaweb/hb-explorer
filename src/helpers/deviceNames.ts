@@ -3,7 +3,10 @@ export interface DeviceInfo {
 	name: string;
 }
 
-export const DEVICE_NAMES: Record<string, DeviceInfo> = {
+let deviceNamesCache: Record<string, DeviceInfo> | null = null;
+let deviceNamesList: string[] = [];
+
+const FALLBACK_DEVICE_NAMES: Record<string, DeviceInfo> = {
 	'1': {
 		module: 'dev_apply',
 		name: '~apply@1.0',
@@ -186,25 +189,129 @@ export const DEVICE_NAMES: Record<string, DeviceInfo> = {
 	},
 };
 
+async function fetchDeviceNames(): Promise<Record<string, DeviceInfo>> {
+	if (deviceNamesCache) {
+		return deviceNamesCache;
+	}
+
+	try {
+		const baseUrl = (window as any).hyperbeamUrl || window.location.origin;
+		const response = await fetch(`${baseUrl}/~meta@1.0/info/preloaded_devices/serialize~json@1.0`);
+
+		if (!response.ok) {
+			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+		}
+
+		const data = await response.json();
+
+		if (data && typeof data === 'object') {
+			// Ensure device names have ~ prefix
+			const processedData: Record<string, DeviceInfo> = {};
+			Object.entries(data).forEach(([key, device]: [string, any]) => {
+				if (device && device.name) {
+					processedData[key] = {
+						module: device.module,
+						name: device.name.startsWith('~') ? device.name : `~${device.name}`,
+					};
+				}
+			});
+			
+			deviceNamesCache = processedData;
+			deviceNamesList = Object.values(processedData)
+				.map((device: any) => device.name)
+				.sort();
+			return processedData;
+		} else {
+			throw new Error('Invalid response format');
+		}
+	} catch (error) {
+		console.warn('Failed to fetch device names from API, using fallback:', error);
+		deviceNamesCache = FALLBACK_DEVICE_NAMES;
+		deviceNamesList = Object.values(FALLBACK_DEVICE_NAMES)
+			.map((device) => device.name)
+			.sort();
+		return FALLBACK_DEVICE_NAMES;
+	}
+}
+
+export async function getDeviceNames(): Promise<Record<string, DeviceInfo>> {
+	return await fetchDeviceNames();
+}
+
+export const DEVICE_NAMES = new Proxy({} as Record<string, DeviceInfo>, {
+	get(target, prop) {
+		if (deviceNamesCache) {
+			return deviceNamesCache[prop as string];
+		}
+		return FALLBACK_DEVICE_NAMES[prop as string];
+	},
+	ownKeys() {
+		return Object.keys(deviceNamesCache || FALLBACK_DEVICE_NAMES);
+	},
+	has(target, prop) {
+		return prop in (deviceNamesCache || FALLBACK_DEVICE_NAMES);
+	},
+});
+
 // Create array of device names for autocomplete
-export const DEVICE_NAME_LIST = Object.values(DEVICE_NAMES)
-	.map((device) => device.name)
-	.sort();
+export async function getDeviceNameList(): Promise<string[]> {
+	const devices = await fetchDeviceNames();
+	return Object.values(devices)
+		.map((device) => device?.name)
+		.filter((name): name is string => Boolean(name))
+		.sort();
+}
+
+// Synchronous version that uses cached data or fallback
+export function getDeviceNameListSync(): string[] {
+	if (deviceNamesList.length > 0) {
+		return deviceNamesList;
+	}
+	return Object.values(FALLBACK_DEVICE_NAMES)
+		.map((device) => device?.name)
+		.filter((name): name is string => Boolean(name))
+		.sort();
+}
+
+// Legacy export for backward compatibility
+export const DEVICE_NAME_LIST = getDeviceNameListSync();
 
 // Helper function to get device info by name
-export function getDeviceInfo(name: string): DeviceInfo | undefined {
-	return Object.values(DEVICE_NAMES).find((device) => device.name === name);
+export async function getDeviceInfo(name: string): Promise<DeviceInfo | undefined> {
+	const devices = await fetchDeviceNames();
+	return Object.values(devices).find((device) => device.name === name);
+}
+
+// Synchronous version that uses cached data or fallback
+export function getDeviceInfoSync(name: string): DeviceInfo | undefined {
+	const devices = deviceNamesCache || FALLBACK_DEVICE_NAMES;
+	return Object.values(devices).find((device) => device.name === name);
 }
 
 // Helper function to search device names
-export function searchDeviceNames(query: string): string[] {
+export async function searchDeviceNames(query: string): Promise<string[]> {
 	if (!query) return [];
 
+	const deviceList = await getDeviceNameList();
 	const lowerQuery = query.toLowerCase();
 
 	// Don't show suggestions if there's an exact match
-	const exactMatch = DEVICE_NAME_LIST.find((name) => name.toLowerCase() === lowerQuery);
+	const exactMatch = deviceList.find((name) => name && name.toLowerCase() === lowerQuery);
 	if (exactMatch) return [];
 
-	return DEVICE_NAME_LIST.filter((name) => name.toLowerCase().includes(lowerQuery)).slice(0, 10); // Limit to 10 suggestions
+	return deviceList.filter((name) => name && name.toLowerCase().includes(lowerQuery)).slice(0, 10);
+}
+
+// Synchronous version that uses cached data or fallback
+export function searchDeviceNamesSync(query: string): string[] {
+	if (!query) return [];
+
+	const deviceList = getDeviceNameListSync();
+	const lowerQuery = query.toLowerCase();
+
+	// Don't show suggestions if there's an exact match
+	const exactMatch = deviceList.find((name) => name && name.toLowerCase() === lowerQuery);
+	if (exactMatch) return [];
+
+	return deviceList.filter((name) => name && name.toLowerCase().includes(lowerQuery)).slice(0, 10);
 }

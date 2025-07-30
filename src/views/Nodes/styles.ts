@@ -187,12 +187,11 @@ export const NodeLine = styled.div`
 
 export const Subheader = styled.div`
 	width: fit-content;
-	padding: 2.5px 11.5px;
+	padding: 6px 12px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	background: ${(props) => props.theme.colors.container.alt8.background};
-	border: 1px solid ${(props) => props.theme.colors.border.alt2};
 	border-radius: ${STYLING.dimensions.radius.alt2};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
