@@ -37,6 +37,7 @@ export default function HyperPath(props: {
 	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
+	const [resultsReady, setResultsReady] = React.useState<boolean>(false);
 
 	// Use shared HyperBEAM request hook
 	const hyperBeamRequest = useHyperBeamRequest();
@@ -83,6 +84,7 @@ export default function HyperPath(props: {
 		if (newValue === '') {
 			hyperBeamRequest.reset();
 			setResponseBody(null);
+			setResultsReady(false);
 		}
 	};
 
@@ -94,6 +96,7 @@ export default function HyperPath(props: {
 	async function handleSubmit(pathToSubmit?: string) {
 		const pathValue = pathToSubmit || inputPath;
 		if (pathValue) {
+			setResultsReady(false);
 			await hyperBeamRequest.submitRequest(pathValue);
 			if (!hyperBeamRequest.error) {
 				props.onPathChange(pathValue, pathValue);
@@ -104,23 +107,32 @@ export default function HyperPath(props: {
 	React.useEffect(() => {
 		(async function () {
 			if (hyperBeamRequest.response) {
+				setResultsReady(false);
 				if (props.path?.includes('serialize~json@1.0')) {
 					setBodyType('json');
 					try {
 						const body = await hyperBeamRequest.response.clone().json();
 						setResponseBody(body);
+						// Add small timeout to ensure all async operations complete
+						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
+						setTimeout(() => setResultsReady(true), 100);
 					}
 				} else {
 					setBodyType('raw');
 					try {
 						const body = await hyperBeamRequest.response.clone().text();
 						setResponseBody(body);
+						// Add small timeout to ensure all async operations complete
+						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
+						setTimeout(() => setResultsReady(true), 100);
 					}
 				}
+			} else {
+				setResultsReady(false);
 			}
 		})();
 	}, [hyperBeamRequest.response, props.path]);
@@ -170,9 +182,10 @@ export default function HyperPath(props: {
 	}
 
 	function getPath() {
-		// Only show placeholder when actually loading or when we have an error/no results
+		// Show loading placeholder when loading or when results are not ready yet
 		if (
-			(hyperBeamRequest.loading && !hyperBeamRequest.hasContent) ||
+			hyperBeamRequest.loading ||
+			(hyperBeamRequest.response && !resultsReady) ||
 			(hyperBeamRequest.error && !hyperBeamRequest.hasContent) ||
 			(!hyperBeamRequest.response && !hyperBeamRequest.hasContent)
 		) {
@@ -183,7 +196,7 @@ export default function HyperPath(props: {
 					</S.PlaceholderIcon>
 					<S.PlaceholderDescription>
 						<p>
-							{hyperBeamRequest.loading
+							{hyperBeamRequest.loading || (hyperBeamRequest.response && !resultsReady)
 								? `${language.loading}...`
 								: hyperBeamRequest.error
 								? language.pathNotFound
