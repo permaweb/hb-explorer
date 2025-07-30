@@ -14,6 +14,7 @@ import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { HyperLinks } from '../HyperLinks';
+import SamplePaths from '../../molecules/SamplePaths';
 
 import * as S from './styles';
 
@@ -359,10 +360,16 @@ export default function HyperPath(props: {
 						</S.PathInfoWrapper>
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
-				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
-				{/* <S.Graphic>
+				<S.ContentWrapper>
+					{!inputPath && !loadingPath && !pathNotFound ? (
+						<SamplePaths onPathSelect={setInputPath} />
+					) : (
+						getPath()
+					)}
+				</S.ContentWrapper>
+				<S.Graphic>
 					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-				</S.Graphic> */}
+				</S.Graphic>
 			</S.Wrapper>
 			{error && (
 				<Notification
