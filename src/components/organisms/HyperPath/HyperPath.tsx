@@ -91,29 +91,30 @@ function InfoLine(props: { headerKey: string; data: string; depth: number }) {
 }
 
 // Cache to store results by path - shared across all HyperPath instances
-const resultsCache = new Map<string, {
-	response: Response;
-	responseBody: any;
-	hyperbuddyData: any;
-	bodyType: 'json' | 'raw';
-	headers: any;
-	links: any;
-	signature: string | null;
-	signer: string | null;
-	signatureValid: boolean | null;
-	signatureAlg: string | null;
-	signatureKeyId: string | null;
-	id: string | null;
-	timestamp: number;
-}>();
+const resultsCache = new Map<
+	string,
+	{
+		response: Response;
+		responseBody: any;
+		hyperbuddyData: any;
+		bodyType: 'json' | 'raw';
+		headers: any;
+		links: any;
+		signature: string | null;
+		signer: string | null;
+		signatureValid: boolean | null;
+		signatureAlg: string | null;
+		signatureKeyId: string | null;
+		id: string | null;
+		timestamp: number;
+	}
+>();
 
 export default function HyperPath(props: {
 	path: string;
 	active: boolean;
 	onPathChange?: (id: string, path: string) => void;
 }) {
-	const navigate = useNavigate();
-
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -160,7 +161,7 @@ export default function HyperPath(props: {
 
 	React.useEffect(() => {
 		setInputPath(props.path);
-		
+
 		// Load cached results for saved tabs (when returning to a tab with an existing path)
 		if (props.path && props.path.trim() !== '' && props.active) {
 			const cached = resultsCache.get(props.path);
@@ -170,7 +171,7 @@ export default function HyperPath(props: {
 				setHyperbuddyData(cached.hyperbuddyData);
 				setBodyType(cached.bodyType);
 				setResultsReady(true);
-				
+
 				// Update hyperBeamRequest state with cached data
 				hyperBeamRequest.setState?.({
 					loading: false,
@@ -222,14 +223,14 @@ export default function HyperPath(props: {
 		) {
 			// Show spinner immediately
 			setShowAutoSubmitSpinner(true);
-			
+
 			// Set timer for auto-submit (2 seconds)
 			const timerId = setTimeout(() => {
 				setShowAutoSubmitSpinner(false);
 				setAutoSubmitTimerId(null);
 				handleSubmit();
 			}, 1000);
-			
+
 			setAutoSubmitTimerId(timerId);
 		}
 
@@ -291,14 +292,13 @@ export default function HyperPath(props: {
 		}
 	}
 
-
 	React.useEffect(() => {
 		(async function () {
 			if (hyperBeamRequest.response && hyperBeamRequest.submittedPath) {
 				setResultsReady(false);
 				let body;
 				let currentBodyType: 'json' | 'raw' = 'raw';
-				
+
 				if (hyperBeamRequest.submittedPath.includes('serialize~json@1.0')) {
 					currentBodyType = 'json';
 					try {
@@ -366,7 +366,7 @@ export default function HyperPath(props: {
 					if (hyperbuddyResponse.ok) {
 						const data = await hyperbuddyResponse.text();
 						setHyperbuddyData(data);
-						
+
 						// Update cache with hyperbuddy data
 						if (cached) {
 							cached.hyperbuddyData = data;
@@ -506,30 +506,34 @@ export default function HyperPath(props: {
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
 						<S.Tab label={'Overview'}>
-							{buildInfoSection('Signed Headers', ASSETS.headers, (() => {
-								// Combine headers with links and sort so links appear on top
-								const allHeaders = { ...hyperBeamRequest.headers };
-								if (hyperBeamRequest.links) {
-									Object.assign(allHeaders, hyperBeamRequest.links);
-								}
-								
-								// Sort entries to put links on top
-								const sortedEntries = Object.entries(allHeaders).sort(([keyA, valA]: any, [keyB, valB]: any) => {
-									const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
-									const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
-									
-									if (aIsAddr && !bIsAddr) return -1;
-									if (!aIsAddr && bIsAddr) return 1;
-									
-									return keyA.localeCompare(keyB);
-								});
-								
-								// Convert back to object
-								return sortedEntries.reduce((acc, [key, val]) => {
-									acc[key] = val;
-									return acc;
-								}, {} as any);
-							})())}
+							{buildInfoSection(
+								'Signed Headers',
+								ASSETS.headers,
+								(() => {
+									// Combine headers with links and sort so links appear on top
+									const allHeaders = { ...hyperBeamRequest.headers };
+									if (hyperBeamRequest.links) {
+										Object.assign(allHeaders, hyperBeamRequest.links);
+									}
+
+									// Sort entries to put links on top
+									const sortedEntries = Object.entries(allHeaders).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+										const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+										const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+										if (aIsAddr && !bIsAddr) return -1;
+										if (!aIsAddr && bIsAddr) return 1;
+
+										return keyA.localeCompare(keyB);
+									});
+
+									// Convert back to object
+									return sortedEntries.reduce((acc, [key, val]) => {
+										acc[key] = val;
+										return acc;
+									}, {} as any);
+								})()
+							)}
 						</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
@@ -610,11 +614,11 @@ export default function HyperPath(props: {
 									icon: 17.5,
 								}}
 								tooltip={
-									showAutoSubmitSpinner 
+									showAutoSubmitSpinner
 										? 'Auto-submitting... Click to submit immediately'
-										: hyperBeamRequest.loading 
-											? `${language.loading}...` 
-											: language.run
+										: hyperBeamRequest.loading
+										? `${language.loading}...`
+										: language.run
 								}
 							/>
 						</S.SpinningWrapper>

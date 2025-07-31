@@ -85,6 +85,7 @@ export const PathIcon = styled.div`
 		height: 18px;
 		width: 18px;
 		fill: ${(props) => props.theme.colors.font.primary};
+		margin: 7.5px 0 0 0;
 	}
 `;
 
@@ -110,9 +111,10 @@ export const PathDescription = styled.p`
 
 export const PathValue = styled.div`
 	code {
-		background: ${(props) => props.theme.colors.container.alt4.background};
-		color: ${(props) => props.theme.colors.font.alt4};
-		font-family: 'JetBrains Mono', monospace;
+		background: ${(props) => props.theme.colors.container.alt8.background};
+		color: ${(props) => props.theme.colors.font.light1};
+		font-family: ${(props) => props.theme.typography.family.alt2};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
 		font-size: 12px;
 		padding: 2px 6px;
 		border-radius: 4px;
