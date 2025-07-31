@@ -9,7 +9,7 @@ import { hbFetch } from 'helpers/utils';
 
 import * as S from './styles';
 
-export default function HyperLinks(props: { id: string; path: string }) {
+export default function HyperLinks(props: { id?: string; path: string; onError?: (hasError: boolean) => void }) {
 	const [raw, setRaw] = React.useState<any>(null);
 
 	const [activeNode, setActiveNode] = React.useState<any | null>(null);
@@ -24,9 +24,16 @@ export default function HyperLinks(props: { id: string; path: string }) {
 			if (props.path) {
 				try {
 					const cacheRes = await fetch(`${window.hyperbeamUrl}/${props.path}${HB_ENDPOINTS.cache}`);
-					setRaw(await cacheRes.json());
+					if (cacheRes.status === 404 && props.onError) {
+						props.onError(true);
+						setRaw({});
+					} else {
+						if (props.onError) props.onError(false);
+						setRaw(await cacheRes.json());
+					}
 				} catch (e: any) {
 					console.error(e);
+					if (props.onError) props.onError(true);
 					setRaw({});
 				}
 			}

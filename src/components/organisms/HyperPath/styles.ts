@@ -127,6 +127,36 @@ export const SignatureHeader = styled(InfoHeader)`
 	padding: 12.5px 12.5px 8.5px 12.5px;
 `;
 
+export const TabButtonGroup = styled.div`
+	display: flex;
+	gap: 8px;
+`;
+
+export const TabButton = styled.button<{ active: boolean }>`
+	padding: 6px 12px;
+	border: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
+	border-radius: ${STYLING.dimensions.radius.alt2};
+	background: ${(props) => (props.active ? props.theme.colors.container.alt8.background : 'transparent')};
+	color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.alt1)};
+	font-size: ${(props) => props.theme.typography.size.xxSmall};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
+	font-family: ${(props) => props.theme.typography.family.primary};
+	cursor: pointer;
+	transition: all 150ms ease;
+	white-space: nowrap;
+
+	&:hover {
+		background: ${(props) =>
+			props.active ? props.theme.colors.container.alt8.background : props.theme.colors.container.alt1.background};
+		color: ${(props) => (props.active ? props.theme.colors.font.light1 : props.theme.colors.font.primary)};
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: none;
+	}
+`;
+
 export const InfoBody = styled.div`
 	max-height: calc(100vh - 140px);
 	display: flex;
@@ -309,7 +339,7 @@ export const SearchWrapper = styled.div`
 	position: relative;
 `;
 
-export const SearchInputWrapper = styled.div`
+export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error'; hasDropdown?: boolean }>`
 	width: 510px;
 	max-width: 100%;
 	position: relative;
@@ -317,6 +347,53 @@ export const SearchInputWrapper = styled.div`
 	input {
 		max-width: 100%;
 		padding: 10px 10px 10px 42.5px !important;
+		border: 1.5px solid
+			${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.border;
+				}
+			}} !important;
+		outline: none !important;
+		box-shadow: none !important;
+		border-radius: ${(props) =>
+			props.hasDropdown
+				? `${STYLING.dimensions.radius.primary} ${STYLING.dimensions.radius.primary} 0 0 !important`
+				: `${STYLING.dimensions.radius.primary} !important`};
+
+		&:focus {
+			border: 1.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.outline;
+						case 'error':
+							return props.theme.colors.form.invalid.outline;
+						default:
+							return props.theme.colors.form.default.outline;
+					}
+				}} !important;
+			outline: none !important;
+			box-shadow: none !important;
+		}
+
+		&:hover {
+			border: 1.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.outline;
+						case 'error':
+							return props.theme.colors.form.invalid.outline;
+						default:
+							return props.theme.colors.form.border;
+					}
+				}} !important;
+		}
 	}
 
 	svg {

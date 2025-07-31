@@ -9,7 +9,7 @@ import { IconButton } from '../IconButton';
 import * as S from './styles';
 import { IProps } from './types';
 
-export default function FormField(props: IProps) {
+export default React.forwardRef<HTMLInputElement, IProps>(function FormField(props, ref) {
 	const [showTooltip, setShowTooltip] = React.useState<boolean>(false);
 
 	function getValue() {
@@ -45,12 +45,16 @@ export default function FormField(props: IProps) {
 					</S.TWrapper>
 				)}
 				<S.Input
+					ref={ref}
 					type={props.type ? props.type : 'text'}
 					step={props.step ? props.step : '1'}
 					value={getValue()}
 					onWheel={(e: any) => e.target.blur()}
 					onChange={props.onChange}
-					onFocus={() => (props.onFocus ? props.onFocus() : {})}
+					onFocus={props.onFocus}
+					onClick={props.onClick}
+					onKeyPress={props.onKeyPress}
+					onKeyDown={props.onKeyDown}
 					disabled={props.disabled}
 					invalid={props.invalid.status}
 					placeholder={props.placeholder ? props.placeholder : ''}
@@ -69,4 +73,4 @@ export default function FormField(props: IProps) {
 			</S.Wrapper>
 		</>
 	);
-}
+});

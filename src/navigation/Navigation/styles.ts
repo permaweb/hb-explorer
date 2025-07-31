@@ -159,13 +159,60 @@ export const SubmitWrapper = styled.div`
 	right: 4.5px;
 `;
 
-export const SearchInputWrapper = styled.div`
+export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error'; hasDropdown?: boolean }>`
 	width: 100%;
 	position: relative;
 
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
+		border: 1.5px solid
+			${(props) => {
+				switch (props.cacheStatus) {
+					case 'success':
+						return props.theme.colors.form.valid.outline;
+					case 'error':
+						return props.theme.colors.form.invalid.outline;
+					default:
+						return props.theme.colors.form.border;
+				}
+			}} !important;
+		outline: none !important;
+		box-shadow: none !important;
+		border-radius: ${(props) =>
+			props.hasDropdown
+				? `${STYLING.dimensions.radius.primary} ${STYLING.dimensions.radius.primary} 0 0 !important`
+				: `${STYLING.dimensions.radius.primary} !important`};
+
+		&:focus {
+			border: 1.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.outline;
+						case 'error':
+							return props.theme.colors.form.invalid.outline;
+						default:
+							return props.theme.colors.form.default.outline;
+					}
+				}} !important;
+			outline: none !important;
+			box-shadow: none !important;
+		}
+
+		&:hover {
+			border: 1.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.outline;
+						case 'error':
+							return props.theme.colors.form.invalid.outline;
+						default:
+							return props.theme.colors.form.border;
+					}
+				}} !important;
+		}
 	}
 
 	svg {

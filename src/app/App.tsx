@@ -9,6 +9,7 @@ const Nodes = getLazyImport('Nodes');
 const NotFound = getLazyImport('NotFound');
 
 import { DOM, LINKS, URLS } from 'helpers/config';
+import { getDeviceNames } from 'helpers/deviceNames';
 import { Navigation } from 'navigation/Navigation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
@@ -35,6 +36,13 @@ export default function App() {
 	const language = languageProvider.object[languageProvider.current];
 
 	const { settings, updateSettings } = useSettingsProvider();
+
+	// Initialize device names cache on app startup
+	React.useEffect(() => {
+		getDeviceNames().catch((error) => {
+			console.warn('Failed to preload device names:', error);
+		});
+	}, []);
 
 	React.useEffect(() => {
 		const { pathname, search, hash } = window.location;

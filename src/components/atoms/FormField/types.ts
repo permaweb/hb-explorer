@@ -6,6 +6,9 @@ export interface IProps {
 	value: number | string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	onFocus?: () => void;
+	onClick?: (e: React.MouseEvent<HTMLInputElement>) => void;
+	onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 	invalid: ValidationType;
 	disabled: boolean;
 	label?: string;
