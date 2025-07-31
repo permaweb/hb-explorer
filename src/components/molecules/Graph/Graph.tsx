@@ -4,99 +4,119 @@ import { useTheme } from 'styled-components';
 
 import * as S from './styles';
 
+const LARGE_NODE_THRESHOLD = 150;
+
+function adjustZoomForNodeCount(cy: any) {
+	const count = cy.nodes().length;
+	if (count > LARGE_NODE_THRESHOLD) {
+		const zoom = Math.max(0.2, Math.min(1, LARGE_NODE_THRESHOLD / count));
+		cy.zoom(zoom);
+		cy.center();
+	} else {
+		cy.fit(cy.nodes(), 30);
+	}
+}
+
 export default function Graph(props: { data: any; handleCallback: (node: any) => void; activeId: string | null }) {
 	const theme = useTheme();
-
-	const styles: any = [
-		{
-			selector: 'node',
-			style: {
-				'background-color': theme.colors.button.primary.background,
-				'text-valign': 'center',
-				'text-halign': 'center',
-				height: props.data && props.data.length < 20 ? '4.5px' : '25px',
-				width: props.data && props.data.length < 20 ? '4.5px' : '25px',
-				'border-width': props.data && props.data.length < 20 ? '0.25px' : '1px',
-				'border-color': theme.colors.border.primary,
-				'overlay-opacity': 0,
-			},
-		},
-		{
-			selector: `node[type = "stamp"]`,
-			style: {
-				'background-color': theme.colors.editor.alt1,
-			},
-		},
-		{
-			selector: `node[type = "root"]`,
-			style: {
-				'background-color': theme.colors.editor.alt6,
-			},
-		},
-		{
-			selector: `node[type = "comment"]`,
-			style: {
-				'background-color': theme.colors.editor.alt2,
-			},
-		},
-		{
-			selector: `node[id = "${props.activeId}"]`,
-			style: {
-				'background-color': theme.colors.editor.primary,
-			},
-		},
-		{
-			selector: 'edge',
-			style: {
-				'line-color': theme.colors.border.primary,
-				width: props.data && props.data.length < 20 ? 0.25 : 1.5,
-			},
-		},
-	];
-
-	const cyRef = React.useRef<any>();
+	const containerRef = React.useRef<HTMLDivElement | null>(null);
+	const cyRef = React.useRef<any>(null);
 
 	React.useEffect(() => {
+		if (!containerRef.current) return;
+
+		if (cyRef.current) {
+			cyRef.current.destroy();
+			cyRef.current = null;
+		}
+
+		const isLarge = Array.isArray(props.data) && props.data.length > LARGE_NODE_THRESHOLD;
+
+		const styles: any = [
+			{
+				selector: 'node',
+				style: {
+					'background-color': theme.colors.button.primary.background,
+					'text-valign': 'center',
+					'text-halign': 'center',
+					height: props.data && props.data.length < 20 ? '4.5px' : '25px',
+					width: props.data && props.data.length < 20 ? '4.5px' : '25px',
+					'border-width': props.data && props.data.length < 20 ? '0.25px' : '1px',
+					'border-color': theme.colors.border.primary,
+					'overlay-opacity': 0,
+				},
+			},
+			{
+				selector: 'node.active',
+				style: {
+					'background-color': theme.colors.editor.primary,
+					'border-width': 2,
+					'border-color': theme.colors.editor.primary,
+				},
+			},
+			{
+				selector: 'node:hover',
+				style: {
+					cursor: 'pointer',
+				},
+			},
+			{
+				selector: 'edge',
+				style: {
+					'line-color': theme.colors.border.primary,
+					width: props.data && props.data.length < 20 ? 0.25 : 1.5,
+				},
+			},
+		];
+
 		const cy = cytoscape({
-			container: cyRef.current,
+			container: containerRef.current,
 			elements: props.data,
 			style: styles,
-			userPanningEnabled: false,
-			userZoomingEnabled: false,
+			userPanningEnabled: true,
+			userZoomingEnabled: true,
+			boxSelectionEnabled: false,
+			zoomingEnabled: true,
 		});
 
-		const layout = cy.layout({
-			name: 'concentric',
-			fit: true,
-			padding: 30,
-			startAngle: (Math.PI * 3) / 2,
-			sweep: undefined,
-			clockwise: true,
-			equidistant: false,
-			minNodeSpacing: 10,
-			height: undefined,
-			width: undefined,
-			avoidOverlap: true,
-			nodeDimensionsIncludeLabels: false,
-			spacingFactor: undefined,
-			concentric: function (node) {
-				return node.degree();
-			},
-			levelWidth: function (nodes) {
-				return nodes.maxDegree() / 4;
-			},
-		});
+		cyRef.current = cy;
 
+		const layoutOpts: any = isLarge
+			? {
+					name: 'cose',
+					idealEdgeLength: 80,
+					nodeOverlap: 10,
+					refresh: 20,
+					fit: false,
+					animate: false,
+			  }
+			: {
+					name: 'concentric',
+					fit: false,
+					padding: 30,
+					startAngle: (Math.PI * 3) / 2,
+					clockwise: true,
+					equidistant: false,
+					minNodeSpacing: 10,
+					avoidOverlap: true,
+					nodeDimensionsIncludeLabels: false,
+					concentric: (node: any) => node.degree(),
+					levelWidth: (nodes: any) => Math.max(1, nodes.maxDegree() / 4),
+			  };
+
+		const layout = cy.layout(layoutOpts);
 		layout.run();
 
-		cy.on('click', 'node', function (event) {
-			const target = event.target;
-			props.handleCallback(target['_private'].data);
-		});
+		adjustZoomForNodeCount(cy);
 
-		cy.on('tap', 'node', function (event) {
+		if (props.activeId) {
+			const activeNode = cy.getElementById(props.activeId);
+			if (activeNode) activeNode.addClass('active');
+		}
+
+		cy.on('tap', 'node', (event: any) => {
 			const target = event.target;
-			props.handleCallback(target['_private'].data);
+			props.handleCallback(target.data());
 		});
 
 		cy.on('mouseover', 'node', function (event: any) {
@@ -110,12 +130,6 @@ export default function Graph(props: { data: any; handleCallback: (node: any) =>
 			cyRef.current.style.cursor = 'default';
 			if (node.id() !== props.activeId) {
 				switch (node.data().type) {
-					case 'stamp':
-						node.style('background-color', theme.colors.editor.alt1);
-						break;
-					case 'comment':
-						node.style('background-color', theme.colors.editor.alt2);
-						break;
 					case 'root':
 						node.style('background-color', theme.colors.editor.alt6);
 						break;
@@ -126,14 +140,35 @@ export default function Graph(props: { data: any; handleCallback: (node: any) =>
 			}
 		});
 
+		const resizeObserver = new ResizeObserver(() => {
+			cy.resize();
+			adjustZoomForNodeCount(cy);
+		});
+		if (containerRef.current) resizeObserver.observe(containerRef.current);
+
 		return () => {
+			resizeObserver.disconnect();
 			cy.destroy();
+			cyRef.current = null;
 		};
-	}, [props.activeId, props.data, theme]);
+	}, [props.data, theme]);
+
+	React.useEffect(() => {
+		const cy = cyRef.current;
+		if (!cy) return;
+
+		cy.batch(() => {
+			cy.nodes().removeClass('active');
+			if (props.activeId) {
+				const node = cy.getElementById(props.activeId);
+				if (node) node.addClass('active');
+			}
+		});
+	}, [props.activeId]);
 
 	return (
 		<S.Graph className={'border-wrapper-primary'}>
-			<S.CyWrapper ref={cyRef} />
+			<S.CyWrapper ref={(el: HTMLDivElement) => (containerRef.current = el)} />
 		</S.Graph>
 	);
 }

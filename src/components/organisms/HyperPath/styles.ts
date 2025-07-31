@@ -159,7 +159,7 @@ export const TabButton = styled.button<{ active: boolean }>`
 `;
 
 export const InfoBody = styled.div`
-	max-height: calc(100vh - 140px);
+	max-height: calc(100vh - 240px);
 	display: flex;
 	flex-direction: column;
 
@@ -347,7 +347,7 @@ export const SpinningWrapper = styled.div`
 		animation: icon-bounce-spin 0.8s ease-out infinite;
 		transform-origin: 50% 50%;
 	}
-	
+
 	@keyframes icon-bounce-spin {
 		0% {
 			transform: rotate(0deg);
@@ -384,7 +384,7 @@ export const CustomSpinnerButton = styled.button`
 	border: 1px solid ${(props) => props.theme.colors.button.alt1.border};
 	cursor: pointer;
 	color: ${(props) => props.theme.colors.button.alt1.color};
-	
+
 	&:hover {
 		background: ${(props) => props.theme.colors.button.alt1.background};
 		border: 1px solid ${(props) => props.theme.colors.button.alt1.border};
@@ -397,11 +397,11 @@ export const SpinnerSVG = styled.svg`
 	height: 17.5px;
 	animation: smooth-spin 0.5s linear infinite;
 	transform-origin: center center;
-	
+
 	@keyframes smooth-spin {
 		from {
 			transform: rotate(-180deg);
-		}	
+		}
 		to {
 			transform: rotate(180deg);
 		}

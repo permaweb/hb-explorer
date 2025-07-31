@@ -60,7 +60,7 @@ function InfoLine(props: { headerKey: string; data: string; depth: number }) {
 			<S.InfoLine isLink={isLink} onClick={() => (isLink ? setOpen((prev) => !prev) : {})} depth={props.depth}>
 				<S.InfoLineHeader open={open}>
 					{isLink && <ReactSVG src={ASSETS.arrowRight} />}
-					<span>{`${props.headerKey}`}</span>
+					<span>{isLink ? `${props.headerKey.replace('+link', '')}` : props.headerKey}</span>
 				</S.InfoLineHeader>
 				<S.InfoLineEnd>
 					{isAddress ? <Copyable value={props.data} format={'address'} /> : <p>{props.data}</p>}
@@ -502,39 +502,37 @@ export default function HyperPath(props: {
 							)}
 						</S.SignatureBody>
 					</S.InfoSection>
+					{buildInfoSection(
+						'Signed Headers',
+						ASSETS.headers,
+						(() => {
+							// Combine headers with links and sort so links appear on top
+							const allHeaders = { ...hyperBeamRequest.headers };
+							if (hyperBeamRequest.links) {
+								Object.assign(allHeaders, hyperBeamRequest.links);
+							}
+
+							// Sort entries to put links on top
+							const sortedEntries = Object.entries(allHeaders).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+								const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+								const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+								if (aIsAddr && !bIsAddr) return -1;
+								if (!aIsAddr && bIsAddr) return 1;
+
+								return keyA.localeCompare(keyB);
+							});
+
+							// Convert back to object
+							return sortedEntries.reduce((acc, [key, val]) => {
+								acc[key] = val;
+								return acc;
+							}, {} as any);
+						})()
+					)}
 				</S.InfoWrapper>
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
-						<S.Tab label={'Overview'}>
-							{buildInfoSection(
-								'Signed Headers',
-								ASSETS.headers,
-								(() => {
-									// Combine headers with links and sort so links appear on top
-									const allHeaders = { ...hyperBeamRequest.headers };
-									if (hyperBeamRequest.links) {
-										Object.assign(allHeaders, hyperBeamRequest.links);
-									}
-
-									// Sort entries to put links on top
-									const sortedEntries = Object.entries(allHeaders).sort(([keyA, valA]: any, [keyB, valB]: any) => {
-										const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
-										const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
-
-										if (aIsAddr && !bIsAddr) return -1;
-										if (!aIsAddr && bIsAddr) return 1;
-
-										return keyA.localeCompare(keyB);
-									});
-
-									// Convert back to object
-									return sortedEntries.reduce((acc, [key, val]) => {
-										acc[key] = val;
-										return acc;
-									}, {} as any);
-								})()
-							)}
-						</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
 								<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
