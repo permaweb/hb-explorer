@@ -7,9 +7,12 @@ import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Toggle } from 'components/atoms/Toggle';
+import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
 import { checkValidAddress, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
+import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
+import { usePathValidation } from 'hooks/usePathValidation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
 import { CloseHandler } from 'wrappers/CloseHandler';
@@ -32,6 +35,23 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [txOutputOpen, setTxOutputOpen] = React.useState<boolean>(false);
 	const [loadingPath, _setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
+	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
+	const inputRef = React.useRef<HTMLInputElement>(null);
+
+	// Use shared validation hook
+	const { validationStatus } = usePathValidation({ path: inputPath });
+
+	// Use shared autocomplete hook
+	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
+		useDeviceAutocomplete({
+			inputValue: inputPath,
+			cursorPosition,
+			inputRef,
+			onValueChange: (value, newCursorPosition) => {
+				setInputPath(value);
+				setCursorPosition(newCursorPosition);
+			},
+		});
 
 	const paths = React.useMemo(() => {
 		return [
@@ -80,20 +100,63 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		})();
 	}, []);
 
+	React.useEffect(() => {
+		const handleGlobalKeyDown = (e: KeyboardEvent) => {
+			if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+				e.preventDefault();
+				inputRef.current?.focus();
+			}
+		};
+
+		document.addEventListener('keydown', handleGlobalKeyDown);
+
+		return () => {
+			document.removeEventListener('keydown', handleGlobalKeyDown);
+		};
+	}, []);
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const newValue = e.target.value;
+		const newCursorPosition = e.target.selectionStart || 0;
+
+		setInputPath(newValue);
+		setCursorPosition(newCursorPosition);
+	};
+
+	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter' && inputPath) {
+			navigate(`${URLS.explorer}${inputPath}`);
+			setInputPath('');
+		}
+	};
+
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper>
+				<S.SearchInputWrapper
+					cacheStatus={validationStatus}
+					hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
+				>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
+						ref={inputRef}
 						value={inputPath}
-						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
+						onChange={handleInputChange}
+						onKeyDown={handleKeyDown}
+						onKeyPress={handleKeyPress}
 						onFocus={() => setTxOutputOpen(true)}
 						placeholder={language.pathOrId}
 						invalid={{ status: false, message: null }}
 						disabled={loadingPath}
 						hideErrorMessage
 						sm
+					/>
+					<AutocompleteDropdown
+						options={autocompleteOptions}
+						selectedIndex={selectedOptionIndex}
+						onSelect={acceptAutocomplete}
+						visible={showAutocomplete}
+						showTabHint={true}
 					/>
 				</S.SearchInputWrapper>
 				<S.SubmitWrapper>

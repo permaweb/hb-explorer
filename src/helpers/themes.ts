@@ -264,6 +264,10 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 				shadow: currentTheme.negative2,
 			},
 			valid: {
+				outline: currentTheme.positive1,
+				shadow: currentTheme.positive2,
+			},
+			default: {
 				outline: currentTheme.primary1,
 				shadow: currentTheme.primary2,
 			},
