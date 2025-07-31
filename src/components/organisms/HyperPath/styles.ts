@@ -17,6 +17,7 @@ export const HeaderWrapper = styled.form`
 	gap: 20px;
 	position: relative;
 	z-index: 1;
+	overflow: visible;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		flex-direction: column-reverse;
@@ -337,12 +338,81 @@ export const SearchWrapper = styled.div`
 	flex-wrap: wrap;
 	gap: 15px;
 	position: relative;
+	overflow: visible;
+`;
+
+// Wrapper to add spinning animation to IconButton
+export const SpinningWrapper = styled.div`
+	&.spinning svg {
+		animation: icon-bounce-spin 0.8s ease-out infinite;
+		transform-origin: 50% 50%;
+	}
+	
+	@keyframes icon-bounce-spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		10% {
+			transform: rotate(-50deg);
+		}
+		30% {
+			transform: rotate(-120deg);
+		}
+		50% {
+			transform: rotate(-180deg);
+		}
+		60% {
+			transform: rotate(-230deg);
+		}
+		80% {
+			transform: rotate(-300deg);
+		}
+		100% {
+			transform: rotate(-360deg);
+		}
+	}
+`;
+
+export const CustomSpinnerButton = styled.button`
+	width: 32.5px;
+	height: 32.5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: ${STYLING.dimensions.radius.primary};
+	background: ${(props) => props.theme.colors.button.alt1.background};
+	border: 1px solid ${(props) => props.theme.colors.button.alt1.border};
+	cursor: pointer;
+	color: ${(props) => props.theme.colors.button.alt1.color};
+	
+	&:hover {
+		background: ${(props) => props.theme.colors.button.alt1.background};
+		border: 1px solid ${(props) => props.theme.colors.button.alt1.border};
+		opacity: 0.8;
+	}
+`;
+
+export const SpinnerSVG = styled.svg`
+	width: 17.5px;
+	height: 17.5px;
+	animation: smooth-spin 0.5s linear infinite;
+	transform-origin: center center;
+	
+	@keyframes smooth-spin {
+		from {
+			transform: rotate(-180deg);
+		}	
+		to {
+			transform: rotate(180deg);
+		}
+	}
 `;
 
 export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error'; hasDropdown?: boolean }>`
 	width: 510px;
 	max-width: 100%;
 	position: relative;
+	overflow: visible;
 
 	input {
 		max-width: 100%;

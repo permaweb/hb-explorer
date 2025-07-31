@@ -3,17 +3,13 @@ import styled from 'styled-components';
 import { STYLING } from 'helpers/config';
 
 export const Dropdown = styled.div`
-	position: absolute;
-	top: calc(100% - 2px);
-	left: 0;
-	width: 100%;
 	max-height: 200px;
 	overflow-y: auto;
 	background: ${(props) => props.theme.colors.container.primary.background};
 	border: 2px solid ${(props) => props.theme.colors.form.border};
 	border-top: none;
 	border-radius: 0 0 ${STYLING.dimensions.radius.primary} ${STYLING.dimensions.radius.primary};
-	z-index: 1000;
+	z-index: 999999;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
 

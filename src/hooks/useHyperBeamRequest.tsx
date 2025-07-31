@@ -22,6 +22,7 @@ export interface HyperBeamRequestState {
 export interface UseHyperBeamRequestReturn extends HyperBeamRequestState {
 	submitRequest: (path: string) => Promise<void>;
 	reset: () => void;
+	setState: (newState: Partial<HyperBeamRequestState>) => void;
 }
 
 // Helper functions (extracted from HyperPath)
@@ -245,9 +246,14 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 		});
 	};
 
+	const setStateExposed = (newState: Partial<HyperBeamRequestState>) => {
+		setState(prev => ({ ...prev, ...newState }));
+	};
+
 	return {
 		...state,
 		submitRequest,
 		reset,
+		setState: setStateExposed,
 	};
 }

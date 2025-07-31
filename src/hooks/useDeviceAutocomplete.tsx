@@ -102,19 +102,36 @@ export function useDeviceAutocomplete({
 	};
 
 	const acceptAutocomplete = (deviceName: string) => {
-		const beforeCursor = inputValue.substring(0, cursorPosition);
-		const afterCursor = inputValue.substring(cursorPosition);
-		const segments = beforeCursor.split('/');
+		// Find the start and end of the complete device name that contains the cursor
+		let deviceStart = 0;
+		let deviceEnd = inputValue.length;
 
-		// Replace the current segment with the selected device name
-		segments[segments.length - 1] = deviceName;
-		const newPath = segments.join('/') + afterCursor;
+		// Find the start of the current device (look backwards for '/')
+		for (let i = cursorPosition - 1; i >= 0; i--) {
+			if (inputValue[i] === '/') {
+				deviceStart = i + 1;
+				break;
+			}
+		}
+
+		// Find the end of the current device (look forwards for '/')
+		for (let i = cursorPosition; i < inputValue.length; i++) {
+			if (inputValue[i] === '/') {
+				deviceEnd = i;
+				break;
+			}
+		}
+
+		// Replace the entire device name with the selected option
+		const beforeDevice = inputValue.substring(0, deviceStart);
+		const afterDevice = inputValue.substring(deviceEnd);
+		const newPath = beforeDevice + deviceName + afterDevice;
 
 		setShowAutocomplete(false);
 		setSelectedOptionIndex(-1);
 
 		// Set cursor position after the inserted device name
-		const newCursorPosition = segments.join('/').length;
+		const newCursorPosition = deviceStart + deviceName.length;
 
 		// Update the parent component
 		onValueChange(newPath, newCursorPosition);
