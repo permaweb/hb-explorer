@@ -229,3 +229,25 @@ export async function hbFetch(endpoint: string) {
 	if (endpoint.includes('serialize~json@1.0')) return await response.json();
 	return await response.text();
 }
+
+export function parseHeaders(input) {
+	const out = {};
+	input
+		.split('\n')
+		.map((l) => l.trim())
+		.filter((l) => l && l.includes(':'))
+		.forEach((line) => {
+			const idx = line.indexOf(':');
+			const key = line.slice(0, idx).trim();
+			const val = line.slice(idx + 1).trim();
+			out[key] = { data: val };
+			if (key.includes('+link')) out[key].isLink = true;
+		});
+	return out;
+}
+
+export function joinHeaders(headers) {
+	return Array.from(headers.entries())
+		.map(([name, value]) => `${name}: ${value}`)
+		.join('\n');
+}

@@ -55,7 +55,14 @@ export const Content = styled.div<{ top?: number }>`
 	margin: ${(props) => (props.top ? `${props.top.toString()}px 0 0 0` : '40px 0 0 0')};
 `;
 
-export const Tab = styled.div``;
+export const Tab = styled.div`
+	flex: 1;
+	display: flex;
+
+	button {
+		flex: 1;
+	}
+`;
 
 export const AltTab = styled.div`
 	position: relative;

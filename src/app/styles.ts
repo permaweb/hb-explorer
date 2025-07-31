@@ -199,16 +199,16 @@ export const GlobalStyle = createGlobalStyle`
 	}
 
   .info {
-    padding: 0 5px 0.5px 5px;
-    background: ${(props) => props.theme.colors.contrast.background};
-    border: 1px solid ${(props) => props.theme.colors.border.alt2};
-    border-radius: ${STYLING.dimensions.radius.alt2};
-    animation: ${open} ${transition2};
+    padding: 0 5px 0.5px 5px !important;
+    background: ${(props) => props.theme.colors.contrast.background} !important;
+    border: 1px solid ${(props) => props.theme.colors.border.alt2} !important;
+    border-radius: ${STYLING.dimensions.radius.alt2} !important;
+    animation: ${open} ${transition2} !important;
     span {
-      color: ${(props) => props.theme.colors.contrast.color};
-      font-size: ${(props) => props.theme.typography.size.xxxSmall};
-      font-weight: ${(props) => props.theme.typography.weight.bold};
-      white-space: nowrap;
+      color: ${(props) => props.theme.colors.contrast.color} !important;
+      font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
+      font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+      white-space: nowrap !important;
 	  }
   }
 

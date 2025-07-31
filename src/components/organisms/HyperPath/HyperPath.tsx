@@ -11,40 +11,125 @@ import { Tabs } from 'components/atoms/Tabs';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, URLS } from 'helpers/config';
-import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
-import { checkValidAddress, hbFetch, stripUrlProtocol } from 'helpers/utils';
+import {
+	filterSignedHeaders,
+	getMessageIdFromSignature,
+	getSignatureAlg,
+	getSignatureKeyId,
+	getSignerAddress,
+	verifySignature,
+} from 'helpers/signatures';
+import { checkValidAddress, hbFetch, joinHeaders, parseHeaders, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { HyperLinks } from '../HyperLinks';
 
 import * as S from './styles';
 
+function InfoLine(props: { headerKey: string; data: string; depth: number }) {
+	const navigate = useNavigate();
+
+	const [open, setOpen] = React.useState<boolean>(false);
+	const [headers, setHeaders] = React.useState<any>(null);
+
+	React.useEffect(() => {
+		(async function () {
+			if (open && !headers) {
+				try {
+					const response = await fetch(`${window.hyperbeamUrl}/${props.data}`);
+
+					if (!response.ok) {
+						return;
+					}
+
+					const raw = joinHeaders(response.headers).trim();
+					const parsed = parseHeaders(raw);
+
+					const sigInputRaw = parsed['signature-input']?.data;
+					const headersToUse = sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed;
+					const sortedEntries = Object.entries(headersToUse).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+						const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+						const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+						if (aIsAddr && !bIsAddr) return -1;
+						if (!aIsAddr && bIsAddr) return 1;
+
+						return keyA.localeCompare(keyB);
+					});
+
+					const sortedHeaders = sortedEntries.reduce((acc, [key, val]) => {
+						acc[key] = val;
+						return acc;
+					}, {} as typeof headersToUse);
+
+					setHeaders(sortedHeaders);
+				} catch (e: any) {
+					console.error(e);
+				}
+			}
+		})();
+	}, [open, headers]);
+
+	const isAddress = checkValidAddress(props.data);
+	const isLink = isAddress && props.headerKey.includes('link');
+
+	return (
+		<S.InfoLineWrapper>
+			<S.InfoLine isLink={isLink} onClick={() => (isLink ? setOpen((prev) => !prev) : {})} depth={props.depth}>
+				<S.InfoLineHeader open={open}>
+					{isLink && <ReactSVG src={ASSETS.arrowRight} />}
+					<span>{`${props.headerKey}`}</span>
+				</S.InfoLineHeader>
+				<S.InfoLineEnd>
+					{isAddress ? <Copyable value={props.data} format={'address'} /> : <p>{props.data}</p>}
+					{isLink && (
+						<IconButton
+							type={'alt1'}
+							src={ASSETS.newTab}
+							handlePress={() => navigate(`${URLS.explorer}${props.data}`)}
+							dimensions={{
+								icon: 10.5,
+								wrapper: 20,
+							}}
+							tooltip={'Open in new tab'}
+							tooltipPosition={'bottom-right'}
+						/>
+					)}
+				</S.InfoLineEnd>
+			</S.InfoLine>
+			{open && headers && (
+				<S.InfoBodyChild>
+					{Object.keys(headers).map((key) => {
+						return <InfoLine key={key} headerKey={key} data={headers[key].data} depth={props.depth + 1} />;
+					})}
+				</S.InfoBodyChild>
+			)}
+		</S.InfoLineWrapper>
+	);
+}
+
 export default function HyperPath(props: {
 	path: string;
 	active: boolean;
 	onPathChange?: (id: string, path: string) => void;
 }) {
-	const navigate = useNavigate();
-
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const [inputPath, setInputPath] = React.useState<string>(props.path);
-
 	const [fullResponse, setFullResponse] = React.useState<any>(null);
-
 	const [responseBody, setResponseBody] = React.useState<any>(null);
 	const [hyperbuddyData, setHyperbuddyData] = React.useState<any>(null);
 	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
 
 	const [id, setId] = React.useState<string | null>(null);
 	const [headers, setHeaders] = React.useState<any>(null);
-	const [links, setLinks] = React.useState<any>(null);
 	const [signature, setSignature] = React.useState<string | null>(null);
 	const [signer, setSigner] = React.useState<string | null>(null);
 	const [signatureAlg, setSignatureAlg] = React.useState<string | null>(null);
 	const [signatureKeyId, setSignatureKeyId] = React.useState<string | null>(null);
 	const [signatureValid, setSignatureValid] = React.useState<boolean | null>(null);
+	const [commitmentDevice, setCommitmentDevice] = React.useState<string | null>(null);
 
 	const [loadingPath, setLoadingPath] = React.useState<boolean>(false);
 	const [copied, setCopied] = React.useState<boolean>(false);
@@ -95,10 +180,28 @@ export default function HyperPath(props: {
 				const signature = response.headers.get('signature');
 
 				const sigInputRaw = parsed['signature-input']?.data;
-				setHeaders(sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed);
+				const headersToUse = sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed;
+				const sortedEntries = Object.entries(headersToUse).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+					const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+					const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+					if (aIsAddr && !bIsAddr) return -1;
+					if (!aIsAddr && bIsAddr) return 1;
+
+					return keyA.localeCompare(keyB);
+				});
+
+				const sortedHeaders = sortedEntries.reduce((acc, [key, val]) => {
+					acc[key] = val;
+					return acc;
+				}, {} as typeof headersToUse);
+
+				setHeaders(sortedHeaders);
+
+				if (parsed['commitment_device']) setCommitmentDevice(parsed['commitment_device'].data);
 
 				if (signature) {
-					const messageId = await getMessageIdFromSig(signature);
+					const messageId = await getMessageIdFromSignature(signature);
 					setId(messageId);
 
 					const signatureInput = parsed['signature-input']?.data ?? '';
@@ -114,15 +217,6 @@ export default function HyperPath(props: {
 					setSignatureAlg(alg);
 					setSignatureKeyId(keyid);
 				}
-
-				let linkHeaders = {};
-				for (const key of Object.keys(parsed)) {
-					if (key.includes('+link')) {
-						linkHeaders[key] = parsed[key];
-					}
-				}
-
-				setLinks(linkHeaders);
 
 				props.onPathChange(inputPath, inputPath);
 				setPathNotFound(false);
@@ -159,131 +253,6 @@ export default function HyperPath(props: {
 		})();
 	}, [fullResponse, props.path]);
 
-	/**
-	 * Extracts the last `alg` value from a comma-separated signature header.
-	 * @param header A string like
-	 *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
-	 * @returns the last alg (e.g. "hmac-sha256"), or null if none found
-	 */
-	function getSignatureAlg(header: string): string | null {
-		// gather all alg="…" matches
-		const matches = Array.from(header.matchAll(/;alg="([^"]+)"/g));
-		if (matches.length === 0) return null;
-		// return the capture group of the last match
-		return matches[matches.length - 1][1];
-	}
-
-	/**
-	 * Extracts the last `keyid` value from a comma-separated signature header.
-	 * @param header A string like
-	 *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
-	 * @returns the last keyid (e.g. "bar"), or null if none found
-	 */
-	function getSignatureKeyId(header: string): string | null {
-		const matches = Array.from(header.matchAll(/;keyid="([^"]+)"/g));
-		if (matches.length === 0) return null;
-		return matches[matches.length - 1][1];
-	}
-
-	/**
-	 * @param {string} fullSig  A string like "sig-<b64urlSig>:…"
-	 * @returns {Promise<string>}  The Base64URL-encoded SHA-256 hash of the signature
-	 */
-	async function getMessageIdFromSig(fullSig) {
-		// Grab the part after "sig-" and before the first ":"
-		let [sigPart] = fullSig.split(':');
-		if (!sigPart.startsWith('sig-')) {
-			throw new Error('Expected signature to start with "sig-"');
-		}
-		sigPart = sigPart.slice(4);
-
-		// Base64url → Base64
-		const b64 =
-			sigPart.replace(/-/g, '+').replace(/_/g, '/') +
-			// Pad to multiple of 4
-			'='.repeat((4 - (sigPart.length % 4)) % 4);
-
-		// Decode to bytes
-		const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-
-		// Hash it
-		const hashBuf = await crypto.subtle.digest('SHA-256', raw);
-
-		// Hash → Base64URL (no padding)
-		const hashBytes = new Uint8Array(hashBuf);
-		let hashB64 = btoa(String.fromCharCode(...hashBytes));
-		const hashB64url = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-		return hashB64url;
-	}
-
-	/**
-	 * Given your parsed headers object (from parseHeaders) and the raw
-	 * Signature-Input header value, return a new object containing
-	 * only those headers which were covered by the signature-input.
-	 */
-	function filterSignedHeaders(parsedHeaders, signatureInputValue) {
-		const sigInputs = parseSignatureInput(signatureInputValue);
-
-		// Collect all the field names covered
-		const covered = new Set(sigInputs.flatMap((si) => si.fields.map((f) => f.toLowerCase())));
-
-		// Filter parsedHeaders keys by membership in covered
-		return Object.fromEntries(
-			Object.entries(parsedHeaders).filter(([headerName]) => covered.has(headerName.toLowerCase()))
-		);
-	}
-
-	/**
-	 * @param {string} sigInputRaw
-	 * @returns {Promise<string>} the derived “address” of the first non-HMAC signer
-	 */
-	async function getSignerAddress(sigInputRaw) {
-		const entries = parseSignatureInput(sigInputRaw);
-		if (!entries.length) return 'Unknown';
-
-		// Pick the first entry whose alg isn’t hmac-sha256 (i.e. the real pubkey)
-		const realEntry = entries.find((e) => e.alg.toLowerCase() !== 'hmac-sha256') || entries[0];
-		const rawKeyId = realEntry.keyid;
-
-		// Now decode it to bytes (base64url → Uint8Array)
-		const pubKeyBytes = base64UrlToUint8Array(rawKeyId);
-
-		// sha-256 the public key bytes
-		const hash = await crypto.subtle.digest('SHA-256', pubKeyBytes);
-		const hashArr = new Uint8Array(hash);
-
-		// base64url-encode the hash to get your “address”
-		const address = btoa(String.fromCharCode(...hashArr))
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=+$/, '');
-
-		return address;
-	}
-
-	function parseHeaders(input) {
-		const out = {};
-		input
-			.split('\n')
-			.map((l) => l.trim())
-			.filter((l) => l && l.includes(':'))
-			.forEach((line) => {
-				const idx = line.indexOf(':');
-				const key = line.slice(0, idx).trim();
-				const val = line.slice(idx + 1).trim();
-				out[key] = { data: val };
-				if (key.includes('+link')) out[key].isLink = true;
-			});
-		return out;
-	}
-
-	function joinHeaders(headers) {
-		return Array.from(headers.entries())
-			.map(([name, value]) => `${name}: ${value}`)
-			.join('\n');
-	}
-
 	const copyInput = React.useCallback(async (value: string) => {
 		if (value?.length > 0) {
 			await navigator.clipboard.writeText(value);
@@ -305,21 +274,7 @@ export default function HyperPath(props: {
 					</S.InfoHeader>
 					<S.InfoBody className={'scroll-wrapper-hidden'}>
 						{Object.keys(data).map((key) => {
-							const isAddress = checkValidAddress(data[key].data);
-
-							return (
-								<S.InfoLine
-									key={key}
-									isAddress={isAddress}
-									onClick={() => (isAddress ? navigate(`${URLS.explorer}${data[key].data}`) : {})}
-								>
-									<S.InfoLineHeader>
-										{isAddress && <ReactSVG src={ASSETS.newTab} />}
-										<span>{`${key}`}</span>
-									</S.InfoLineHeader>
-									{isAddress ? <Copyable value={data[key].data} format={'address'} /> : <p>{data[key].data}</p>}
-								</S.InfoLine>
-							);
+							return <InfoLine key={key} headerKey={key} data={data[key].data} depth={1} />;
 						})}
 					</S.InfoBody>
 				</S.InfoSection>
@@ -379,13 +334,18 @@ export default function HyperPath(props: {
 									<p>{signatureKeyId}</p>
 								</S.SignatureLine>
 							)}
+							{commitmentDevice && (
+								<S.SignatureLine>
+									<span>Commitment Device</span>
+									<p>{commitmentDevice}</p>
+								</S.SignatureLine>
+							)}
 						</S.SignatureBody>
 					</S.InfoSection>
-					{buildInfoSection('Signed Headers', ASSETS.headers, headers)}
-					{buildInfoSection('Links', ASSETS.link, links)}
 				</S.InfoWrapper>
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
+						<S.Tab label={'Overview'}>{buildInfoSection('Signed Headers', ASSETS.headers, headers)}</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
 								<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
@@ -462,6 +422,9 @@ export default function HyperPath(props: {
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
 				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
+				<S.Graphic>
+					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
+				</S.Graphic>
 			</S.Wrapper>
 			{error && (
 				<Notification

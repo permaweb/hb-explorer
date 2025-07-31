@@ -128,7 +128,7 @@ export const SignatureHeader = styled(InfoHeader)`
 `;
 
 export const InfoBody = styled.div`
-	max-height: 400px;
+	max-height: calc(100vh - 140px);
 	display: flex;
 	flex-direction: column;
 
@@ -145,6 +145,11 @@ export const InfoBody = styled.div`
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		max-height: none;
 	}
+`;
+
+export const InfoBodyChild = styled(InfoBody)`
+	max-height: none;
+	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
 `;
 
 export const SignatureBody = styled(InfoBody)`
@@ -169,12 +174,18 @@ export const InfoFooter = styled.div`
 	}
 `;
 
-export const InfoLine = styled.div<{ isAddress: boolean }>`
+export const InfoLineWrapper = styled.div`
+	width: 100%;
+`;
+
+export const InfoLine = styled.div<{ isLink: boolean; depth: number }>`
+	height: 45px;
+	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 7.5px;
-	padding: 12.5px;
+	padding: ${(props) => `12.5px 12.5px 12.5px ${(props.depth * 12.5).toString()}px`};
 
 	p,
 	span {
@@ -186,14 +197,14 @@ export const InfoLine = styled.div<{ isAddress: boolean }>`
 	}
 
 	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
@@ -208,7 +219,7 @@ export const InfoLine = styled.div<{ isAddress: boolean }>`
 	}
 
 	${(props) =>
-		props.isAddress &&
+		props.isLink &&
 		css`
 			&:hover {
 				cursor: pointer;
@@ -261,11 +272,32 @@ export const SignatureStatus = styled(SignatureLine)<{ valid: boolean }>`
 	}
 `;
 
-export const InfoLineHeader = styled.div`
-	width: 75%;
+export const InfoLineHeader = styled.div<{ open: boolean }>`
+	width: 45%;
 	display: flex;
 	align-items: center;
 	gap: 10px;
+
+	svg {
+		transition: all 150ms;
+		transform: rotate(${(props) => (props.open ? '90deg' : '0deg')});
+	}
+`;
+
+export const InfoLineEnd = styled.div`
+	width: 55%;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+
+	span {
+		max-width: none;
+	}
+
+	svg {
+		margin: 0 0 0.75px 0;
+	}
 `;
 
 export const SearchWrapper = styled.div`
@@ -427,8 +459,8 @@ export const Graphic = styled.div`
 	video {
 		width: 100%;
 		max-width: ${STYLING.cutoffs.max};
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9275 : 0)});
-		opacity: 0.35;
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.902575 : 0)});
+		opacity: 0.25;
 		position: fixed;
 		z-index: 0;
 		top: 25px;
