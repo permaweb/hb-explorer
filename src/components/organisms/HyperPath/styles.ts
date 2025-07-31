@@ -17,6 +17,7 @@ export const HeaderWrapper = styled.form`
 	gap: 20px;
 	position: relative;
 	z-index: 1;
+	overflow: visible;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		flex-direction: column-reverse;
@@ -337,12 +338,14 @@ export const SearchWrapper = styled.div`
 	flex-wrap: wrap;
 	gap: 15px;
 	position: relative;
+	overflow: visible;
 `;
 
 export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error'; hasDropdown?: boolean }>`
 	width: 510px;
 	max-width: 100%;
 	position: relative;
+	overflow: visible;
 
 	input {
 		max-width: 100%;
