@@ -134,6 +134,18 @@ export default function HyperPath(props: {
 	// Use shared validation hook
 	const { validationStatus: cacheStatus } = usePathValidation({ path: inputPath });
 
+	// Auto-submit state management
+	const [autoSubmitTimerId, setAutoSubmitTimerId] = React.useState<NodeJS.Timeout | null>(null);
+	const [showAutoSubmitSpinner, setShowAutoSubmitSpinner] = React.useState<boolean>(false);
+
+	// Custom spinner SVG as data URL - designed for clockwise rotation
+	const spinnerSVG = React.useMemo(() => {
+		const svg = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+			<path d="M12 6V2L8 6L12 10V6C15.31 6 18 8.69 18 12S15.31 18 12 18S6 15.31 6 12H4C4 16.42 7.58 20 12 20S20 16.42 20 12S16.42 4 12 4" fill="currentColor"/>
+		</svg>`;
+		return `data:image/svg+xml;base64,${btoa(svg)}`;
+	}, []);
+
 	// Use shared autocomplete hook
 	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
 		useDeviceAutocomplete({
@@ -180,8 +192,57 @@ export default function HyperPath(props: {
 		}
 	}, [props.path, props.active]);
 
+	// Auto-submit effect: triggers when validation succeeds
+	React.useEffect(() => {
+		// Clear any existing timer when validation status changes
+		if (autoSubmitTimerId) {
+			clearTimeout(autoSubmitTimerId);
+			setAutoSubmitTimerId(null);
+			setShowAutoSubmitSpinner(false);
+		}
+
+		// Auto-submit criteria:
+		// 1. Path validation is successful
+		// 2. Path is not empty
+		// 3. Path is different from currently submitted path (avoid resubmitting same path)
+		// 4. Not currently loading a request
+		// 5. Component is active
+		if (
+			cacheStatus === 'success' &&
+			inputPath.trim() !== '' &&
+			inputPath !== hyperBeamRequest.submittedPath &&
+			!hyperBeamRequest.loading &&
+			props.active
+		) {
+			// Show spinner immediately
+			setShowAutoSubmitSpinner(true);
+			
+			// Set timer for auto-submit (2 seconds)
+			const timerId = setTimeout(() => {
+				setShowAutoSubmitSpinner(false);
+				setAutoSubmitTimerId(null);
+				handleSubmit();
+			}, 1000);
+			
+			setAutoSubmitTimerId(timerId);
+		}
+
+		// Cleanup timer on unmount
+		return () => {
+			if (autoSubmitTimerId) {
+				clearTimeout(autoSubmitTimerId);
+			}
+		};
+	}, [cacheStatus, inputPath, hyperBeamRequest.submittedPath, hyperBeamRequest.loading, props.active]);
+
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
+			// Cancel auto-submit if user manually presses Enter
+			if (autoSubmitTimerId) {
+				clearTimeout(autoSubmitTimerId);
+				setAutoSubmitTimerId(null);
+				setShowAutoSubmitSpinner(false);
+			}
 			handleSubmit();
 		}
 	};
@@ -192,6 +253,13 @@ export default function HyperPath(props: {
 
 		setInputPath(newValue);
 		setCursorPosition(newCursorPosition);
+
+		// Clear any existing auto-submit timer when user types
+		if (autoSubmitTimerId) {
+			clearTimeout(autoSubmitTimerId);
+			setAutoSubmitTimerId(null);
+			setShowAutoSubmitSpinner(false);
+		}
 
 		// Reset state when input is cleared
 		if (newValue === '') {
@@ -517,17 +585,33 @@ export default function HyperPath(props: {
 								inputRef={inputRef}
 							/>
 						</S.SearchInputWrapper>
-						<IconButton
-							type={'alt1'}
-							src={ASSETS.go}
-							handlePress={() => handleSubmit()}
-							disabled={hyperBeamRequest.loading || !inputPath}
-							dimensions={{
-								wrapper: 32.5,
-								icon: 17.5,
-							}}
-							tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.run}
-						/>
+						<S.SpinningWrapper className={showAutoSubmitSpinner ? 'spinning' : ''}>
+							<IconButton
+								type={'alt1'}
+								src={showAutoSubmitSpinner ? spinnerSVG : ASSETS.go}
+								handlePress={() => {
+									// Cancel auto-submit if user manually clicks
+									if (autoSubmitTimerId) {
+										clearTimeout(autoSubmitTimerId);
+										setAutoSubmitTimerId(null);
+										setShowAutoSubmitSpinner(false);
+									}
+									handleSubmit();
+								}}
+								disabled={hyperBeamRequest.loading || !inputPath}
+								dimensions={{
+									wrapper: 32.5,
+									icon: 17.5,
+								}}
+								tooltip={
+									showAutoSubmitSpinner 
+										? 'Auto-submitting... Click to submit immediately'
+										: hyperBeamRequest.loading 
+											? `${language.loading}...` 
+											: language.run
+								}
+							/>
+						</S.SpinningWrapper>
 						<IconButton
 							type={'alt1'}
 							src={ASSETS.copy}
