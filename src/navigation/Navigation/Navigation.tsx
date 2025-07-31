@@ -157,6 +157,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						onSelect={acceptAutocomplete}
 						visible={showAutocomplete}
 						showTabHint={true}
+						inputRef={inputRef}
 					/>
 				</S.SearchInputWrapper>
 				<S.SubmitWrapper>

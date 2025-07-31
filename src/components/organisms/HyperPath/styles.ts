@@ -344,15 +344,30 @@ export const SearchWrapper = styled.div`
 // Wrapper to add spinning animation to IconButton
 export const SpinningWrapper = styled.div`
 	&.spinning svg {
-		animation: icon-spin 1.5s linear infinite;
+		animation: icon-bounce-spin 0.8s ease-out infinite;
 		transform-origin: 50% 50%;
 	}
 	
-	@keyframes icon-spin {
-		from {
+	@keyframes icon-bounce-spin {
+		0% {
 			transform: rotate(0deg);
 		}
-		to {
+		10% {
+			transform: rotate(-50deg);
+		}
+		30% {
+			transform: rotate(-120deg);
+		}
+		50% {
+			transform: rotate(-180deg);
+		}
+		60% {
+			transform: rotate(-230deg);
+		}
+		80% {
+			transform: rotate(-300deg);
+		}
+		100% {
 			transform: rotate(-360deg);
 		}
 	}
@@ -380,7 +395,7 @@ export const CustomSpinnerButton = styled.button`
 export const SpinnerSVG = styled.svg`
 	width: 17.5px;
 	height: 17.5px;
-	animation: smooth-spin 1s linear infinite;
+	animation: smooth-spin 0.5s linear infinite;
 	transform-origin: center center;
 	
 	@keyframes smooth-spin {

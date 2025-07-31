@@ -188,6 +188,10 @@ export default function HyperPath(props: {
 					lastSuccessfulResponse: cached.response,
 					submittedPath: props.path,
 				});
+			} else {
+				// No cached results - immediately submit the request (bypassing auto-submit delay)
+				// This handles the case when navigation component directs here with Enter key
+				handleSubmit(props.path);
 			}
 		}
 	}, [props.path, props.active]);
@@ -207,10 +211,12 @@ export default function HyperPath(props: {
 		// 3. Path is different from currently submitted path (avoid resubmitting same path)
 		// 4. Not currently loading a request
 		// 5. Component is active
+		// 6. Input path differs from props.path (to avoid auto-submit when path comes from navigation)
 		if (
 			cacheStatus === 'success' &&
 			inputPath.trim() !== '' &&
 			inputPath !== hyperBeamRequest.submittedPath &&
+			inputPath !== props.path &&
 			!hyperBeamRequest.loading &&
 			props.active
 		) {
@@ -233,7 +239,7 @@ export default function HyperPath(props: {
 				clearTimeout(autoSubmitTimerId);
 			}
 		};
-	}, [cacheStatus, inputPath, hyperBeamRequest.submittedPath, hyperBeamRequest.loading, props.active]);
+	}, [cacheStatus, inputPath, hyperBeamRequest.submittedPath, hyperBeamRequest.loading, props.active, props.path]);
 
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
