@@ -215,7 +215,7 @@ async function fetchDeviceNames(): Promise<Record<string, DeviceInfo>> {
 					};
 				}
 			});
-			
+
 			deviceNamesCache = processedData;
 			deviceNamesList = Object.values(processedData)
 				.map((device: any) => device.name)

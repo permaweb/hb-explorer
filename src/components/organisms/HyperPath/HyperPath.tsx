@@ -7,161 +7,251 @@ import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Notification } from 'components/atoms/Notification';
-import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
+import { Tabs } from 'components/atoms/Tabs';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { ASSETS, URLS } from 'helpers/config';
-import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
-import { checkValidAddress, hbFetch, stripUrlProtocol } from 'helpers/utils';
-import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
-import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
-import { usePathValidation } from 'hooks/usePathValidation';
+import {
+	filterSignedHeaders,
+	getMessageIdFromSignature,
+	getSignatureAlg,
+	getSignatureKeyId,
+	getSignerAddress,
+	verifySignature,
+} from 'helpers/signatures';
+import { checkValidAddress, hbFetch, joinHeaders, parseHeaders, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
-import SamplePaths from '../../molecules/SamplePaths';
 import { HyperLinks } from '../HyperLinks';
 
 import * as S from './styles';
+
+function InfoLine(props: { headerKey: string; data: string; depth: number }) {
+	const navigate = useNavigate();
+
+	const [open, setOpen] = React.useState<boolean>(false);
+	const [headers, setHeaders] = React.useState<any>(null);
+
+	React.useEffect(() => {
+		(async function () {
+			if (open && !headers) {
+				try {
+					const response = await fetch(`${window.hyperbeamUrl}/${props.data}`);
+
+					if (!response.ok) {
+						return;
+					}
+
+					const raw = joinHeaders(response.headers).trim();
+					const parsed = parseHeaders(raw);
+
+					const sigInputRaw = parsed['signature-input']?.data;
+					const headersToUse = sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed;
+					const sortedEntries = Object.entries(headersToUse).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+						const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+						const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+						if (aIsAddr && !bIsAddr) return -1;
+						if (!aIsAddr && bIsAddr) return 1;
+
+						return keyA.localeCompare(keyB);
+					});
+
+					const sortedHeaders = sortedEntries.reduce((acc, [key, val]) => {
+						acc[key] = val;
+						return acc;
+					}, {} as typeof headersToUse);
+
+					setHeaders(sortedHeaders);
+				} catch (e: any) {
+					console.error(e);
+				}
+			}
+		})();
+	}, [open, headers]);
+
+	const isAddress = checkValidAddress(props.data);
+	const isLink = isAddress && props.headerKey.includes('link');
+
+	return (
+		<S.InfoLineWrapper>
+			<S.InfoLine isLink={isLink} onClick={() => (isLink ? setOpen((prev) => !prev) : {})} depth={props.depth}>
+				<S.InfoLineHeader open={open}>
+					{isLink && <ReactSVG src={ASSETS.arrowRight} />}
+					<span>{`${props.headerKey}`}</span>
+				</S.InfoLineHeader>
+				<S.InfoLineEnd>
+					{isAddress ? <Copyable value={props.data} format={'address'} /> : <p>{props.data}</p>}
+					{isLink && (
+						<IconButton
+							type={'alt1'}
+							src={ASSETS.newTab}
+							handlePress={() => navigate(`${URLS.explorer}${props.data}`)}
+							dimensions={{
+								icon: 10.5,
+								wrapper: 20,
+							}}
+							tooltip={'Open in new tab'}
+							tooltipPosition={'bottom-right'}
+						/>
+					)}
+				</S.InfoLineEnd>
+			</S.InfoLine>
+			{open && headers && (
+				<S.InfoBodyChild>
+					{Object.keys(headers).map((key) => {
+						return <InfoLine key={key} headerKey={key} data={headers[key].data} depth={props.depth + 1} />;
+					})}
+				</S.InfoBodyChild>
+			)}
+		</S.InfoLineWrapper>
+	);
+}
 
 export default function HyperPath(props: {
 	path: string;
 	active: boolean;
 	onPathChange?: (id: string, path: string) => void;
 }) {
-	const navigate = useNavigate();
-
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const [inputPath, setInputPath] = React.useState<string>(props.path);
-
+	const [fullResponse, setFullResponse] = React.useState<any>(null);
 	const [responseBody, setResponseBody] = React.useState<any>(null);
 	const [hyperbuddyData, setHyperbuddyData] = React.useState<any>(null);
 	const [bodyType, setBodyType] = React.useState<'json' | 'raw'>('raw');
+
+	const [id, setId] = React.useState<string | null>(null);
+	const [headers, setHeaders] = React.useState<any>(null);
+	const [signature, setSignature] = React.useState<string | null>(null);
+	const [signer, setSigner] = React.useState<string | null>(null);
+	const [signatureAlg, setSignatureAlg] = React.useState<string | null>(null);
+	const [signatureKeyId, setSignatureKeyId] = React.useState<string | null>(null);
+	const [signatureValid, setSignatureValid] = React.useState<boolean | null>(null);
+	const [commitmentDevice, setCommitmentDevice] = React.useState<string | null>(null);
+
+	const [loadingPath, setLoadingPath] = React.useState<boolean>(false);
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
-	const [resultsReady, setResultsReady] = React.useState<boolean>(false);
-	const [activeTab, setActiveTab] = React.useState<'hyperbuddy' | 'body' | 'graph'>('hyperbuddy');
-
-	// Use shared HyperBEAM request hook
-	const hyperBeamRequest = useHyperBeamRequest();
-	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
-	const inputRef = React.useRef<HTMLInputElement>(null);
-
-	// Use shared validation hook
-	const { validationStatus: cacheStatus } = usePathValidation({ path: inputPath });
-
-	// Use shared autocomplete hook
-	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
-		useDeviceAutocomplete({
-			inputValue: inputPath,
-			cursorPosition,
-			inputRef,
-			onValueChange: (value, newCursorPosition) => {
-				setInputPath(value);
-				setCursorPosition(newCursorPosition);
-			},
-		});
+	const [pathNotFound, setPathNotFound] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 		setInputPath(props.path);
-		// Auto-submit when path is provided via props (e.g., from navigation)
-		if (props.path && props.path.trim() !== '') {
-			handleSubmit(props.path);
-		}
 	}, [props.path]);
 
-	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter') {
-			handleSubmit();
+	React.useEffect(() => {
+		if (!inputPath) {
+			return;
 		}
-	};
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = e.target.value;
-		const newCursorPosition = e.target.selectionStart || 0;
+		const timeoutId = setTimeout(
+			async () => {
+				handleSubmit();
+			},
+			checkValidAddress(inputPath) ? 0 : 1000
+		);
 
-		setInputPath(newValue);
-		setCursorPosition(newCursorPosition);
+		return () => {
+			clearTimeout(timeoutId);
+			setLoadingPath(false);
+		};
+	}, [inputPath]);
 
-		// Reset state when input is cleared
-		if (newValue === '') {
-			hyperBeamRequest.reset();
-			setResponseBody(null);
-			setResultsReady(false);
-		}
-	};
+	async function handleSubmit() {
+		if (inputPath) {
+			setLoadingPath(true);
+			try {
+				const response = await fetch(`${window.hyperbeamUrl}/${inputPath}`);
 
-	const handleInputClick = (e: React.MouseEvent<HTMLInputElement>) => {
-		const target = e.target as HTMLInputElement;
-		setCursorPosition(target.selectionStart || 0);
-	};
+				const hyperbuddyResponse = await hbFetch(`/${inputPath}/format~hyperbuddy@1.0`);
+				setHyperbuddyData(hyperbuddyResponse);
 
-	async function handleSubmit(pathToSubmit?: string) {
-		const pathValue = pathToSubmit || inputPath;
-		if (pathValue) {
-			setResultsReady(false);
-			await hyperBeamRequest.submitRequest(pathValue);
-			if (!hyperBeamRequest.error) {
-				props.onPathChange(pathValue, pathValue);
+				if (!response.ok) {
+					setPathNotFound(true);
+					setLoadingPath(false);
+					return;
+				}
+
+				setFullResponse(response);
+
+				const raw = joinHeaders(response.headers).trim();
+				const parsed = parseHeaders(raw);
+				const signature = response.headers.get('signature');
+
+				const sigInputRaw = parsed['signature-input']?.data;
+				const headersToUse = sigInputRaw ? filterSignedHeaders(parsed, sigInputRaw) : parsed;
+				const sortedEntries = Object.entries(headersToUse).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+					const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+					const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+
+					if (aIsAddr && !bIsAddr) return -1;
+					if (!aIsAddr && bIsAddr) return 1;
+
+					return keyA.localeCompare(keyB);
+				});
+
+				const sortedHeaders = sortedEntries.reduce((acc, [key, val]) => {
+					acc[key] = val;
+					return acc;
+				}, {} as typeof headersToUse);
+
+				setHeaders(sortedHeaders);
+
+				if (parsed['commitment_device']) setCommitmentDevice(parsed['commitment_device'].data);
+
+				if (signature) {
+					const messageId = await getMessageIdFromSignature(signature);
+					setId(messageId);
+
+					const signatureInput = parsed['signature-input']?.data ?? '';
+
+					const signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
+					const isValid = signatureInput ? await verifySignature(signature, signatureInput, response) : false;
+					const alg = getSignatureAlg(sigInputRaw);
+					const keyid = getSignatureKeyId(sigInputRaw);
+
+					setSignature(signature);
+					setSigner(signer);
+					setSignatureValid(isValid);
+					setSignatureAlg(alg);
+					setSignatureKeyId(keyid);
+				}
+
+				props.onPathChange(inputPath, inputPath);
+				setPathNotFound(false);
+			} catch (e: any) {
+				console.error(e);
+
+				setPathNotFound(true);
 			}
+			setLoadingPath(false);
 		}
 	}
 
 	React.useEffect(() => {
 		(async function () {
-			if (hyperBeamRequest.response) {
-				setResultsReady(false);
+			if (fullResponse) {
 				if (props.path?.includes('serialize~json@1.0')) {
 					setBodyType('json');
 					try {
-						const body = await hyperBeamRequest.response.clone().json();
+						const body = await fullResponse.json();
 						setResponseBody(body);
-						// Add small timeout to ensure all async operations complete
-						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
-						setTimeout(() => setResultsReady(true), 100);
 					}
 				} else {
 					setBodyType('raw');
 					try {
-						const body = await hyperBeamRequest.response.clone().text();
+						const body = await fullResponse.text();
 						setResponseBody(body);
-						// Add small timeout to ensure all async operations complete
-						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
-						setTimeout(() => setResultsReady(true), 100);
 					}
-				}
-			} else {
-				setResultsReady(false);
-			}
-		})();
-	}, [hyperBeamRequest.response, props.path]);
-
-	// Fetch hyperbuddy data when path changes
-	React.useEffect(() => {
-		(async function () {
-			if (hyperBeamRequest.submittedPath) {
-				try {
-					const hyperbuddyResponse = await fetch(
-						`${window.hyperbeamUrl}/${hyperBeamRequest.submittedPath}/format~hyperbuddy@1.0`
-					);
-					if (hyperbuddyResponse.ok) {
-						const data = await hyperbuddyResponse.text();
-						setHyperbuddyData(data);
-					} else {
-						setHyperbuddyData(null);
-					}
-				} catch (e) {
-					console.error('Error fetching hyperbuddy data:', e);
-					setHyperbuddyData(null);
 				}
 			}
 		})();
-	}, [hyperBeamRequest.submittedPath]);
+	}, [fullResponse, props.path]);
 
 	const copyInput = React.useCallback(async (value: string) => {
 		if (value?.length > 0) {
@@ -170,31 +260,6 @@ export default function HyperPath(props: {
 			setTimeout(() => setCopied(false), 2000);
 		}
 	}, []);
-
-	const renderTabContent = () => {
-		switch (activeTab) {
-			case 'hyperbuddy':
-				return hyperbuddyData ? (
-					<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
-				) : (
-					<Loader sm relative />
-				);
-			case 'body':
-				return responseBody ? (
-					<>
-						{bodyType === 'json' ? (
-							<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
-						) : (
-							<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
-						)}
-					</>
-				) : null;
-			case 'graph':
-				return <HyperLinks path={hyperBeamRequest.submittedPath} id={hyperBeamRequest.id} />;
-			default:
-				return null;
-		}
-	};
 
 	function buildInfoSection(label: string, icon: string, data: any) {
 		if (data && Object.keys(data).length > 0) {
@@ -209,21 +274,7 @@ export default function HyperPath(props: {
 					</S.InfoHeader>
 					<S.InfoBody className={'scroll-wrapper-hidden'}>
 						{Object.keys(data).map((key) => {
-							const isAddress = checkValidAddress(data[key].data);
-
-							return (
-								<S.InfoLine
-									key={key}
-									isAddress={isAddress}
-									onClick={() => (isAddress ? navigate(`${URLS.explorer}${data[key].data}`) : {})}
-								>
-									<S.InfoLineHeader>
-										{isAddress && <ReactSVG src={ASSETS.newTab} />}
-										<span>{`${key}`}</span>
-									</S.InfoLineHeader>
-									{isAddress ? <Copyable value={data[key].data} format={'address'} /> : <p>{data[key].data}</p>}
-								</S.InfoLine>
-							);
+							return <InfoLine key={key} headerKey={key} data={data[key].data} depth={1} />;
 						})}
 					</S.InfoBody>
 				</S.InfoSection>
@@ -233,35 +284,17 @@ export default function HyperPath(props: {
 	}
 
 	function getPath() {
-		// Show loading placeholder when loading or when results are not ready yet
-		if (
-			hyperBeamRequest.loading ||
-			(hyperBeamRequest.response && !resultsReady) ||
-			(hyperBeamRequest.error && !hyperBeamRequest.hasContent) ||
-			(!hyperBeamRequest.response && !hyperBeamRequest.hasContent)
-		) {
+		if (!inputPath || loadingPath || pathNotFound || !fullResponse) {
 			return (
 				<S.Placeholder>
 					<S.PlaceholderIcon>
-						<ReactSVG src={hyperBeamRequest.error ? ASSETS.warning : ASSETS.process} />
+						<ReactSVG src={pathNotFound ? ASSETS.warning : ASSETS.process} />
 					</S.PlaceholderIcon>
 					<S.PlaceholderDescription>
-						<p>
-							{hyperBeamRequest.loading || (hyperBeamRequest.response && !resultsReady)
-								? `${language.loading}...`
-								: hyperBeamRequest.error
-								? language.pathNotFound
-								: language.pathOrId}
-						</p>
+						<p>{loadingPath ? `${language.loading}...` : pathNotFound ? language.pathNotFound : language.pathOrId}</p>
 					</S.PlaceholderDescription>
 				</S.Placeholder>
 			);
-		}
-
-		// If we don't have a current response but we have previous content, use the last successful response
-		const responseToUse = hyperBeamRequest.response || hyperBeamRequest.lastSuccessfulResponse;
-		if (!responseToUse) {
-			return null;
 		}
 
 		return (
@@ -278,45 +311,62 @@ export default function HyperPath(props: {
 					<S.InfoSection className={'border-wrapper-alt3 fade-in'}>
 						<S.SignatureHeader>
 							<p>Signature</p>
-							{hyperBeamRequest.signature ? (
-								<Copyable value={hyperBeamRequest.signature} format={'truncate'} />
-							) : (
-								<p>-</p>
-							)}
+							{signature ? <Copyable value={signature} format={'truncate'} /> : <p>-</p>}
 						</S.SignatureHeader>
 						<S.SignatureBody>
-							<S.SignatureStatus valid={hyperBeamRequest.signatureValid}>
+							<S.SignatureStatus valid={signatureValid}>
 								<span>Status</span>
-								<p>
-									{hyperBeamRequest.signatureValid === true
-										? 'Verified'
-										: hyperBeamRequest.signatureValid === false
-										? 'Invalid'
-										: 'Pending'}
-								</p>
+								<p>{signatureValid === true ? 'Verified' : signatureValid === false ? 'Invalid' : 'Pending'}</p>
 							</S.SignatureStatus>
 							<S.SignatureLine>
 								<span>Signer</span>
-								{hyperBeamRequest.signer ? <Copyable value={hyperBeamRequest.signer} format={'address'} /> : <p>-</p>}
+								{signer ? <Copyable value={signer} format={'address'} /> : <p>-</p>}
 							</S.SignatureLine>
-							{hyperBeamRequest.signatureAlg && (
+							{signatureAlg && (
 								<S.SignatureLine>
 									<span>Format</span>
-									<p>{hyperBeamRequest.signatureAlg}</p>
+									<p>{signatureAlg}</p>
 								</S.SignatureLine>
 							)}
-							{hyperBeamRequest.signatureKeyId && (
+							{signatureKeyId && (
 								<S.SignatureLine>
 									<span>Key</span>
-									<p>{hyperBeamRequest.signatureKeyId}</p>
+									<p>{signatureKeyId}</p>
+								</S.SignatureLine>
+							)}
+							{commitmentDevice && (
+								<S.SignatureLine>
+									<span>Commitment Device</span>
+									<p>{commitmentDevice}</p>
 								</S.SignatureLine>
 							)}
 						</S.SignatureBody>
 					</S.InfoSection>
-					{buildInfoSection('Signed Headers', ASSETS.headers, hyperBeamRequest.headers)}
-					{buildInfoSection('Links', ASSETS.link, hyperBeamRequest.links)}
 				</S.InfoWrapper>
-				{responseToUse && <S.BodyWrapper>{renderTabContent()}</S.BodyWrapper>}
+				<S.BodyWrapper>
+					<Tabs onTabClick={() => {}} type={'primary'}>
+						<S.Tab label={'Overview'}>{buildInfoSection('Signed Headers', ASSETS.headers, headers)}</S.Tab>
+						<S.Tab label={'Hyperbuddy'}>
+							{hyperbuddyData ? (
+								<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
+							) : (
+								<Loader sm relative />
+							)}
+						</S.Tab>
+						<S.Tab label={'Body'}>
+							<>
+								{bodyType === 'json' ? (
+									<JSONReader data={responseBody} header={'Body'} maxHeight={700} />
+								) : (
+									<Editor initialData={responseBody} language={'html'} loading={false} readOnly />
+								)}
+							</>
+						</S.Tab>
+						<S.Tab label={'Graph'}>
+							<HyperLinks path={inputPath} id={id} />
+						</S.Tab>
+					</Tabs>
+				</S.BodyWrapper>
 			</>
 		);
 	}
@@ -326,43 +376,29 @@ export default function HyperPath(props: {
 			<S.Wrapper>
 				<S.HeaderWrapper>
 					<S.SearchWrapper>
-						<S.SearchInputWrapper
-							cacheStatus={cacheStatus}
-							hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
-						>
+						<S.SearchInputWrapper>
 							<ReactSVG src={ASSETS.search} />
 							<FormField
-								ref={inputRef}
 								value={inputPath}
-								onChange={handleInputChange}
-								onKeyPress={handleKeyPress}
-								onKeyDown={handleKeyDown}
-								onClick={handleInputClick}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputPath(e.target.value)}
 								placeholder={language.pathOrId}
 								invalid={{ status: false, message: null }}
-								disabled={hyperBeamRequest.loading}
+								disabled={loadingPath}
 								autoFocus
 								hideErrorMessage
 								sm
-							/>
-							<AutocompleteDropdown
-								options={autocompleteOptions}
-								selectedIndex={selectedOptionIndex}
-								onSelect={acceptAutocomplete}
-								visible={showAutocomplete}
-								showTabHint={true}
 							/>
 						</S.SearchInputWrapper>
 						<IconButton
 							type={'alt1'}
 							src={ASSETS.go}
 							handlePress={() => handleSubmit()}
-							disabled={hyperBeamRequest.loading || !inputPath}
+							disabled={loadingPath || !inputPath}
 							dimensions={{
 								wrapper: 32.5,
 								icon: 17.5,
 							}}
-							tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.run}
+							tooltip={loadingPath ? `${language.loading}...` : language.run}
 						/>
 						<IconButton
 							type={'alt1'}
@@ -377,19 +413,6 @@ export default function HyperPath(props: {
 						/>
 					</S.SearchWrapper>
 					<S.HeaderActionsWrapper>
-						{(hyperBeamRequest.response || hyperBeamRequest.lastSuccessfulResponse) && (
-							<S.TabButtonGroup>
-								<S.TabButton active={activeTab === 'hyperbuddy'} onClick={() => setActiveTab('hyperbuddy')}>
-									Hyperbuddy
-								</S.TabButton>
-								<S.TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
-									Body
-								</S.TabButton>
-								<S.TabButton active={activeTab === 'graph'} onClick={() => setActiveTab('graph')}>
-									Graph
-								</S.TabButton>
-							</S.TabButtonGroup>
-						)}
 						<S.PathInfoWrapper>
 							<S.UpdateWrapper>
 								<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
@@ -398,18 +421,7 @@ export default function HyperPath(props: {
 						</S.PathInfoWrapper>
 					</S.HeaderActionsWrapper>
 				</S.HeaderWrapper>
-				<S.ContentWrapper>
-					{inputPath === '' && !hyperBeamRequest.hasContent ? (
-						<SamplePaths
-							onPathSelect={(path) => {
-								setInputPath(path);
-								handleSubmit(path);
-							}}
-						/>
-					) : (
-						getPath()
-					)}
-				</S.ContentWrapper>
+				<S.ContentWrapper>{getPath()}</S.ContentWrapper>
 				<S.Graphic>
 					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
 				</S.Graphic>

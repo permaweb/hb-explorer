@@ -84,8 +84,8 @@ export const TabAction = styled.div<{ active: boolean }>`
 	.right-icons {
 		display: flex;
 		align-items: center;
-		gap: 8px;
-		margin-left: 8px;
+		gap: 7.5px;
+		margin: 0 0 0 5.5px;
 	}
 
 	.icon-wrapper {

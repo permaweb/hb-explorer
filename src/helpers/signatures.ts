@@ -435,3 +435,106 @@ export async function verifySignature(signature: string, signatureInput: string,
 		return false;
 	}
 }
+
+/**
+ * Extracts the last `alg` value from a comma-separated signature header.
+ * @param header A string like
+ *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
+ * @returns the last alg (e.g. "hmac-sha256"), or null if none found
+ */
+export function getSignatureAlg(header: string): string | null {
+	// gather all alg="…" matches
+	const matches = Array.from(header.matchAll(/;alg="([^"]+)"/g));
+	if (matches.length === 0) return null;
+	// return the capture group of the last match
+	return matches[matches.length - 1][1];
+}
+
+/**
+ * Extracts the last `keyid` value from a comma-separated signature header.
+ * @param header A string like
+ *   `sig-…;alg="rsa-pss-sha512";keyid="foo", sig-…;alg="hmac-sha256";keyid="bar"`
+ * @returns the last keyid (e.g. "bar"), or null if none found
+ */
+export function getSignatureKeyId(header: string): string | null {
+	const matches = Array.from(header.matchAll(/;keyid="([^"]+)"/g));
+	if (matches.length === 0) return null;
+	return matches[matches.length - 1][1];
+}
+
+/**
+ * @param {string} fullSig  A string like "sig-<b64urlSig>:…"
+ * @returns {Promise<string>}  The Base64URL-encoded SHA-256 hash of the signature
+ */
+export async function getMessageIdFromSignature(fullSig) {
+	// Grab the part after "sig-" and before the first ":"
+	let [sigPart] = fullSig.split(':');
+	if (!sigPart.startsWith('sig-')) {
+		throw new Error('Expected signature to start with "sig-"');
+	}
+	sigPart = sigPart.slice(4);
+
+	// Base64url → Base64
+	const b64 =
+		sigPart.replace(/-/g, '+').replace(/_/g, '/') +
+		// Pad to multiple of 4
+		'='.repeat((4 - (sigPart.length % 4)) % 4);
+
+	// Decode to bytes
+	const raw = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+	// Hash it
+	const hashBuf = await crypto.subtle.digest('SHA-256', raw);
+
+	// Hash → Base64URL (no padding)
+	const hashBytes = new Uint8Array(hashBuf);
+	let hashB64 = btoa(String.fromCharCode(...hashBytes));
+	const hashB64url = hashB64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+	return hashB64url;
+}
+
+/**
+ * Given your parsed headers object (from parseHeaders) and the raw
+ * Signature-Input header value, return a new object containing
+ * only those headers which were covered by the signature-input.
+ */
+export function filterSignedHeaders(parsedHeaders, signatureInputValue) {
+	const sigInputs = parseSignatureInput(signatureInputValue);
+
+	// Collect all the field names covered
+	const covered = new Set(sigInputs.flatMap((si) => si.fields.map((f) => f.toLowerCase())));
+
+	// Filter parsedHeaders keys by membership in covered
+	return Object.fromEntries(
+		Object.entries(parsedHeaders).filter(([headerName]) => covered.has(headerName.toLowerCase()))
+	);
+}
+
+/**
+ * @param {string} sigInputRaw
+ * @returns {Promise<string>} the derived “address” of the first non-HMAC signer
+ */
+export async function getSignerAddress(sigInputRaw) {
+	const entries = parseSignatureInput(sigInputRaw);
+	if (!entries.length) return 'Unknown';
+
+	// Pick the first entry whose alg isn’t hmac-sha256 (i.e. the real pubkey)
+	const realEntry = entries.find((e) => e.alg.toLowerCase() !== 'hmac-sha256') || entries[0];
+	const rawKeyId = realEntry.keyid;
+
+	// Now decode it to bytes (base64url → Uint8Array)
+	const pubKeyBytes = base64UrlToUint8Array(rawKeyId);
+
+	// sha-256 the public key bytes
+	const hash = await crypto.subtle.digest('SHA-256', pubKeyBytes);
+	const hashArr = new Uint8Array(hash);
+
+	// base64url-encode the hash to get your “address”
+	const address = btoa(String.fromCharCode(...hashArr))
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/, '');
+
+	return address;
+}

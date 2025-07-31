@@ -166,7 +166,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
-		border: 2px solid
+		border: 1.5px solid
 			${(props) => {
 				switch (props.cacheStatus) {
 					case 'success':
@@ -185,7 +185,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 				: `${STYLING.dimensions.radius.primary} !important`};
 
 		&:focus {
-			border: 2px solid
+			border: 1.5px solid
 				${(props) => {
 					switch (props.cacheStatus) {
 						case 'success':
@@ -201,7 +201,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 		}
 
 		&:hover {
-			border: 2px solid
+			border: 1.5px solid
 				${(props) => {
 					switch (props.cacheStatus) {
 						case 'success':

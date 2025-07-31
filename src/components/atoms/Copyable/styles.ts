@@ -10,13 +10,16 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 	background: ${(props) =>
 		props.disabled
 			? props.theme.colors.button.primary.disabled.background
-			: props.theme.colors.container.alt8.background};
-	border: 1px solid ${(props) => (props.disabled ? props.theme.colors.border.primary : 'transparent')};
+			: props.theme.colors.button.primary.background};
+	border: 1px solid
+		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.border)};
 	border-radius: ${STYLING.dimensions.radius.alt1};
 
 	p {
 		color: ${(props) =>
-			props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+			props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color} !important;
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
 		font-family: ${(props) => props.theme.typography.family.alt2} !important;
 		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
@@ -27,7 +30,9 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 
 	span {
 		color: ${(props) =>
-			props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+			props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color} !important;
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
@@ -42,9 +47,13 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 		width: 11.5px !important;
 		margin: 2.5px 0 0 2.5px !important;
 		color: ${(props) =>
-			props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+			props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color} !important;
 		fill: ${(props) =>
-			props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+			props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color} !important;
 	}
 
 	&:hover {
@@ -52,17 +61,24 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 		background: ${(props) =>
 			props.disabled
 				? props.theme.colors.button.primary.disabled.background
-				: props.theme.colors.container.alt4.background};
+				: props.theme.colors.button.primary.active.background};
 
-		p {
+		p,
+		span {
 			color: ${(props) =>
-				props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
 		}
 		svg {
 			color: ${(props) =>
-				props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
 			fill: ${(props) =>
-				props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.light1} !important;
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
 		}
 	}
 `;
