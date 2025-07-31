@@ -90,6 +90,23 @@ function InfoLine(props: { headerKey: string; data: string; depth: number }) {
 	);
 }
 
+// Cache to store results by path - shared across all HyperPath instances
+const resultsCache = new Map<string, {
+	response: Response;
+	responseBody: any;
+	hyperbuddyData: any;
+	bodyType: 'json' | 'raw';
+	headers: any;
+	links: any;
+	signature: string | null;
+	signer: string | null;
+	signatureValid: boolean | null;
+	signatureAlg: string | null;
+	signatureKeyId: string | null;
+	id: string | null;
+	timestamp: number;
+}>();
+
 export default function HyperPath(props: {
 	path: string;
 	active: boolean;
@@ -131,7 +148,37 @@ export default function HyperPath(props: {
 
 	React.useEffect(() => {
 		setInputPath(props.path);
-	}, [props.path]);
+		
+		// Load cached results for saved tabs (when returning to a tab with an existing path)
+		if (props.path && props.path.trim() !== '' && props.active) {
+			const cached = resultsCache.get(props.path);
+			if (cached) {
+				// Load cached results
+				setResponseBody(cached.responseBody);
+				setHyperbuddyData(cached.hyperbuddyData);
+				setBodyType(cached.bodyType);
+				setResultsReady(true);
+				
+				// Update hyperBeamRequest state with cached data
+				hyperBeamRequest.setState?.({
+					loading: false,
+					response: cached.response,
+					headers: cached.headers,
+					links: cached.links,
+					signature: cached.signature,
+					signer: cached.signer,
+					signatureValid: cached.signatureValid,
+					signatureAlg: cached.signatureAlg,
+					signatureKeyId: cached.signatureKeyId,
+					id: cached.id,
+					error: false,
+					hasContent: true,
+					lastSuccessfulResponse: cached.response,
+					submittedPath: props.path,
+				});
+			}
+		}
+	}, [props.path, props.active]);
 
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
@@ -173,41 +220,71 @@ export default function HyperPath(props: {
 
 	React.useEffect(() => {
 		(async function () {
-			if (hyperBeamRequest.response) {
+			if (hyperBeamRequest.response && hyperBeamRequest.submittedPath) {
 				setResultsReady(false);
-				if (props.path?.includes('serialize~json@1.0')) {
-					setBodyType('json');
+				let body;
+				let currentBodyType: 'json' | 'raw' = 'raw';
+				
+				if (hyperBeamRequest.submittedPath.includes('serialize~json@1.0')) {
+					currentBodyType = 'json';
 					try {
-						const body = await hyperBeamRequest.response.clone().json();
+						body = await hyperBeamRequest.response.clone().json();
+						setBodyType('json');
 						setResponseBody(body);
-						// Add small timeout to ensure all async operations complete
-						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
-						setTimeout(() => setResultsReady(true), 100);
+						body = null;
 					}
 				} else {
-					setBodyType('raw');
+					currentBodyType = 'raw';
 					try {
-						const body = await hyperBeamRequest.response.clone().text();
+						body = await hyperBeamRequest.response.clone().text();
+						setBodyType('raw');
 						setResponseBody(body);
-						// Add small timeout to ensure all async operations complete
-						setTimeout(() => setResultsReady(true), 50);
 					} catch (e: any) {
 						console.error(e);
-						setTimeout(() => setResultsReady(true), 100);
+						body = null;
 					}
 				}
+
+				// Cache the results
+				if (hyperBeamRequest.submittedPath && body !== null) {
+					resultsCache.set(hyperBeamRequest.submittedPath, {
+						response: hyperBeamRequest.response,
+						responseBody: body,
+						hyperbuddyData,
+						bodyType: currentBodyType,
+						headers: hyperBeamRequest.headers,
+						links: hyperBeamRequest.links,
+						signature: hyperBeamRequest.signature,
+						signer: hyperBeamRequest.signer,
+						signatureValid: hyperBeamRequest.signatureValid,
+						signatureAlg: hyperBeamRequest.signatureAlg,
+						signatureKeyId: hyperBeamRequest.signatureKeyId,
+						id: hyperBeamRequest.id,
+						timestamp: Date.now(),
+					});
+				}
+
+				// Add small timeout to ensure all async operations complete
+				setTimeout(() => setResultsReady(true), 50);
 			} else {
 				setResultsReady(false);
 			}
 		})();
-	}, [hyperBeamRequest.response, props.path]);
+	}, [hyperBeamRequest.response, hyperBeamRequest.submittedPath]);
 
 	// Fetch hyperbuddy data when path changes
 	React.useEffect(() => {
 		(async function () {
 			if (hyperBeamRequest.submittedPath) {
+				// Check if we have cached hyperbuddy data
+				const cached = resultsCache.get(hyperBeamRequest.submittedPath);
+				if (cached && cached.hyperbuddyData !== undefined) {
+					setHyperbuddyData(cached.hyperbuddyData);
+					return;
+				}
+
 				try {
 					const hyperbuddyResponse = await fetch(
 						`${window.hyperbeamUrl}/${hyperBeamRequest.submittedPath}/format~hyperbuddy@1.0`
@@ -215,12 +292,23 @@ export default function HyperPath(props: {
 					if (hyperbuddyResponse.ok) {
 						const data = await hyperbuddyResponse.text();
 						setHyperbuddyData(data);
+						
+						// Update cache with hyperbuddy data
+						if (cached) {
+							cached.hyperbuddyData = data;
+						}
 					} else {
 						setHyperbuddyData(null);
+						if (cached) {
+							cached.hyperbuddyData = null;
+						}
 					}
 				} catch (e) {
 					console.error('Error fetching hyperbuddy data:', e);
 					setHyperbuddyData(null);
+					if (cached) {
+						cached.hyperbuddyData = null;
+					}
 				}
 			}
 		})();
@@ -344,8 +432,30 @@ export default function HyperPath(props: {
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
 						<S.Tab label={'Overview'}>
-							{buildInfoSection('Signed Headers', ASSETS.headers, hyperBeamRequest.headers)}
-							{buildInfoSection('Links', ASSETS.link, hyperBeamRequest.links)}
+							{buildInfoSection('Signed Headers', ASSETS.headers, (() => {
+								// Combine headers with links and sort so links appear on top
+								const allHeaders = { ...hyperBeamRequest.headers };
+								if (hyperBeamRequest.links) {
+									Object.assign(allHeaders, hyperBeamRequest.links);
+								}
+								
+								// Sort entries to put links on top
+								const sortedEntries = Object.entries(allHeaders).sort(([keyA, valA]: any, [keyB, valB]: any) => {
+									const aIsAddr = checkValidAddress(valA.data) && keyA.includes('link');
+									const bIsAddr = checkValidAddress(valB.data) && keyB.includes('link');
+									
+									if (aIsAddr && !bIsAddr) return -1;
+									if (!aIsAddr && bIsAddr) return 1;
+									
+									return keyA.localeCompare(keyB);
+								});
+								
+								// Convert back to object
+								return sortedEntries.reduce((acc, [key, val]) => {
+									acc[key] = val;
+									return acc;
+								}, {} as any);
+							})())}
 						</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
