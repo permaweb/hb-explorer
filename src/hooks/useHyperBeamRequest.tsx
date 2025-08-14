@@ -70,8 +70,15 @@ async function getSignerAddress(sigInputRaw: string): Promise<string> {
 	const entries = parseSignatureInput(sigInputRaw);
 	if (!entries.length) return 'Unknown';
 
-	const keyId = entries[0]?.keyid;
+	let keyId = entries[0]?.keyid;
 	if (!keyId) return 'Unknown';
+
+	// Strip "publickey:" or "constant:" prefix if present
+	if (keyId.startsWith('publickey:')) {
+		keyId = keyId.slice(10);
+	} else if (keyId.startsWith('constant:')) {
+		keyId = keyId.slice(9);
+	}
 
 	try {
 		const keyIdBuffer = base64UrlToUint8Array(keyId);
@@ -102,10 +109,10 @@ function getSignatureKeyId(header: string): string | null {
 
 async function getMessageIdFromSig(fullSig: string): Promise<string> {
 	let [sigPart] = fullSig.split(':');
-	if (!sigPart.startsWith('sig-')) {
-		throw new Error('Expected signature to start with "sig-"');
+	if (!sigPart.startsWith('comm-')) {
+		throw new Error('Expected signature to start with "comm-"');
 	}
-	sigPart = sigPart.slice(4);
+	sigPart = sigPart.slice(5);
 
 	// Base64url → Base64
 	const b64 = sigPart.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (sigPart.length % 4)) % 4);
@@ -247,7 +254,7 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 	};
 
 	const setStateExposed = (newState: Partial<HyperBeamRequestState>) => {
-		setState(prev => ({ ...prev, ...newState }));
+		setState((prev) => ({ ...prev, ...newState }));
 	};
 
 	return {

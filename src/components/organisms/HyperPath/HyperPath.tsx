@@ -653,9 +653,6 @@ export default function HyperPath(props: {
 						getPath()
 					)}
 				</S.ContentWrapper>
-				<S.Graphic>
-					<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-				</S.Graphic>
 			</S.Wrapper>
 			{error && (
 				<Notification

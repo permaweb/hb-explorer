@@ -4,15 +4,19 @@ import httpSig from 'http-message-signatures';
  * Decode base64url string → Uint8Array
  */
 export function base64UrlToUint8Array(b64url: string): Uint8Array {
-	let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
-	// Pad to multiple of 4
-	while (b64.length % 4) b64 += '=';
-	const bin = atob(b64);
-	const arr = new Uint8Array(bin.length);
-	for (let i = 0; i < bin.length; i++) {
-		arr[i] = bin.charCodeAt(i);
+	try {
+		let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+		// Pad to multiple of 4
+		while (b64.length % 4) b64 += '=';
+		const bin = atob(b64);
+		const arr = new Uint8Array(bin.length);
+		for (let i = 0; i < bin.length; i++) {
+			arr[i] = bin.charCodeAt(i);
+		}
+		return arr;
+	} catch (error) {
+		throw new Error(`Invalid base64url string: ${b64url}`);
 	}
-	return arr;
 }
 
 /**
@@ -273,7 +277,7 @@ export async function importRSAPublicKey(keyBytes: Uint8Array, algorithm: string
 	const rsaAlg = alg.includes('pss') ? 'RSA-PSS' : 'RSASSA-PKCS1-v1_5';
 
 	try {
-		return await crypto.subtle.importKey('spki', keyBytes, { name: rsaAlg, hash: hashAlg }, false, ['verify']);
+		return await crypto.subtle.importKey('spki', keyBytes as any, { name: rsaAlg, hash: hashAlg }, false, ['verify']);
 	} catch (e) {
 		// Try different approaches for raw RSA keys
 		if (keyBytes.length >= 256) {
@@ -281,9 +285,13 @@ export async function importRSAPublicKey(keyBytes: Uint8Array, algorithm: string
 			if (keyBytes[0] === 0x30) {
 				try {
 					const spkiWrapped = wrapPKCS1InSPKI(keyBytes);
-					const cryptoKey = await crypto.subtle.importKey('spki', spkiWrapped, { name: rsaAlg, hash: hashAlg }, false, [
-						'verify',
-					]);
+					const cryptoKey = await crypto.subtle.importKey(
+						'spki',
+						spkiWrapped as any,
+						{ name: rsaAlg, hash: hashAlg },
+						false,
+						['verify']
+					);
 					return cryptoKey;
 				} catch (e2) {}
 			}
@@ -291,18 +299,26 @@ export async function importRSAPublicKey(keyBytes: Uint8Array, algorithm: string
 			// Approach 2: Try as raw modulus (original approach)
 			try {
 				const spkiWrapped = createRSASPKIFromRaw(keyBytes);
-				const cryptoKey = await crypto.subtle.importKey('spki', spkiWrapped, { name: rsaAlg, hash: hashAlg }, false, [
-					'verify',
-				]);
+				const cryptoKey = await crypto.subtle.importKey(
+					'spki',
+					spkiWrapped as any,
+					{ name: rsaAlg, hash: hashAlg },
+					false,
+					['verify']
+				);
 				return cryptoKey;
 			} catch (e2) {}
 
 			// Last attempt: try the existing wrapper
 			try {
 				const wrappedKey = wrapRSAKeyInSPKI(keyBytes);
-				const cryptoKey = await crypto.subtle.importKey('spki', wrappedKey, { name: rsaAlg, hash: hashAlg }, false, [
-					'verify',
-				]);
+				const cryptoKey = await crypto.subtle.importKey(
+					'spki',
+					wrappedKey as any,
+					{ name: rsaAlg, hash: hashAlg },
+					false,
+					['verify']
+				);
 				return cryptoKey;
 			} catch (e3) {}
 		}
@@ -322,8 +338,16 @@ export function createKeyLookup(fallbackEntry: any) {
 			return null; // Return null to skip this signature
 		}
 
+		// The keyid might have a "publickey:" or "constant:" prefix that needs to be stripped
+		let keyid = params.keyid;
+		if (keyid.startsWith('publickey:')) {
+			keyid = keyid.slice(10);
+		} else if (keyid.startsWith('constant:')) {
+			keyid = keyid.slice(9);
+		}
+
 		// The keyid should be the base64url encoded public key
-		const keyBytes = base64UrlToUint8Array(params.keyid);
+		const keyBytes = base64UrlToUint8Array(keyid);
 
 		// Try to import as different key types based on algorithm
 		const algorithm = alg || fallbackEntry.alg.toLowerCase();
@@ -333,13 +357,17 @@ export function createKeyLookup(fallbackEntry: any) {
 		if (algorithm.includes('rsa')) {
 			cryptoKey = await importRSAPublicKey(keyBytes, algorithm);
 		} else if (algorithm.includes('ecdsa')) {
-			cryptoKey = await crypto.subtle.importKey('spki', keyBytes, { name: 'ECDSA', namedCurve: 'P-256' }, false, [
-				'verify',
-			]);
+			cryptoKey = await crypto.subtle.importKey(
+				'spki',
+				keyBytes as any,
+				{ name: 'ECDSA', namedCurve: 'P-256' },
+				false,
+				['verify']
+			);
 		} else if (algorithm.includes('ed25519')) {
 			cryptoKey = await crypto.subtle.importKey(
 				'raw',
-				keyBytes.length === 32 ? keyBytes : keyBytes.slice(-32),
+				keyBytes.length === 32 ? keyBytes : (keyBytes.slice(-32) as any),
 				{ name: 'Ed25519' },
 				false,
 				['verify']
@@ -463,16 +491,16 @@ export function getSignatureKeyId(header: string): string | null {
 }
 
 /**
- * @param {string} fullSig  A string like "sig-<b64urlSig>:…"
+ * @param {string} fullSig  A string like "comm-<b64urlSig>:…"
  * @returns {Promise<string>}  The Base64URL-encoded SHA-256 hash of the signature
  */
 export async function getMessageIdFromSignature(fullSig) {
-	// Grab the part after "sig-" and before the first ":"
+	// Grab the part after "comm-" and before the first ":"
 	let [sigPart] = fullSig.split(':');
-	if (!sigPart.startsWith('sig-')) {
-		throw new Error('Expected signature to start with "sig-"');
+	if (!sigPart.startsWith('comm-')) {
+		throw new Error('Expected signature to start with "comm-"');
 	}
-	sigPart = sigPart.slice(4);
+	sigPart = sigPart.slice(5);
 
 	// Base64url → Base64
 	const b64 =
@@ -519,15 +547,22 @@ export async function getSignerAddress(sigInputRaw) {
 	const entries = parseSignatureInput(sigInputRaw);
 	if (!entries.length) return 'Unknown';
 
-	// Pick the first entry whose alg isn’t hmac-sha256 (i.e. the real pubkey)
+	// Pick the first entry whose alg isn't hmac-sha256 (i.e. the real pubkey)
 	const realEntry = entries.find((e) => e.alg.toLowerCase() !== 'hmac-sha256') || entries[0];
-	const rawKeyId = realEntry.keyid;
+	let rawKeyId = realEntry.keyid;
+
+	// Strip "publickey:" or "constant:" prefix if present
+	if (rawKeyId.startsWith('publickey:')) {
+		rawKeyId = rawKeyId.slice(10);
+	} else if (rawKeyId.startsWith('constant:')) {
+		rawKeyId = rawKeyId.slice(9);
+	}
 
 	// Now decode it to bytes (base64url → Uint8Array)
 	const pubKeyBytes = base64UrlToUint8Array(rawKeyId);
 
 	// sha-256 the public key bytes
-	const hash = await crypto.subtle.digest('SHA-256', pubKeyBytes);
+	const hash = await crypto.subtle.digest('SHA-256', pubKeyBytes as any);
 	const hashArr = new Uint8Array(hash);
 
 	// base64url-encode the hash to get your “address”

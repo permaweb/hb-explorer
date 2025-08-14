@@ -193,7 +193,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						case 'error':
 							return props.theme.colors.form.invalid.outline;
 						default:
-							return props.theme.colors.form.default.outline;
+							return props.theme.colors.form.border;
 					}
 				}} !important;
 			outline: none !important;

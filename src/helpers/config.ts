@@ -132,7 +132,7 @@ export const STORAGE = {
 
 export const STYLING = {
 	cutoffs: {
-		desktop: '1200px',
+		desktop: '1250px',
 		initial: '1024px',
 		max: '1600px',
 		tablet: '840px',

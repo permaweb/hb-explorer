@@ -444,7 +444,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						case 'error':
 							return props.theme.colors.form.invalid.outline;
 						default:
-							return props.theme.colors.form.default.outline;
+							return props.theme.colors.form.border;
 					}
 				}} !important;
 			outline: none !important;
@@ -606,7 +606,7 @@ export const Graphic = styled.div`
 	video {
 		width: 100%;
 		max-width: ${STYLING.cutoffs.max};
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.902575 : 0)});
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.915 : 0)});
 		opacity: 0.25;
 		position: fixed;
 		z-index: 0;

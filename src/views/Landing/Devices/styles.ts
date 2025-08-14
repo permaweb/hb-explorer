@@ -35,7 +35,7 @@ export const DeviceRow = styled.div<{ count: number }>`
 	}
 `;
 
-export const DeviceWrapper = styled.a`
+export const DeviceWrapper = styled.button`
 	width: 100%;
 	display: flex;
 	align-items: center;

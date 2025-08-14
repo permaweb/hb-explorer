@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 import { useTheme } from 'styled-components';
 
-import { DefaultGQLResponseType, GQLNodeResponseType } from '@permaweb/libs';
+import { Types } from '@permaweb/libs';
 
 import { Button } from 'components/atoms/Button';
 import { Copyable } from 'components/atoms/Copyable';
@@ -25,7 +25,7 @@ import { Editor } from '../Editor';
 import * as S from './styles';
 
 function Message(props: {
-	element: GQLNodeResponseType;
+	element: Types.GQLNodeResponseType;
 	type: TransactionType;
 	currentFilter: MessageFilterType;
 	parentId: string;
@@ -352,7 +352,7 @@ export default function MessageList(props: {
 	const [customAction, setCustomAction] = React.useState<string>('');
 	const [toggleFilterChange, setToggleFilterChange] = React.useState<boolean>(false);
 
-	const [currentData, setCurrentData] = React.useState<GQLNodeResponseType[] | null>(null);
+	const [currentData, setCurrentData] = React.useState<Types.GQLNodeResponseType[] | null>(null);
 	const [loadingMessages, setLoadingMessages] = React.useState<boolean>(false);
 
 	const [incomingCount, setIncomingCount] = React.useState<number | null>(null);
@@ -401,7 +401,7 @@ export default function MessageList(props: {
 			if (props.txId) {
 				try {
 					if (!props.childList && props.type === 'process') {
-						let gqlResponse: DefaultGQLResponseType;
+						let gqlResponse: Types.DefaultGQLResponseType;
 						switch (currentFilter) {
 							case 'incoming':
 								gqlResponse = await permawebProvider.libs.getGQLData({
@@ -682,7 +682,7 @@ export default function MessageList(props: {
 							</S.HeaderWrapper>
 						)}
 						<S.BodyWrapper childList={props.childList} isOverallLast={props.isOverallLast}>
-							{currentData.map((element: GQLNodeResponseType, index: number) => {
+							{currentData.map((element: Types.GQLNodeResponseType, index: number) => {
 								const isLastChild = index === currentData.length - 1;
 
 								return (

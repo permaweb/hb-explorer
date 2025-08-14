@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { App } from 'app';
 import { GlobalStyle } from 'app/styles';
+import { stripUrlProtocol } from 'helpers/utils';
 import { ArweaveProvider } from 'providers/ArweaveProvider';
 import { LanguageProvider } from 'providers/LanguageProvider';
 import { PermawebProvider } from 'providers/PermawebProvider';
@@ -12,6 +13,7 @@ import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
 window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'https://forward.computer' : window.location.origin;
+document.title = stripUrlProtocol(window.hyperbeamUrl);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 	<Provider store={store}>

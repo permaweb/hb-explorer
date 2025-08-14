@@ -1,12 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Loader } from 'components/atoms/Loader';
-import { HB_ENDPOINTS, LINKS } from 'helpers/config';
+import { HB_ENDPOINTS, URLS } from 'helpers/config';
 import { hbFetch } from 'helpers/utils';
 
 import * as S from './styles';
 
 export default function Devices() {
+	const navigate = useNavigate();
+
 	const [devices, setDevices] = React.useState<any>(null);
 
 	React.useEffect(() => {
@@ -49,11 +52,7 @@ export default function Devices() {
 						const [name, variant] = device?.name ? device.name.split('@') : ['-', '-'];
 
 						return (
-							<S.DeviceWrapper
-								key={deviceIndex}
-								href={`${LINKS.hbDocs}/build/devices/${name}-at-1-0.html`}
-								target={'_blank'}
-							>
+							<S.DeviceWrapper key={deviceIndex} onClick={() => navigate(`${URLS.explorer}~${name}@1.0`)}>
 								<p>{name}</p>
 								<span>{variant}</span>
 							</S.DeviceWrapper>
