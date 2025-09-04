@@ -299,7 +299,7 @@ export default function HyperPath(props: {
 				let body;
 				let currentBodyType: 'json' | 'raw' = 'raw';
 
-				if (hyperBeamRequest.submittedPath.includes('serialize~json@1.0')) {
+				if (hyperBeamRequest.submittedPath.includes('accept=application/json')) {
 					currentBodyType = 'json';
 					try {
 						body = await hyperBeamRequest.response.clone().json();
@@ -474,7 +474,7 @@ export default function HyperPath(props: {
 							)}
 						</S.SignatureHeader>
 						<S.SignatureBody>
-							<S.SignatureStatus valid={hyperBeamRequest.signatureValid}>
+							{/* <S.SignatureStatus valid={hyperBeamRequest.signatureValid}>
 								<span>Status</span>
 								<p>
 									{hyperBeamRequest.signatureValid === true
@@ -483,7 +483,7 @@ export default function HyperPath(props: {
 										? 'Invalid'
 										: 'Pending'}
 								</p>
-							</S.SignatureStatus>
+							</S.SignatureStatus> */}
 							<S.SignatureLine>
 								<span>Signer</span>
 								{hyperBeamRequest.signer ? <Copyable value={hyperBeamRequest.signer} format={'address'} /> : <p>-</p>}

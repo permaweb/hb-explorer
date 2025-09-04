@@ -81,7 +81,7 @@ export default function Nodes() {
 			try {
 				const routersData = await Promise.all(
 					routerUrls.map(async (routerUrl) => {
-						const res = await fetch(`https://${routerUrl}/~router@1.0/routes/serialize~json@1.0`);
+						const res = await fetch(`https://${routerUrl}/~router@1.0/routes`);
 						const nodesConfig = await res.json();
 
 						// Check if nodesConfig is an object with routes

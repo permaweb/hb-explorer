@@ -1,3 +1,6 @@
+import { HB_ENDPOINTS } from './config';
+import { hbFetch } from './utils';
+
 export interface DeviceInfo {
 	module: string;
 	name: string;
@@ -195,14 +198,7 @@ async function fetchDeviceNames(): Promise<Record<string, DeviceInfo>> {
 	}
 
 	try {
-		const baseUrl = (window as any).hyperbeamUrl || window.location.origin;
-		const response = await fetch(`${baseUrl}/~meta@1.0/info/preloaded_devices/serialize~json@1.0`);
-
-		if (!response.ok) {
-			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-		}
-
-		const data = await response.json();
+		const data = await hbFetch(HB_ENDPOINTS.devices, { json: true, rawBodyOnly: true });
 
 		if (data && typeof data === 'object') {
 			// Ensure device names have ~ prefix

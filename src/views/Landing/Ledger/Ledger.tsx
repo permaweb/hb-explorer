@@ -13,7 +13,7 @@ export default function Ledger() {
 	React.useEffect(() => {
 		(async function () {
 			try {
-				const ledgerResponse = await hbFetch(HB_ENDPOINTS.ledger);
+				const ledgerResponse = await hbFetch(HB_ENDPOINTS.ledger, { json: true, rawBodyOnly: true });
 				if (ledgerResponse.device) delete ledgerResponse.device;
 				setLedger(ledgerResponse);
 			} catch (e: any) {

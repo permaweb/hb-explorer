@@ -5,7 +5,6 @@ const views = (import.meta as any).glob('../views/**/index.tsx');
 
 const Landing = getLazyImport('Landing');
 const Explorer = getLazyImport('Explorer');
-const Nodes = getLazyImport('Nodes');
 const NotFound = getLazyImport('NotFound');
 
 import { DOM, LINKS, URLS } from 'helpers/config';
@@ -109,7 +108,6 @@ export default function App() {
 						{getRoute(URLS.base, <Landing />)}
 						{getRoute(URLS.explorer, <Explorer />)}
 						{getRoute(`${URLS.explorer}:rest/*`, <Explorer />)}
-						{getRoute(URLS.nodes, <Nodes />)}
 						{getRoute(URLS.notFound, <NotFound />)}
 						{getRoute(`*`, <NotFound />)}
 					</Routes>

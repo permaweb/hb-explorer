@@ -63,10 +63,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 				path: URLS.explorer,
 				label: language.explorer,
 			},
-			{
-				path: URLS.nodes,
-				label: language.nodes,
-			},
 		];
 	}, []);
 
