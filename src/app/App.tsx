@@ -9,6 +9,7 @@ const NotFound = getLazyImport('NotFound');
 
 import { DOM, LINKS, URLS } from 'helpers/config';
 import { getDeviceNames } from 'helpers/deviceNames';
+import { arweaveEndpoint } from 'helpers/endpoints';
 import { Navigation } from 'navigation/Navigation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
@@ -35,6 +36,36 @@ export default function App() {
 	const language = languageProvider.object[languageProvider.current];
 
 	const { settings, updateSettings } = useSettingsProvider();
+
+	React.useEffect(() => {
+		const setFavicon = () => {
+			const baseUrl = window.hyperbeamUrl || arweaveEndpoint;
+			const lightFaviconId = 'yEzIy4fUp2LvpPWkZNDwZ9T8SUFG9QS0-76iKz8KwPo';
+			const darkFaviconId = 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis';
+
+			const existingIcons = document.querySelectorAll('link[rel="icon"]');
+			existingIcons.forEach((icon) => icon.remove());
+
+			const defaultIcon = document.createElement('link');
+			defaultIcon.rel = 'icon';
+			defaultIcon.href = `${baseUrl}/${lightFaviconId}`;
+			document.head.appendChild(defaultIcon);
+
+			const lightIcon = document.createElement('link');
+			lightIcon.rel = 'icon';
+			lightIcon.href = `${baseUrl}/${lightFaviconId}`;
+			lightIcon.media = '(prefers-color-scheme: light)';
+			document.head.appendChild(lightIcon);
+
+			const darkIcon = document.createElement('link');
+			darkIcon.rel = 'icon';
+			darkIcon.href = `${baseUrl}/${darkFaviconId}`;
+			darkIcon.media = '(prefers-color-scheme: dark)';
+			document.head.appendChild(darkIcon);
+		};
+
+		setFavicon();
+	}, []);
 
 	// Initialize device names cache on app startup
 	React.useEffect(() => {

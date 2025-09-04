@@ -1,4 +1,3 @@
-import './fonts.css';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
@@ -12,6 +11,8 @@ import { LanguageProvider } from 'providers/LanguageProvider';
 import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
+
+import './fonts.css';
 
 window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
 document.title = stripUrlProtocol(window.hyperbeamUrl);
