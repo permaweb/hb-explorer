@@ -12,7 +12,7 @@ import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
-window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'https://forward.computer' : window.location.origin;
+window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
 document.title = stripUrlProtocol(window.hyperbeamUrl);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

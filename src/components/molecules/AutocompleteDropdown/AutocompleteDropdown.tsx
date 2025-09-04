@@ -26,7 +26,7 @@ export default function AutocompleteDropdown({
 		if (visible && inputRef?.current) {
 			const rect = inputRef.current.getBoundingClientRect();
 			setPosition({
-				top: rect.bottom - 2, // Subtract 2px to align with border
+				top: rect.bottom - 1, // Subtract 2px to align with border
 				left: rect.left,
 				width: rect.width,
 			});
@@ -53,12 +53,14 @@ export default function AutocompleteDropdown({
 	}
 
 	return createPortal(
-		<S.Dropdown style={{
-			position: 'fixed',
-			top: `${position.top}px`,
-			left: `${position.left}px`,
-			width: `${position.width}px`,
-		}}>
+		<S.Dropdown
+			style={{
+				position: 'fixed',
+				top: `${position.top}px`,
+				left: `${position.left}px`,
+				width: `${position.width}px`,
+			}}
+		>
 			{options.map((option, index) => (
 				<S.Option
 					key={option}

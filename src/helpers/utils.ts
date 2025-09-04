@@ -224,10 +224,37 @@ export function stripUrlProtocol(url: string) {
 	return url.replace(/^https?:\/\//, '');
 }
 
-export async function hbFetch(endpoint: string) {
-	const response = await fetch(`${window.hyperbeamUrl}${endpoint}`);
-	if (endpoint.includes('serialize~json@1.0')) return await response.json();
-	return await response.text();
+export async function hbFetch(
+	endpoint: string,
+	opts?: {
+		json?: boolean;
+		rawBodyOnly?: boolean;
+	}
+) {
+	try {
+		let headers: any = {};
+
+		if (opts?.json) headers['require-codec'] = 'application/json';
+		if (opts?.json) headers['accept'] = 'application/json';
+		if (opts?.json) headers['accept-bundle'] = 'true';
+
+		const response = await fetch(`${window.hyperbeamUrl}${endpoint}`, {
+			method: 'GET',
+			headers: { ...headers },
+		});
+
+		if (opts?.json) {
+			const responseBody = await response.json();
+
+			if (responseBody.commitments && opts?.rawBodyOnly) delete responseBody.commitments;
+			if (responseBody.status && opts?.rawBodyOnly) delete responseBody.status;
+
+			return responseBody;
+		}
+		return await response.text();
+	} catch (e: any) {
+		throw new Error(e);
+	}
 }
 
 export function parseHeaders(input) {

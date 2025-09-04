@@ -415,9 +415,9 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 	overflow: visible;
 
 	input {
-		max-width: 100%;
-		padding: 10px 10px 10px 42.5px !important;
-		border: 1.5px solid
+		background: transparent;
+		padding: 10px 10px 10px 43.5px !important;
+		border: 1px solid
 			${(props) => {
 				switch (props.cacheStatus) {
 					case 'success':
@@ -428,15 +428,15 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						return props.theme.colors.form.border;
 				}
 			}} !important;
-		outline: none !important;
-		box-shadow: none !important;
+
 		border-radius: ${(props) =>
 			props.hasDropdown
 				? `${STYLING.dimensions.radius.primary} ${STYLING.dimensions.radius.primary} 0 0 !important`
 				: `${STYLING.dimensions.radius.primary} !important`};
 
 		&:focus {
-			border: 1.5px solid
+			outline: 0;
+			border: 1px solid
 				${(props) => {
 					switch (props.cacheStatus) {
 						case 'success':
@@ -444,15 +444,11 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						case 'error':
 							return props.theme.colors.form.invalid.outline;
 						default:
-							return props.theme.colors.form.border;
+							return props.theme.colors.form.default.outline;
 					}
 				}} !important;
-			outline: none !important;
-			box-shadow: none !important;
-		}
 
-		&:hover {
-			border: 1.5px solid
+			outline: 0.5px solid
 				${(props) => {
 					switch (props.cacheStatus) {
 						case 'success':
@@ -460,9 +456,23 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						case 'error':
 							return props.theme.colors.form.invalid.outline;
 						default:
-							return props.theme.colors.form.border;
+							return props.theme.colors.form.default.outline;
 					}
 				}} !important;
+
+			box-shadow: 0 0 0.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.shadow;
+						case 'error':
+							return props.theme.colors.form.invalid.shadow;
+						default:
+							return props.theme.colors.form.default.outline;
+					}
+				}} !important;
+
+			transition: box-shadow, border, outline 225ms ease-in-out;
 		}
 	}
 

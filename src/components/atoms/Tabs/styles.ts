@@ -116,9 +116,9 @@ export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 		z-index: 1;
 		left: 0;
 		transform: translate(-50%, 0);
-		top: 0;
+		top: -2px;
 		background: ${(props) => (props.active ? props.theme.colors.border.primary : 'transparent')};
-		height: 100%;
+		height: calc(100% + 3px);
 		width: 1px;
 		pointer-events: none;
 	}
@@ -130,9 +130,9 @@ export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 		z-index: 1;
 		right: -1px;
 		transform: translate(-50%, 0);
-		top: 0;
+		top: -2px;
 		background: ${(props) => (props.active ? props.theme.colors.border.primary : 'transparent')};
-		height: 100%;
+		height: calc(100% + 3px);
 		width: 1px;
 		pointer-events: none;
 	}

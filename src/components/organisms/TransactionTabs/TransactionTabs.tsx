@@ -341,6 +341,7 @@ export default function TransactionTabs(props: { type: 'hb-explorer' | 'legacy-e
 				})}
 				<S.NewTab active={false} onClick={() => handleAddTab()}>
 					<span>{language.newTab}</span>
+					<ReactSVG className={'add-icon'} src={ASSETS.add} />
 				</S.NewTab>
 				<S.Placeholder />
 			</S.TabsContent>

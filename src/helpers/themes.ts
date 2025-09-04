@@ -268,8 +268,8 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 				shadow: currentTheme.positive2,
 			},
 			default: {
-				outline: currentTheme.primary1,
-				shadow: currentTheme.primary2,
+				outline: currentTheme.neutralA6,
+				shadow: currentTheme.neutralA6,
 			},
 			disabled: {
 				background: currentTheme.neutral2,
@@ -383,7 +383,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 			xxLg: '28px',
 			h1: 'clamp(36px, 3.5vw, 56px)',
 			h2: 'clamp(32px, 3.25vw, 50px)',
-			h4: 'clamp(28px, 3vw, 42px)',
+			h4: 'clamp(28px, 2.5vw, 32px)',
 		},
 		weight: {
 			light: '300',

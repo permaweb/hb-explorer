@@ -11,7 +11,7 @@ import { Tabs } from 'components/atoms/Tabs';
 import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
-import SamplePaths from 'components/molecules/SamplePaths';
+import { SamplePaths } from 'components/molecules/SamplePaths';
 import { ASSETS, URLS } from 'helpers/config';
 import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
@@ -299,7 +299,7 @@ export default function HyperPath(props: {
 				let body;
 				let currentBodyType: 'json' | 'raw' = 'raw';
 
-				if (hyperBeamRequest.submittedPath.includes('serialize~json@1.0')) {
+				if (hyperBeamRequest.submittedPath.includes('accept=application/json')) {
 					currentBodyType = 'json';
 					try {
 						body = await hyperBeamRequest.response.clone().json();
@@ -474,7 +474,7 @@ export default function HyperPath(props: {
 							)}
 						</S.SignatureHeader>
 						<S.SignatureBody>
-							<S.SignatureStatus valid={hyperBeamRequest.signatureValid}>
+							{/* <S.SignatureStatus valid={hyperBeamRequest.signatureValid}>
 								<span>Status</span>
 								<p>
 									{hyperBeamRequest.signatureValid === true
@@ -483,7 +483,7 @@ export default function HyperPath(props: {
 										? 'Invalid'
 										: 'Pending'}
 								</p>
-							</S.SignatureStatus>
+							</S.SignatureStatus> */}
 							<S.SignatureLine>
 								<span>Signer</span>
 								{hyperBeamRequest.signer ? <Copyable value={hyperBeamRequest.signer} format={'address'} /> : <p>-</p>}
@@ -566,7 +566,7 @@ export default function HyperPath(props: {
 				<S.HeaderWrapper>
 					<S.SearchWrapper>
 						<S.SearchInputWrapper
-							cacheStatus={cacheStatus}
+							cacheStatus={showAutocomplete ? 'default' : cacheStatus}
 							hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
 						>
 							<ReactSVG src={ASSETS.search} />

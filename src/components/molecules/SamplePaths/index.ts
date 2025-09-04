@@ -1,1 +1,1 @@
-export { default } from './SamplePaths';
+export { default as SamplePaths } from './SamplePaths';

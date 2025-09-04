@@ -15,7 +15,8 @@ export default function Devices() {
 	React.useEffect(() => {
 		(async function () {
 			try {
-				const deviceInfo = await hbFetch(HB_ENDPOINTS.devices);
+				const deviceInfo = await hbFetch(HB_ENDPOINTS.devices, { json: true, rawBodyOnly: true });
+
 				const deviceList = Object.keys(deviceInfo)
 					.map((key) => deviceInfo[key])
 					.filter((device) => typeof device !== 'string');

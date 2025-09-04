@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 import { ViewWrapper } from 'app/styles';
 import { Tabs } from 'components/atoms/Tabs';
 import { ViewHeader } from 'components/atoms/ViewHeader';
-import { ASSETS, HB_ENDPOINTS } from 'helpers/config';
+import { HB_ENDPOINTS } from 'helpers/config';
 import { formatCount, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -178,31 +178,31 @@ export default function Landing() {
 				<ViewWrapper>
 					<S.MetricsBody>
 						<S.MetricsRow>
-							<S.MetricsSection className={'border-wrapper-alt3'}>
+							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>Uptime</p>
 								<p ref={uptimeRef} className={'metric-value'}>
 									–
 								</p>
 								<span>Seconds</span>
 							</S.MetricsSection>
-							<S.MetricsSection className={'border-wrapper-alt3'}>
+							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>AO-Core Executions</p>
 								<p className={'metric-value'}>{executions}</p>
 								<span>Executions</span>
 							</S.MetricsSection>
-							<S.MetricsSection className={'border-wrapper-alt3'}>
+							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>System Load</p>
 								<p className={'metric-value'}>{systemLoad}</p>
 								<span>CPU Average</span>
 							</S.MetricsSection>
 						</S.MetricsRow>
 						<S.MetricsRow>
-							<S.MetricsSection className={'border-wrapper-alt3'}>
+							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>Read Requests Handled</p>
 								<p className={'metric-value'}>{reads}</p>
 								<span>Requests</span>
 							</S.MetricsSection>
-							<S.MetricsSection className={'border-wrapper-alt3'}>
+							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>Write Requests Handled</p>
 								<p className={'metric-value'}>{writes}</p>
 								<span>Requests</span>
@@ -224,9 +224,9 @@ export default function Landing() {
 					</S.Tab>
 				</Tabs>
 			</S.TabsWrapper>
-			<S.Graphic>
+			{/* <S.Graphic>
 				<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-			</S.Graphic>
+			</S.Graphic> */}
 		</S.Wrapper>
 	);
 }
