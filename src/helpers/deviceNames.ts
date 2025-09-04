@@ -239,7 +239,7 @@ export async function getDeviceNames(): Promise<Record<string, DeviceInfo>> {
 }
 
 export const DEVICE_NAMES = new Proxy({} as Record<string, DeviceInfo>, {
-	get(target, prop) {
+	get(_target, prop) {
 		if (deviceNamesCache) {
 			return deviceNamesCache[prop as string];
 		}
@@ -248,7 +248,7 @@ export const DEVICE_NAMES = new Proxy({} as Record<string, DeviceInfo>, {
 	ownKeys() {
 		return Object.keys(deviceNamesCache || FALLBACK_DEVICE_NAMES);
 	},
-	has(target, prop) {
+	has(_target, prop) {
 		return prop in (deviceNamesCache || FALLBACK_DEVICE_NAMES);
 	},
 });

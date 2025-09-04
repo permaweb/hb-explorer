@@ -11,7 +11,7 @@ import { Tabs } from 'components/atoms/Tabs';
 import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
-import SamplePaths from 'components/molecules/SamplePaths';
+import { SamplePaths } from 'components/molecules/SamplePaths';
 import { ASSETS, URLS } from 'helpers/config';
 import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
@@ -566,7 +566,7 @@ export default function HyperPath(props: {
 				<S.HeaderWrapper>
 					<S.SearchWrapper>
 						<S.SearchInputWrapper
-							cacheStatus={cacheStatus}
+							cacheStatus={showAutocomplete ? 'default' : cacheStatus}
 							hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
 						>
 							<ReactSVG src={ASSETS.search} />

@@ -36,10 +36,8 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
-		text-transform: uppercase;
 		display: block;
 		white-space: nowrap;
-		margin: 0.5px 0 0 0;
 	}
 
 	svg {

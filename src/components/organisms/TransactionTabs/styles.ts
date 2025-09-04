@@ -112,7 +112,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 
 	.delete-icon {
 		display: none;
-		margin: 1.5px 0 0 0;
+		margin: 0.5px 0 0 0;
 	}
 
 	&:hover .normal-icon {
@@ -169,9 +169,9 @@ export const TabAction = styled.div<{ active: boolean }>`
 		z-index: 1;
 		left: 0;
 		transform: translate(-50%, 0);
-		top: 0;
+		top: -2px;
 		background: ${(props) => (props.active ? props.theme.colors.border.primary : 'transparent')};
-		height: 100%;
+		height: calc(100% + 3px);
 		width: 1px;
 		pointer-events: none;
 	}
@@ -183,9 +183,9 @@ export const TabAction = styled.div<{ active: boolean }>`
 		z-index: 1;
 		right: -1px;
 		transform: translate(-50%, 0);
-		top: 0;
+		top: -2px;
 		background: ${(props) => (props.active ? props.theme.colors.border.primary : 'transparent')};
-		height: 100%;
+		height: calc(100% + 3px);
 		width: 1px;
 		pointer-events: none;
 	}
@@ -194,8 +194,12 @@ export const TabAction = styled.div<{ active: boolean }>`
 export const NewTab = styled(TabAction)`
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary} !important;
 
+	.add-icon {
+		height: 20px;
+	}
+
 	svg {
-		margin: 0 1.5px 0 0;
+		margin: 0 0 1px 2.5px;
 	}
 `;
 

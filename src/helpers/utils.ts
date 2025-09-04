@@ -224,8 +224,17 @@ export function stripUrlProtocol(url: string) {
 	return url.replace(/^https?:\/\//, '');
 }
 
-export async function hbFetch(endpoint: string) {
-	const response = await fetch(`${window.hyperbeamUrl}${endpoint}`);
+export async function hbFetch(endpoint: string, opts?: { json: boolean }) {
+	let headers: any = {};
+
+	if (opts?.json) headers['require-codec'] = 'application/json';
+	if (opts?.json) headers['accept'] = 'application/json';
+
+	const response = await fetch(`${window.hyperbeamUrl}${endpoint}`, {
+		method: 'GET',
+		headers: { ...headers },
+	});
+
 	if (endpoint.includes('serialize~json@1.0')) return await response.json();
 	return await response.text();
 }

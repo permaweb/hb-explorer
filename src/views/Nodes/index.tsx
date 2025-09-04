@@ -2,7 +2,6 @@ import React from 'react';
 
 import { ViewWrapper } from 'app/styles';
 import { ViewHeader } from 'components/atoms/ViewHeader';
-import { ASSETS } from 'helpers/config';
 import { formatCount } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -185,9 +184,9 @@ export default function Nodes() {
 					)}
 				</ViewWrapper>
 			</S.BodyWrapper>
-			<S.Graphic>
+			{/* <S.Graphic>
 				<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-			</S.Graphic>
+			</S.Graphic> */}
 		</S.Wrapper>
 	);
 }

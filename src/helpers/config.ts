@@ -201,7 +201,7 @@ export const LINKS = {
 export const HB_ENDPOINTS = {
 	info: '/~meta@1.0/info',
 	cache: `/~cacheviz@1.0/json`,
-	devices: '/~meta@1.0/info/preloaded_devices/serialize~json@1.0',
+	devices: '/~meta@1.0/info/preloaded_devices',
 	metrics: `/~hyperbuddy@1.0/metrics`,
 	operator: '/~meta@1.0/info/address',
 	ledger: `/ledger~node-process@1.0/now/balance/serialize~json@1.0`,

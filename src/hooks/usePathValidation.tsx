@@ -11,10 +11,10 @@ export interface UsePathValidationReturn {
 	validationStatus: ValidationStatus;
 }
 
-export function usePathValidation({ path, debounceMs = 300 }: UsePathValidationProps): UsePathValidationReturn {
+export function usePathValidation({ path, debounceMs = 500 }: UsePathValidationProps): UsePathValidationReturn {
 	const [validationStatus, setValidationStatus] = React.useState<ValidationStatus>('default');
 
-	// Check path validity in real-time as user types
+	// Check path validity in real-time as a user types
 	React.useEffect(() => {
 		if (!path) {
 			setValidationStatus('default');
@@ -27,12 +27,12 @@ export function usePathValidation({ path, debounceMs = 300 }: UsePathValidationP
 				const mainRes = await fetch(`${window.hyperbeamUrl}/${validationPath}`);
 
 				if (mainRes.status === 200) {
-					setValidationStatus('success'); // Green: valid path
+					setValidationStatus('success');
 				} else {
-					setValidationStatus('error'); // Red: invalid path
+					setValidationStatus('default');
 				}
 			} catch (e: any) {
-				setValidationStatus('error'); // Red: network error
+				setValidationStatus('error');
 			}
 		};
 

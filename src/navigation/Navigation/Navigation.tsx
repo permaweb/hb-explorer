@@ -134,7 +134,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 		return (
 			<S.SearchWrapper>
 				<S.SearchInputWrapper
-					cacheStatus={validationStatus}
+					cacheStatus={showAutocomplete ? 'default' : validationStatus}
 					hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
 				>
 					<ReactSVG src={ASSETS.search} />

@@ -51,7 +51,7 @@ export const PathCard = styled.div`
 	border-radius: 12px;
 	padding: 12px 16px;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: all 100ms;
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
@@ -59,7 +59,6 @@ export const PathCard = styled.div`
 	&:hover {
 		border-color: ${(props) => props.theme.colors.border.alt4};
 		background: ${(props) => props.theme.colors.container.alt1.background};
-		transform: translateY(-2px);
 		box-shadow: 0 4px 12px ${(props) => props.theme.colors.shadow.primary}20;
 	}
 `;
@@ -119,6 +118,7 @@ export const PathValue = styled.div`
 		padding: 2px 6px;
 		border-radius: 4px;
 		border: 1px solid ${(props) => props.theme.colors.border.alt1};
+		word-wrap: break-word;
 	}
 `;
 
@@ -130,11 +130,10 @@ export const PathAction = styled.div`
 		height: 14px;
 		width: 14px;
 		fill: ${(props) => props.theme.colors.font.alt1};
-		transition: transform 0.2s ease;
+		transition: all 100ms;
 	}
 
 	${PathCard}:hover & svg {
-		transform: translateX(4px);
 		fill: ${(props) => props.theme.colors.font.primary};
 	}
 `;
