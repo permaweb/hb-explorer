@@ -268,7 +268,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 				shadow: currentTheme.positive2,
 			},
 			default: {
-				outline: currentTheme.neutralA6,
+				outline: currentTheme.neutralA5,
 				shadow: currentTheme.neutralA6,
 			},
 			disabled: {

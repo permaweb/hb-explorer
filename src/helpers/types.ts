@@ -89,6 +89,16 @@ export type TransactionType = 'process' | 'message';
 
 export type TransactionTabType = { id: string; label: string; type: TransactionType | null };
 
+export type ExplorerTabType = 'process' | 'message' | 'path';
+
+export type ExplorerTabObjectType = {
+	id: string;
+	type: ExplorerTabType | null;
+	variant: VariantEnum | null;
+	path: string;
+	label: string;
+};
+
 export type MetricDataPoint = {
 	created_date: string;
 	tx_count: number;
@@ -105,7 +115,7 @@ export type MetricDataPoint = {
 
 export type MessageFilterType = 'incoming' | 'outgoing';
 
-export enum MessageVariantEnum {
+export enum VariantEnum {
 	Legacynet = 'ao.TN.1',
 	Mainnet = 'ao.N.1',
 }

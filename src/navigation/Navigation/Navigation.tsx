@@ -129,10 +129,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper
-					cacheStatus={showAutocomplete ? 'default' : validationStatus}
-					hasDropdown={showAutocomplete && autocompleteOptions.length > 0}
-				>
+				<S.SearchInputWrapper cacheStatus={showAutocomplete ? 'default' : validationStatus}>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
 						ref={inputRef}
