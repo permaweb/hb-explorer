@@ -285,9 +285,9 @@ export const ActionTooltip = styled.div`
 	}
 `;
 
-export const ActionValue = styled(Action)<{ background?: string; useMaxWidth: boolean }>`
-	min-width: 200px;
-	width: 200px;
+export const ActionValue = styled(Action)<{ background?: string; useMaxWidth: boolean; noMinWidth?: boolean }>`
+	min-width: ${(props) => (props.noMinWidth ? '0' : '200px')};
+	width: ${(props) => (props.noMinWidth ? 'fit-content' : '200px')};
 	position: relative;
 
 	.action-indicator {
@@ -398,17 +398,25 @@ export const OverlayWrapper = styled.div`
 export const OverlayTagsWrapper = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 7.5px;
+	gap: 15px;
 	padding: 15px;
 	margin: 2.5px 0 0 0;
 `;
 
 export const OverlayTagsHeader = styled.div`
-	margin: 0 0 2.5px 0;
+	display: flex;
+	justify-content: space-between;
 	p {
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+	}
+	span {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt1};
 	}
 `;
 
@@ -456,6 +464,12 @@ export const OverlayInfo = styled.div`
 	gap: 15px;
 `;
 
+export const OverlayInfoHeader = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+`;
+
 export const OverlayInfoLine = styled.div`
 	display: flex;
 	gap: 7.5px;
@@ -474,7 +488,7 @@ export const OverlayOutput = styled.div`
 	width: 100%;
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.small};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};

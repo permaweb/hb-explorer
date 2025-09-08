@@ -95,6 +95,7 @@ export type ExplorerTabObjectType = {
 	id: string;
 	type: ExplorerTabType | null;
 	variant: VariantEnum | null;
+	basePath: string;
 	path: string;
 	label: string;
 };

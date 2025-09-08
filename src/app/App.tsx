@@ -138,6 +138,7 @@ export default function App() {
 						{getRoute(URLS.explorer, <Explorer />)}
 						{getRoute(`${URLS.explorer}:id`, <Explorer />)}
 						{getRoute(`${URLS.explorer}:id/:active`, <Explorer />)}
+						{getRoute(`${URLS.explorer}:id/*`, <Explorer />)}
 						{getRoute(URLS.notFound, <NotFound />)}
 						{getRoute(`*`, <NotFound />)}
 					</Routes>

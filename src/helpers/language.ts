@@ -58,6 +58,7 @@ export const language = {
 		goBack: `Go Back`,
 		goTo: `Go To`,
 		handle: `Handle`,
+		headers: `Headers`,
 		healthy: `Healthy`,
 		hideResults: `Hide Results`,
 		id: `ID`,

@@ -220,6 +220,129 @@ export function stripAnsiChars(input: string) {
 	return input.toString().replace(ansiRegex, '');
 }
 
+export function ansiToHtml(input: string, theme?: any): string {
+	if (!input) return '';
+
+	const getAnsiColorMap = (theme?: any) => {
+		if (!theme) {
+			// Fallback colors if no theme provided
+			return {
+				'0': { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' }, // reset
+				'1': { fontWeight: 'normal' },
+				'4': { textDecoration: 'underline' }, // underline
+				'30': { color: '#000000' }, // black
+				'31': { color: '#e74c3c' }, // red
+				'32': { color: '#2ecc71' }, // green
+				'33': { color: '#f39c12' }, // yellow
+				'34': { color: '#3498db' }, // blue
+				'35': { color: '#9b59b6' }, // magenta
+				'36': { color: '#1abc9c' }, // cyan
+				'37': { color: '#ecf0f1' }, // white
+				'90': { color: '#95a5a6' }, // bright black (gray)
+				'91': { color: '#e74c3c' }, // bright red
+				'92': { color: '#2ecc71' }, // bright green
+				'93': { color: '#f1c40f' }, // bright yellow
+				'94': { color: '#74b9ff' }, // bright blue
+				'95': { color: '#e84393' }, // bright magenta
+				'96': { color: '#00cec9' }, // bright cyan
+				'97': { color: '#ffffff' }, // bright white
+			};
+		}
+
+		return {
+			'0': { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' }, // reset
+			'1': { fontWeight: 'normal' },
+			'4': { textDecoration: 'underline' }, // underline
+			'30': { color: theme.colors.editor.alt10 }, // black
+			'31': { color: theme.colors.editor.primary }, // red
+			'32': { color: theme.colors.editor.alt3 }, // green
+			'33': { color: theme.colors.editor.alt6 }, // yellow
+			'34': { color: theme.colors.editor.alt4 }, // blue
+			'35': { color: theme.colors.editor.alt8 }, // magenta
+			'36': { color: theme.colors.editor.alt7 }, // cyan
+			'37': { color: '#EEEEEE' }, // white
+			'90': { color: theme.colors.editor.alt10 }, // bright black
+			'91': { color: theme.colors.warning.primary }, // bright red
+			'92': { color: theme.colors.editor.alt3 }, // bright green
+			'93': { color: theme.colors.editor.alt6 }, // bright yellow
+			'94': { color: theme.colors.editor.alt4 }, // bright blue
+			'95': { color: theme.colors.editor.alt8 }, // bright magenta
+			'96': { color: theme.colors.editor.alt7 }, // bright cyan
+			'97': { color: '#EEEEEE' }, // bright white
+		};
+	};
+
+	const ansiColorMap = getAnsiColorMap(theme);
+
+	let result = input;
+	let currentStyles = { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' };
+	let openSpans = 0;
+
+	// First convert octal escape sequences (\27) to standard escape sequences (\x1B)
+	result = result.replace(/\\27/g, '\x1B');
+
+	// Convert escaped whitespace characters to actual whitespace
+	result = result.replace(/\\n/g, '\n');
+	result = result.replace(/\\t/g, '\t');
+	result = result.replace(/\\r/g, '\r');
+
+	// Replace ANSI escape sequences with HTML spans
+	result = result.replace(/\x1B\[([0-9;]*)m/g, (_, codes) => {
+		let html = '';
+
+		// Close current span if we have styles applied
+		if (openSpans > 0) {
+			html += '</span>';
+			openSpans--;
+		}
+
+		if (codes === '' || codes === '0') {
+			// Reset all styles
+			currentStyles = { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' };
+		} else {
+			// Apply new styles
+			const codeArray = codes.split(';');
+			for (const code of codeArray) {
+				if (ansiColorMap[code]) {
+					Object.assign(currentStyles, ansiColorMap[code]);
+				}
+			}
+		}
+
+		// Create new span with current styles if any are applied
+		const hasStyles =
+			currentStyles.color ||
+			currentStyles.background ||
+			currentStyles.fontWeight !== 'normal' ||
+			currentStyles.textDecoration !== 'none';
+
+		if (hasStyles) {
+			const styles = [];
+			if (currentStyles.color) styles.push(`color: ${currentStyles.color}`);
+			if (currentStyles.background) styles.push(`background-color: ${currentStyles.background}`);
+			if (currentStyles.fontWeight !== 'normal') styles.push(`font-weight: ${currentStyles.fontWeight}`);
+			if (currentStyles.textDecoration !== 'none') styles.push(`text-decoration: ${currentStyles.textDecoration}`);
+			styles.push(`font-family: 'Source Code Pro', serif`);
+
+			html += `<span style="${styles.join('; ')}">`;
+			openSpans++;
+		}
+
+		return html;
+	});
+
+	// Close any remaining open spans
+	while (openSpans > 0) {
+		result += '</span>';
+		openSpans--;
+	}
+
+	// Convert newlines to HTML line breaks
+	result = result.replace(/\n/g, '<br>');
+
+	return result;
+}
+
 export function stripUrlProtocol(url: string) {
 	return url.replace(/^https?:\/\//, '');
 }

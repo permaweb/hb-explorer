@@ -58,89 +58,33 @@ function Message(props: {
 	const [open, setOpen] = React.useState<boolean>(false);
 	const [messages, setMessages] = React.useState<RawMessageType[] | null>(null);
 
-	const [data] = React.useState<any>(null);
 	const [showViewData, setShowViewData] = React.useState<boolean>(false);
 
-	const [result] = React.useState<any>(null);
+	const [result, setResult] = React.useState<any>(null);
 	const [showViewResult, setShowViewResult] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 		(async function () {
-			if (open && !messages) {
+			if ((open || showViewResult) && !result) {
 				if (props.element.process && props.element.slot) {
 					try {
 						const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
 						if (response?.results?.json?.body) {
-							const parsedMessages = JSON.parse(response.results.json.body);
-							const normalizedMessages = normalizeChildMessages(parsedMessages);
+							const parsedResult = JSON.parse(response.results.json.body);
+							setResult(parsedResult);
+
+							const normalizedMessages = normalizeChildMessages(parsedResult);
 							setMessages(normalizedMessages);
 						}
 					} catch (e: any) {
 						console.error(e);
 					}
+				} else {
+					setMessages([]);
 				}
 			}
 		})();
-	}, [open, messages]);
-
-	// React.useEffect(() => {
-	// 	(async function () {
-	// 		if (!result && showViewResult) {
-	// 			let processId: string = props.element.process;
-
-	// 			if (processId) {
-	// 				try {
-	// 					// const messageResult = await permawebProvider.deps.ao.result({
-	// 					// 	process: processId,
-	// 					// 	message: props.element['hash-chain'],
-	// 					// });
-	// 					// setResult(messageResult);
-	// 					// http://localhost:8734/OD_4_THHHDOxJ1l5DbpdwwsY6QBUF8wtR3DwyR_zabE/compute=4?accept=application/json&accept-bundle=true
-	// 					const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
-	// 					console.log(response);
-	// 				} catch (e: any) {
-	// 					console.error(e);
-	// 				}
-	// 			}
-	// 		}
-	// 	})();
-	// }, [result, showViewResult]);
-
-	// React.useEffect(() => {
-	// 	(async function () {
-	// 		if (!data && showViewData) {
-	// 			try {
-	// 				const messageFetch = await fetch(getTxEndpoint(props.element['hash-chain']));
-	// 				const rawMessage = await messageFetch.text();
-
-	// 				const raw = rawMessage ?? '';
-	// 				const trimmed = raw.trim();
-
-	// 				if (trimmed === '') {
-	// 					setData(language.noData);
-	// 				} else {
-	// 					try {
-	// 						const parsed = JSON.parse(trimmed);
-
-	// 						const isEmptyArray = Array.isArray(parsed) && parsed.length === 0;
-	// 						const isEmptyObject =
-	// 							parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0;
-
-	// 						if (isEmptyArray || isEmptyObject) {
-	// 							setData(language.noData);
-	// 						} else {
-	// 							setData(parsed);
-	// 						}
-	// 					} catch {
-	// 						setData(trimmed);
-	// 					}
-	// 				}
-	// 			} catch (e: any) {
-	// 				console.error(e);
-	// 			}
-	// 		}
-	// 	})();
-	// }, [data, showViewData]);
+	}, [open, showViewResult, result]);
 
 	const excludedTagNames = ['Type', 'Authority', 'Module', 'Scheduler'];
 	const bodyEntries = props.element.body ? Object.entries(props.element.body) : [];
@@ -162,10 +106,10 @@ function Message(props: {
 
 	function getActionLabel() {
 		// Handle both formats
-		let label = props.element.body?.action || language.none;
+		let label = props.element.body?.action || props.element.type;
 
 		// If it's a child message format, get action from Tags
-		if (props.element.Tags && !label) {
+		if (props.element.Tags) {
 			label = props.element.Tags.find((tag: any) => tag.name === 'Action')?.value || language.none;
 		}
 
@@ -226,9 +170,9 @@ function Message(props: {
 		}
 	}
 
-	function getAction(useMaxWidth: boolean) {
+	function getAction(useMaxWidth: boolean, noMinWidth: boolean) {
 		return (
-			<S.ActionValue background={getActionBackground()} useMaxWidth={useMaxWidth}>
+			<S.ActionValue background={getActionBackground()} useMaxWidth={useMaxWidth} noMinWidth={noMinWidth}>
 				<div className={'action-indicator'}>
 					<p>{getActionLabel()}</p>
 					<S.ActionTooltip className={'info'}>
@@ -240,7 +184,9 @@ function Message(props: {
 	}
 
 	function getData() {
-		if (!data) return null;
+		if (!props.element?.body?.data) return null;
+
+		const data = props.element?.body?.data;
 
 		if (typeof data === 'object') {
 			return <JSONReader data={data} header={language.data} maxHeight={600} />;
@@ -279,7 +225,7 @@ function Message(props: {
 			header = language.input;
 			handleClose = () => setShowViewData(false);
 			content = getData();
-			if (data) loading = false;
+			if (props.element?.body?.data) loading = false;
 		} else if (showViewResult) {
 			open = true;
 			header = language.result;
@@ -292,17 +238,21 @@ function Message(props: {
 			<Panel open={open} width={550} header={header} handleClose={handleClose}>
 				<S.OverlayWrapper>
 					<S.OverlayInfo>
-						<S.OverlayInfoLine>
-							<S.OverlayInfoLineValue>
-								<p>{`${language.message}: `}</p>
-							</S.OverlayInfoLineValue>
-							<Copyable value={props.element['hash-chain']} />
-						</S.OverlayInfoLine>
-						<S.OverlayInfoLine>{getAction(false)}</S.OverlayInfoLine>
+						<S.OverlayInfoHeader>
+							<S.OverlayInfoLine>
+								<S.OverlayInfoLineValue>
+									<p>{`${language.message}: `}</p>
+								</S.OverlayInfoLineValue>
+								<Copyable value={props.element['hash-chain']} />
+							</S.OverlayInfoLine>
+							<S.OverlayInfoLine>{getAction(false, true)}</S.OverlayInfoLine>
+						</S.OverlayInfoHeader>
+						<S.OverlayOutput>{loading ? <p>{`${language.loading}...`}</p> : <>{content}</>}</S.OverlayOutput>
 						{showViewData && (
 							<S.OverlayTagsWrapper className={'border-wrapper-alt3'}>
 								<S.OverlayTagsHeader>
-									<p>{language.tags}</p>
+									<p>{language.headers}</p>
+									<span>{`(${filteredTags.length})`}</span>
 								</S.OverlayTagsHeader>
 								{filteredTags.map((tag: { name: string; value: string }, index: number) => (
 									<OverlayLine key={index} label={tag.name} value={tag.value} />
@@ -310,7 +260,6 @@ function Message(props: {
 							</S.OverlayTagsWrapper>
 						)}
 					</S.OverlayInfo>
-					<S.OverlayOutput>{loading ? <p>{`${language.loading}...`}</p> : <>{content}</>}</S.OverlayOutput>
 					<S.OverlayActions>
 						<Button type={'primary'} label={language.close} handlePress={handleClose} />
 					</S.OverlayActions>
@@ -348,9 +297,9 @@ function Message(props: {
 					<Copyable value={props.element['hash-chain']} />
 				</S.ID> */}
 				<S.Slot>
-					<p>{props.element.slot || props.element.Anchor || '-'}</p>
+					<p>{props.element.slot ?? props.element.Anchor ?? '-'}</p>
 				</S.Slot>
-				{getAction(true)}
+				{getAction(true, false)}
 				{getFrom()}
 				{getTo()}
 				<S.Input>
@@ -366,7 +315,7 @@ function Message(props: {
 					<ReactSVG src={ASSETS.arrow} />
 				</S.Results>
 			</S.ElementWrapper>
-			{open && messages && (
+			{open && (
 				<MessageList
 					txId={props.element['hash-chain'] || props.element.Anchor}
 					type={props.type}
@@ -401,7 +350,7 @@ export default function MessageList(props: {
 	const tableContainerRef = React.useRef(null);
 
 	const [showFilters, setShowFilters] = React.useState<boolean>(false);
-	const [currentFilter, setCurrentFilter] = React.useState<MessageFilterType>(props.currentFilter ?? 'incoming');
+	const [currentFilter, _setCurrentFilter] = React.useState<MessageFilterType>(props.currentFilter ?? 'incoming');
 	const [currentAction, setCurrentAction] = React.useState<string | null>(null);
 	const [actionOptions, setActionOptions] = React.useState<string[]>(
 		Object.keys(DEFAULT_ACTIONS).map((action) => DEFAULT_ACTIONS[action].name)
@@ -463,10 +412,10 @@ export default function MessageList(props: {
 		setFilteredData(filtered);
 	}, [currentData, currentAction, recipient]);
 
-	function handleFilterChange(filter: MessageFilterType) {
-		if (filter === 'incoming') setRecipient('');
-		setCurrentFilter(filter);
-	}
+	// function handleFilterChange(filter: MessageFilterType) {
+	// 	if (filter === 'incoming') setRecipient('');
+	// 	setCurrentFilter(filter);
+	// }
 
 	function handleActionChange(action: string) {
 		setCurrentAction(currentAction === action ? null : action);
@@ -551,7 +500,7 @@ export default function MessageList(props: {
 							)}
 						</S.HeaderMain>
 						<S.HeaderActions>
-							{props.type === 'process' && (
+							{/* {props.type === 'process' && (
 								<>
 									<Button
 										type={'alt3'}
@@ -569,7 +518,7 @@ export default function MessageList(props: {
 									/>
 									<S.Divider />
 								</>
-							)}
+							)} */}
 							{currentAction && !showFilters && (
 								<Button
 									type={'alt3'}
@@ -736,7 +685,7 @@ export default function MessageList(props: {
 
 						<S.FilterApply>
 							<Button
-								type={'alt1'}
+								type={'primary'}
 								label={language.applyFilters}
 								handlePress={() => handleFilterUpdate()}
 								disabled={invalidPerPage}

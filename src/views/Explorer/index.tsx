@@ -81,21 +81,35 @@ export default function Explorer() {
 		localStorage.setItem(storageKey, JSON.stringify(tabs));
 	}, [tabs]);
 
+	// TODO: On process tabs redirect - rewrite updated subpath (/info /messages) to tabs
 	React.useEffect(() => {
 		const { path, subPath } = extractDetailsFromPath(location.pathname);
 
 		if (path) {
-			const existingTabIndex = tabs.findIndex((tab) => tab.id === path);
+			const existingTabIndex = tabs.findIndex((tab) => {
+				if (tab.type === 'process') {
+					return tab.id === path;
+				} else {
+					return tab.path === `${path}${subPath}`;
+				}
+			});
 
 			if (existingTabIndex !== -1) {
-				// Tab exists, update its path if hash changed and set it as active
-				// if (hashPath) {
-				// 	setTabs((prev) => {
-				// 		const updated = [...prev];
-				// 		updated[existingTabIndex] = { ...updated[existingTabIndex], path: `${path}${hashPath}` };
-				// 		return updated;
-				// 	});
-				// }
+				const currentTab = tabs[existingTabIndex];
+				const newPath = `${path}${subPath}`;
+
+				// Only update if the path has actually changed
+				if (currentTab.path !== newPath || currentTab.basePath !== newPath) {
+					setTabs((prev) => {
+						const updated = [...prev];
+						updated[existingTabIndex] = {
+							...updated[existingTabIndex],
+							basePath: path,
+							path: newPath,
+						};
+						return updated;
+					});
+				}
 				setActiveTabIndex(existingTabIndex);
 			} else {
 				// Tab doesn't exist, create a new one
@@ -106,6 +120,7 @@ export default function Explorer() {
 							id: path,
 							type: 'path',
 							variant: VariantEnum.Mainnet,
+							basePath: `${path}${subPath}`,
 							path: `${path}${subPath}`,
 							label: path,
 						};
@@ -116,7 +131,14 @@ export default function Explorer() {
 					const newIndex = tabs.length;
 					setTabs((prev) => [
 						...prev,
-						{ id: path, type: 'path', variant: VariantEnum.Mainnet, path: `${path}${subPath}`, label: path },
+						{
+							id: path,
+							type: 'path',
+							variant: VariantEnum.Mainnet,
+							basePath: `${path}${subPath}`,
+							path: `${path}${subPath}`,
+							label: path,
+						},
 					]);
 					setActiveTabIndex(newIndex);
 				}
@@ -124,7 +146,7 @@ export default function Explorer() {
 				navigate(`${baseUrl}${path}${subPath}`);
 			}
 		}
-	}, [location.pathname, location.hash]);
+	}, [location.pathname]);
 
 	function getInitialIndex() {
 		if (tabs.length <= 0) return 0;
@@ -157,6 +179,7 @@ export default function Explorer() {
 					id: args.id,
 					type: args.type,
 					variant: args.variant,
+					basePath: args.basePath,
 					path: args.path,
 					label: args.label,
 				};
@@ -165,6 +188,7 @@ export default function Explorer() {
 					id: args.id,
 					type: args.type,
 					variant: args.variant,
+					basePath: args.basePath,
 					path: args.path,
 					label: args.label,
 				});
@@ -172,7 +196,7 @@ export default function Explorer() {
 			return updated;
 		});
 
-		navigate(`${baseUrl}${args.id}${args.type === 'process' ? '/messages' : ''}`);
+		navigate(`${baseUrl}${args.path}`);
 	};
 
 	const handleTabRedirect = (index: number) => {
@@ -233,7 +257,7 @@ export default function Explorer() {
 			setTabs(
 				updatedTransactions.length > 0
 					? updatedTransactions
-					: [{ id: '', type: null, variant: null, path: '', label: '' }]
+					: [{ id: '', type: null, variant: null, basePath: '', path: '', label: '' }]
 			);
 			setActiveTabIndex(newActiveIndex);
 		});
@@ -241,8 +265,8 @@ export default function Explorer() {
 		setTimeout(() => setIsClearing(false), 50);
 
 		if (updatedTransactions.length > 0) {
-			const newId = updatedTransactions[newActiveIndex]?.id ?? '';
-			navigate(`${baseUrl}${newId}`);
+			const newPath = updatedTransactions[newActiveIndex]?.path ?? '';
+			navigate(`${baseUrl}${newPath}`);
 		} else {
 			handleClearTabs();
 		}
@@ -251,7 +275,7 @@ export default function Explorer() {
 	const handleClearTabs = () => {
 		flushSync(() => {
 			setIsClearing(true);
-			setTabs([{ id: '', type: null, variant: null, path: '', label: '' }]);
+			setTabs([{ id: '', type: null, variant: null, basePath: '', path: '', label: '' }]);
 			setActiveTabIndex(0);
 		});
 

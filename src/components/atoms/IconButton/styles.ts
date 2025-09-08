@@ -127,17 +127,17 @@ export const Primary = styled.button<{
 export const Alt1 = styled(Primary)`
 	background: ${(props) =>
 		props.active
-			? props.theme.colors.button.alt1.active.background
+			? props.theme.colors.button.primary.active.background
 			: props.disabled
-			? props.theme.colors.button.alt1.disabled.background
-			: props.theme.colors.button.alt1.background};
+			? props.theme.colors.button.primary.disabled.background
+			: props.theme.colors.button.primary.background};
 	border: 1px solid
 		${(props) =>
 			props.active
-				? props.theme.colors.button.alt1.active.border
+				? props.theme.colors.button.primary.active.border
 				: props.disabled
-				? props.theme.colors.button.alt1.disabled.border
-				: props.theme.colors.button.alt1.border};
+				? props.theme.colors.button.primary.disabled.border
+				: props.theme.colors.button.primary.border};
 	svg {
 		height: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
 		width: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
@@ -145,35 +145,35 @@ export const Alt1 = styled(Primary)`
 			props.active
 				? props.theme.colors.font.light1
 				: props.disabled
-				? props.theme.colors.button.alt1.disabled.color
-				: props.theme.colors.button.alt1.color};
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color};
 		fill: ${(props) =>
 			props.active
 				? props.theme.colors.font.light1
 				: props.disabled
-				? props.theme.colors.button.alt1.disabled.color
-				: props.theme.colors.button.alt1.color};
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color};
 	}
 
 	&:hover {
 		background: ${(props) =>
 			props.disabled
-				? props.theme.colors.button.alt1.disabled.background
-				: props.theme.colors.button.alt1.active.background};
+				? props.theme.colors.button.primary.disabled.background
+				: props.theme.colors.button.primary.active.background};
 
 		svg {
 			color: ${(props) =>
 				props.active
 					? props.theme.colors.font.light1
 					: props.disabled
-					? props.theme.colors.button.alt1.disabled.color
-					: props.theme.colors.button.alt1.active.color};
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color};
 			fill: ${(props) =>
 				props.active
 					? props.theme.colors.font.light1
 					: props.disabled
-					? props.theme.colors.button.alt1.disabled.color
-					: props.theme.colors.button.alt1.active.color};
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color};
 		}
 	}
 `;

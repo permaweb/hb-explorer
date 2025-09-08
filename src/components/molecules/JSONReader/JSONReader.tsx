@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 
 import { IconButton } from 'components/atoms/IconButton';
 import { ASSETS } from 'helpers/config';
-import { stripAnsiChars } from 'helpers/utils';
+import { ansiToHtml, stripAnsiChars } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import * as S from './styles';
@@ -59,14 +59,20 @@ export default function _JSONTree(props: {
 		};
 	}, []);
 
+	const hasAnsiChars = (str: string) => {
+		return /\x1B\[[0-9;]*m/.test(str) || /\\27\[[0-9;]*m/.test(str);
+	};
+
 	const parseJSON = (input) => {
 		if (typeof input === 'string') {
+			// Try to parse as JSON first with stripped ANSI chars
 			const strippedInput = stripAnsiChars(input);
 			try {
 				const parsed = JSON.parse(strippedInput);
 				return parseJSON(parsed);
 			} catch (e) {
-				return strippedInput;
+				// If it's not valid JSON, return the original string (with ANSI codes intact)
+				return input;
 			}
 		} else if (Array.isArray(input)) {
 			return input.map(parseJSON);
@@ -74,6 +80,20 @@ export default function _JSONTree(props: {
 			return Object.fromEntries(Object.entries(input).map(([key, value]) => [key, parseJSON(value)]));
 		}
 		return input;
+	};
+
+	const valueRenderer = (_raw, value) => {
+		if (typeof value === 'string' && hasAnsiChars(value)) {
+			return (
+				<span
+					dangerouslySetInnerHTML={{
+						__html: ansiToHtml(value, currentTheme),
+					}}
+					style={{ fontFamily: 'monospace' }}
+				/>
+			);
+		}
+		return value;
 	};
 
 	const theme = {
@@ -138,7 +158,13 @@ export default function _JSONTree(props: {
 			</S.Header>
 
 			{data ? (
-				<JSONTree data={data} hideRoot={true} theme={theme} shouldExpandNodeInitially={() => true} />
+				<JSONTree
+					data={data}
+					hideRoot={true}
+					theme={theme}
+					shouldExpandNodeInitially={() => true}
+					valueRenderer={valueRenderer}
+				/>
 			) : (
 				<S.Placeholder>
 					<p>{props.placeholder ?? language.noDataToDisplay}</p>

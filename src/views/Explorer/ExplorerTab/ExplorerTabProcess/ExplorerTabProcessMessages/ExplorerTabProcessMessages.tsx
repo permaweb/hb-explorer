@@ -4,10 +4,14 @@ import { MessageList } from 'components/molecules/MessageList';
 import { HB_ENDPOINTS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
 import { hbFetch } from 'helpers/utils';
+import { UseHyperBeamRequestReturn } from 'hooks/useHyperBeamRequest';
 
 import * as S from './styles';
 
-export default function ExplorerTabProcessMessages(props: { tab: ExplorerTabObjectType }) {
+export default function ExplorerTabProcessMessages(props: {
+	tab: ExplorerTabObjectType;
+	hyperBeamRequest: UseHyperBeamRequestReturn;
+}) {
 	const [currentSchedule, setCurrentSchedule] = React.useState<any[] | null>(null);
 
 	React.useEffect(() => {

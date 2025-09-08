@@ -195,6 +195,10 @@ function createURLs() {
 
 export const URLS = createURLs();
 
+export const DEFAULT_TABS = {
+	process: '/info',
+};
+
 export const LINKS = {
 	arweave: `https://arweave.org`,
 	ao: `https://ao.arweave.net`,
@@ -211,6 +215,7 @@ export const HB_ENDPOINTS = {
 	operator: `/~meta@1.0/info/address`,
 	ledger: `/ledger~node-process@1.0/now/balance`,
 	schedule: (id: string) => `/${id}/schedule`,
+	processNow: (id: string) => `/${id}/~process@1.0/now`,
 };
 
 export const HB_METRIC_CATEGORIES = {

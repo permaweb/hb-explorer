@@ -12,7 +12,7 @@ import { MessageList } from 'components/molecules/MessageList';
 import { MessageResult } from 'components/molecules/MessageResult';
 import { ProcessRead } from 'components/molecules/ProcessRead';
 import { ASSETS, DEFAULT_AO_TAGS, TAGS, URLS } from 'helpers/config';
-import { TransactionType } from 'helpers/types';
+import { TransactionType, VariantEnum } from 'helpers/types';
 import { checkValidAddress, formatCount, formatDate, getByteSizeDisplay, getTagValue } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -175,7 +175,9 @@ export default function Transaction(props: {
 							</S.TagsSection>
 						</S.TagsWrapper>
 						<S.ReadWrapper>
-							{props.type === 'process' && <ProcessRead processId={inputTxId} autoRun={true} />}
+							{props.type === 'process' && (
+								<ProcessRead processId={inputTxId} variant={VariantEnum.Legacynet} autoRun={true} />
+							)}
 							{props.type === 'message' && (
 								<>
 									<S.MessageInfo className={'border-wrapper-primary'}>
