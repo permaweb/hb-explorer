@@ -220,6 +220,7 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 			setState((prev) => ({
 				...prev,
 				loading: false,
+				id: type === 'process' ? path : id,
 				response,
 				type: type,
 				variant,
@@ -231,7 +232,6 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 				signatureValid,
 				signatureAlg,
 				signatureKeyId,
-				id,
 				error: false,
 				hasContent: true,
 				submittedPath: path,

@@ -115,6 +115,36 @@ export type MetricDataPoint = {
 
 export type MessageFilterType = 'incoming' | 'outgoing';
 
+export type RawMessageType = {
+	slot?: number;
+	timestamp?: number;
+	process?: string;
+	type?: string;
+	'hash-chain'?: string;
+	'data-protocol'?: string;
+	variant?: string;
+	epoch?: string;
+	path?: string;
+	'block-hash'?: string;
+	'block-height'?: number;
+	'block-timestamp'?: number;
+	body?: {
+		[key: string]: any;
+		action?: string;
+		scheduler?: string;
+		target?: string;
+		data?: string;
+	};
+	commitments?: {
+		[key: string]: any;
+	};
+	// Child message format (from compute results)
+	Tags?: Array<{ name: string; value: string }>;
+	Data?: string;
+	Target?: string;
+	Anchor?: string;
+};
+
 export enum VariantEnum {
 	Legacynet = 'ao.TN.1',
 	Mainnet = 'ao.N.1',

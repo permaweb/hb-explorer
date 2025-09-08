@@ -25,4 +25,6 @@ export interface IUProps {
 	useFixed?: boolean;
 	noUrlCopy?: boolean;
 	endComponent?: React.ReactNode;
+	disableAutoNavigation?: boolean;
+	useHashNavigation?: boolean;
 }

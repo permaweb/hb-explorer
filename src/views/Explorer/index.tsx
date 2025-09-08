@@ -11,7 +11,7 @@ import { Modal } from 'components/atoms/Modal';
 import { ViewHeader } from 'components/atoms/ViewHeader';
 import { ASSETS, URLS } from 'helpers/config';
 import { ExplorerTabObjectType, VariantEnum } from 'helpers/types';
-import { checkValidAddress, formatAddress } from 'helpers/utils';
+import { checkValidAddress, extractDetailsFromPath, formatAddress } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { ExplorerTab } from './ExplorerTab';
@@ -82,20 +82,33 @@ export default function Explorer() {
 	}, [tabs]);
 
 	React.useEffect(() => {
-		const { path, subPath } = extractTxDetailsFromPath(location.pathname);
+		const { path, subPath } = extractDetailsFromPath(location.pathname);
 
 		if (path) {
 			const existingTabIndex = tabs.findIndex((tab) => tab.id === path);
 
 			if (existingTabIndex !== -1) {
-				// Tab exists, just set it as active
+				// Tab exists, update its path if hash changed and set it as active
+				// if (hashPath) {
+				// 	setTabs((prev) => {
+				// 		const updated = [...prev];
+				// 		updated[existingTabIndex] = { ...updated[existingTabIndex], path: `${path}${hashPath}` };
+				// 		return updated;
+				// 	});
+				// }
 				setActiveTabIndex(existingTabIndex);
 			} else {
 				// Tab doesn't exist, create a new one
 				if (tabs.length === 1 && tabs[0].id === '') {
 					setTabs((prev) => {
 						const updated = [...prev];
-						updated[0] = { id: path, type: 'path', variant: VariantEnum.Mainnet, path: path, label: path };
+						updated[0] = {
+							id: path,
+							type: 'path',
+							variant: VariantEnum.Mainnet,
+							path: `${path}${subPath}`,
+							label: path,
+						};
 						return updated;
 					});
 					setActiveTabIndex(0);
@@ -103,7 +116,7 @@ export default function Explorer() {
 					const newIndex = tabs.length;
 					setTabs((prev) => [
 						...prev,
-						{ id: path, type: 'path', variant: VariantEnum.Mainnet, path: path, label: path },
+						{ id: path, type: 'path', variant: VariantEnum.Mainnet, path: `${path}${subPath}`, label: path },
 					]);
 					setActiveTabIndex(newIndex);
 				}
@@ -111,15 +124,7 @@ export default function Explorer() {
 				navigate(`${baseUrl}${path}${subPath}`);
 			}
 		}
-	}, [location.pathname]);
-
-	function extractTxDetailsFromPath(pathname: string) {
-		const parts = pathname.replace(/#.*/, '').split('/').filter(Boolean);
-
-		const path = parts[1] || '';
-		const subPath = parts.slice(2).join('/') || '';
-		return { path, subPath: subPath ? `/${subPath}` : '' };
-	}
+	}, [location.pathname, location.hash]);
 
 	function getInitialIndex() {
 		if (tabs.length <= 0) return 0;
@@ -137,6 +142,7 @@ export default function Explorer() {
 		for (let i = 0; i < tabs.length; i++) {
 			if (tabs[i].id === currentId) return i;
 		}
+
 		return 0;
 	}
 
@@ -166,12 +172,20 @@ export default function Explorer() {
 			return updated;
 		});
 
-		navigate(`${baseUrl}${args.id}`);
+		navigate(`${baseUrl}${args.id}${args.type === 'process' ? '/messages' : ''}`);
 	};
 
 	const handleTabRedirect = (index: number) => {
 		setActiveTabIndex(index);
-		navigate(`${baseUrl}${tabs[index].id}`);
+		const tab = tabs[index];
+		const basePath = `${baseUrl}${tab.id}`;
+
+		// If tab has a stored path different from just the id, extract and set the hash part
+		if (tab.path && tab.path !== tab.id) {
+			navigate(`${baseUrl}${tab.path}`);
+		} else {
+			navigate(basePath);
+		}
 	};
 
 	const handleAddTab = (id?: string) => {
@@ -324,6 +338,7 @@ export default function Explorer() {
 									<ExplorerTab
 										tab={tab}
 										onPathChange={(args: ExplorerTabObjectType) => handlePathChange(index, args)}
+										// onSubPathChange={(subPath: string) => handleSubPathChange(index, subPath)}
 									/>
 								</S.TabWrapper>
 							);

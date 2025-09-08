@@ -278,3 +278,11 @@ export function joinHeaders(headers) {
 		.map(([name, value]) => `${name}: ${value}`)
 		.join('\n');
 }
+
+export function extractDetailsFromPath(pathname: string) {
+	const parts = pathname.replace(/#.*/, '').split('/').filter(Boolean);
+
+	const path = parts[1] || '';
+	const subPath = parts.slice(2).join('/') || '';
+	return { path, subPath: subPath ? `/${subPath}` : '' };
+}

@@ -60,14 +60,22 @@ export default function URLTabs(props: IUProps) {
 	const [urlCopied, setUrlCopied] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
-		if (!active) {
-			navigate(props.activeUrl);
+		if (!active && !props.disableAutoNavigation) {
+			if (props.useHashNavigation) {
+				window.location.hash = props.activeUrl;
+			} else {
+				navigate(props.activeUrl);
+			}
 		}
-	}, [active, navigate, props.activeUrl, props.tabs]);
+	}, [active, navigate, props.activeUrl, props.tabs, props.disableAutoNavigation, props.useHashNavigation]);
 
 	const handleRedirect = (url: string) => {
 		if (active !== url) {
-			navigate(url);
+			if (props.useHashNavigation) {
+				window.location.hash = url;
+			} else {
+				navigate(url);
+			}
 		}
 	};
 

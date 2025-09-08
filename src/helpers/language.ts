@@ -122,6 +122,7 @@ export const language = {
 		searching: `Searching`,
 		showResults: `Show Results`,
 		showingRange: (start: number, end: number, total: number) => `Showing ${start} - ${end} of ${total}`,
+		slot: `Slot`,
 		sortNewestToOldest: `Newest to Oldest`,
 		sortOldestToNewest: `Oldest to Newest`,
 		source: `Source`,

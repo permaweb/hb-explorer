@@ -1,31 +1,48 @@
 import React from 'react';
-import { flushSync } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 import { useTheme } from 'styled-components';
-
-import { Types } from '@permaweb/libs';
 
 import { Button } from 'components/atoms/Button';
 import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
-import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Panel } from 'components/atoms/Panel';
 import { JSONReader } from 'components/molecules/JSONReader';
-import { ASSETS, DEFAULT_ACTIONS, DEFAULT_MESSAGE_TAGS, URLS } from 'helpers/config';
-import { arweaveEndpoint, getTxEndpoint } from 'helpers/endpoints';
-import { MessageFilterType, TransactionType } from 'helpers/types';
-import { checkValidAddress, formatAddress, formatCount, getRelativeDate, getTagValue } from 'helpers/utils';
+import { ASSETS, DEFAULT_ACTIONS } from 'helpers/config';
+import { MessageFilterType, RawMessageType, TransactionType } from 'helpers/types';
+import { checkValidAddress, getRelativeDate, hbFetch } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 
 import { Editor } from '../Editor';
 
 import * as S from './styles';
 
+// Normalize child messages from compute results to RawMessageType format
+function normalizeChildMessages(parsedMessages: any): RawMessageType[] {
+	if (!parsedMessages?.Messages) return [];
+
+	return parsedMessages.Messages.map((msg: any, index: number) => ({
+		slot: index + 1, // Use index as slot for child messages
+		timestamp: Date.now(), // Use current time since we don't have timestamp
+		process: msg.Target || 'unknown',
+		type: 'Message',
+		'hash-chain': msg.Anchor || `anchor-${index}`,
+		'data-protocol': 'ao',
+		variant: 'ao.TN.1',
+		Tags: msg.Tags,
+		Data: msg.Data,
+		Target: msg.Target,
+		Anchor: msg.Anchor,
+		body: {
+			data: msg.Data,
+			target: msg.Target,
+			action: msg.Tags?.find((tag: any) => tag.name === 'Action')?.value,
+		},
+	}));
+}
+
 function Message(props: {
-	element: Types.GQLNodeResponseType;
+	element: RawMessageType;
 	type: TransactionType;
 	currentFilter: MessageFilterType;
 	parentId: string;
@@ -33,81 +50,103 @@ function Message(props: {
 	lastChild?: boolean;
 	isOverallLast?: boolean;
 }) {
-	const navigate = useNavigate();
 	const currentTheme: any = useTheme();
-
-	const permawebProvider = usePermawebProvider();
 
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const [open, setOpen] = React.useState<boolean>(false);
+	const [messages, setMessages] = React.useState<RawMessageType[] | null>(null);
 
-	const [data, setData] = React.useState<any>(null);
+	const [data] = React.useState<any>(null);
 	const [showViewData, setShowViewData] = React.useState<boolean>(false);
 
-	const [result, setResult] = React.useState<any>(null);
+	const [result] = React.useState<any>(null);
 	const [showViewResult, setShowViewResult] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 		(async function () {
-			if (!result && showViewResult) {
-				let processId: string = props.element.node.recipient;
-
-				if (processId) {
+			if (open && !messages) {
+				if (props.element.process && props.element.slot) {
 					try {
-						const messageResult = await permawebProvider.deps.ao.result({
-							process: processId,
-							message: props.element.node.id,
-						});
-						setResult(messageResult);
+						const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
+						if (response?.results?.json?.body) {
+							const parsedMessages = JSON.parse(response.results.json.body);
+							const normalizedMessages = normalizeChildMessages(parsedMessages);
+							setMessages(normalizedMessages);
+						}
 					} catch (e: any) {
 						console.error(e);
 					}
 				}
 			}
 		})();
-	}, [result, showViewResult, props.currentFilter]);
+	}, [open, messages]);
 
-	React.useEffect(() => {
-		(async function () {
-			if (!data && setShowViewData) {
-				try {
-					const messageFetch = await fetch(getTxEndpoint(props.element.node.id));
-					const rawMessage = await messageFetch.text();
+	// React.useEffect(() => {
+	// 	(async function () {
+	// 		if (!result && showViewResult) {
+	// 			let processId: string = props.element.process;
 
-					const raw = rawMessage ?? '';
-					const trimmed = raw.trim();
+	// 			if (processId) {
+	// 				try {
+	// 					// const messageResult = await permawebProvider.deps.ao.result({
+	// 					// 	process: processId,
+	// 					// 	message: props.element['hash-chain'],
+	// 					// });
+	// 					// setResult(messageResult);
+	// 					// http://localhost:8734/OD_4_THHHDOxJ1l5DbpdwwsY6QBUF8wtR3DwyR_zabE/compute=4?accept=application/json&accept-bundle=true
+	// 					const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
+	// 					console.log(response);
+	// 				} catch (e: any) {
+	// 					console.error(e);
+	// 				}
+	// 			}
+	// 		}
+	// 	})();
+	// }, [result, showViewResult]);
 
-					if (trimmed === '') {
-						setData(language.noData);
-					} else {
-						try {
-							const parsed = JSON.parse(trimmed);
+	// React.useEffect(() => {
+	// 	(async function () {
+	// 		if (!data && showViewData) {
+	// 			try {
+	// 				const messageFetch = await fetch(getTxEndpoint(props.element['hash-chain']));
+	// 				const rawMessage = await messageFetch.text();
 
-							const isEmptyArray = Array.isArray(parsed) && parsed.length === 0;
-							const isEmptyObject =
-								parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0;
+	// 				const raw = rawMessage ?? '';
+	// 				const trimmed = raw.trim();
 
-							if (isEmptyArray || isEmptyObject) {
-								setData(language.noData);
-							} else {
-								setData(parsed);
-							}
-						} catch {
-							setData(trimmed);
-						}
-					}
-				} catch (e: any) {
-					console.error(e);
-				}
-			}
-		})();
-	}, [data, showViewData]);
+	// 				if (trimmed === '') {
+	// 					setData(language.noData);
+	// 				} else {
+	// 					try {
+	// 						const parsed = JSON.parse(trimmed);
+
+	// 						const isEmptyArray = Array.isArray(parsed) && parsed.length === 0;
+	// 						const isEmptyObject =
+	// 							parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length === 0;
+
+	// 						if (isEmptyArray || isEmptyObject) {
+	// 							setData(language.noData);
+	// 						} else {
+	// 							setData(parsed);
+	// 						}
+	// 					} catch {
+	// 						setData(trimmed);
+	// 					}
+	// 				}
+	// 			} catch (e: any) {
+	// 				console.error(e);
+	// 			}
+	// 		}
+	// 	})();
+	// }, [data, showViewData]);
 
 	const excludedTagNames = ['Type', 'Authority', 'Module', 'Scheduler'];
-	const filteredTags =
-		props?.element?.node?.tags?.filter((tag: { name: string }) => !excludedTagNames.includes(tag.name)) || [];
+	const bodyEntries = props.element.body ? Object.entries(props.element.body) : [];
+	const filteredTags = bodyEntries
+		.filter(([key]) => !excludedTagNames.includes(key))
+		.map(([name, value]) => ({ name, value: typeof value === 'string' ? value : JSON.stringify(value) }));
 
 	function handleShowViewData(e: any) {
 		e.preventDefault();
@@ -122,23 +161,40 @@ function Message(props: {
 	}
 
 	function getActionLabel() {
-		return getTagValue(props.element.node.tags, 'Action') ?? language.none;
+		// Handle both formats
+		let label = props.element.body?.action || language.none;
+
+		// If it's a child message format, get action from Tags
+		if (props.element.Tags && !label) {
+			label = props.element.Tags.find((tag: any) => tag.name === 'Action')?.value || language.none;
+		}
+
+		return label.charAt(0).toUpperCase() + label.slice(1);
 	}
 
 	function getFrom() {
-		const from = getTagValue(props.element.node.tags, 'From-Process');
+		let from = props.element.body?.scheduler || props.element.body?.authority || '-'; // Child messages come from system
+		// Handle both formats
+		if (props.element.body?.commitments) {
+			const committers = Object.keys(props.element.body?.commitments);
+			const firstCommitter = committers[0];
+			from = props.element.body?.commitments[firstCommitter].committer;
+		}
 
 		return (
 			<S.From>
-				<Copyable value={from ?? props.element.node.owner.address} />
+				<Copyable value={from} />
 			</S.From>
 		);
 	}
 
 	function getTo() {
+		// Handle both formats
+		const to = props.element.body?.target || props.element.Target || props.element.process;
+
 		return (
 			<S.To>
-				<Copyable value={props.element.node.recipient} />
+				<Copyable value={to || 'unknown'} />
 			</S.To>
 		);
 	}
@@ -240,7 +296,7 @@ function Message(props: {
 							<S.OverlayInfoLineValue>
 								<p>{`${language.message}: `}</p>
 							</S.OverlayInfoLineValue>
-							<Copyable value={props.element.node.id} />
+							<Copyable value={props.element['hash-chain']} />
 						</S.OverlayInfoLine>
 						<S.OverlayInfoLine>{getAction(false)}</S.OverlayInfoLine>
 						{showViewData && (
@@ -266,20 +322,20 @@ function Message(props: {
 	return (
 		<>
 			<S.ElementWrapper
-				key={props.element.node.id}
+				key={props.element.slot}
 				className={'message-list-element'}
 				onClick={() => setOpen((prev) => !prev)}
 				open={open}
 				lastChild={props.lastChild}
 			>
-				<S.ID>
+				{/* <S.ID>
 					<IconButton
 						type={'alt1'}
 						src={ASSETS.newTab}
 						handlePress={() =>
 							props.handleOpen
-								? props.handleOpen(props.element.node.id)
-								: navigate(`${URLS.explorer}${props.element.node.id}`)
+								? props.handleOpen(props.element['hash-chain'])
+								: navigate(`${URLS.explorer}${props.element['hash-chain']}`)
 						}
 						dimensions={{
 							wrapper: 20,
@@ -289,8 +345,11 @@ function Message(props: {
 						tooltipPosition={'right'}
 					/>
 
-					<Copyable value={props.element.node.id} />
-				</S.ID>
+					<Copyable value={props.element['hash-chain']} />
+				</S.ID> */}
+				<S.Slot>
+					<p>{props.element.slot || props.element.Anchor || '-'}</p>
+				</S.Slot>
 				{getAction(true)}
 				{getFrom()}
 				{getTo()}
@@ -301,24 +360,23 @@ function Message(props: {
 					<Button type={'alt3'} label={language.view} handlePress={(e) => handleShowViewResult(e)} />
 				</S.Output>
 				<S.Time>
-					<p>
-						{props.element.node?.block?.timestamp ? getRelativeDate(props.element.node.block.timestamp * 1000) : '-'}
-					</p>
+					<p>{props.element.timestamp ? getRelativeDate(props.element.timestamp) : '-'}</p>
 				</S.Time>
 				<S.Results open={open}>
 					<ReactSVG src={ASSETS.arrow} />
 				</S.Results>
 			</S.ElementWrapper>
-			{open && (
+			{open && messages && (
 				<MessageList
-					txId={props.element.node.id}
+					txId={props.element['hash-chain'] || props.element.Anchor}
 					type={props.type}
 					currentFilter={props.currentFilter}
-					recipient={props.element.node.recipient}
+					recipient={props.element.body?.target || props.element.Target || props.element.process}
 					parentId={props.parentId}
 					handleMessageOpen={props.handleOpen ? (id: string) => props.handleOpen(id) : null}
 					childList
 					isOverallLast={props.isOverallLast && props.lastChild}
+					messages={messages}
 				/>
 			)}
 			{getMessageOverlay()}
@@ -335,9 +393,8 @@ export default function MessageList(props: {
 	handleMessageOpen?: (id: string) => void;
 	childList?: boolean;
 	isOverallLast?: boolean;
+	messages?: RawMessageType[];
 }) {
-	const permawebProvider = usePermawebProvider();
-
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -350,166 +407,65 @@ export default function MessageList(props: {
 		Object.keys(DEFAULT_ACTIONS).map((action) => DEFAULT_ACTIONS[action].name)
 	);
 	const [customAction, setCustomAction] = React.useState<string>('');
-	const [toggleFilterChange, setToggleFilterChange] = React.useState<boolean>(false);
 
-	const [currentData, setCurrentData] = React.useState<Types.GQLNodeResponseType[] | null>(null);
+	const [currentData, setCurrentData] = React.useState<RawMessageType[] | null>(null);
+	const [filteredData, setFilteredData] = React.useState<RawMessageType[] | null>(null);
 	const [loadingMessages, setLoadingMessages] = React.useState<boolean>(false);
 
-	const [incomingCount, setIncomingCount] = React.useState<number | null>(null);
-	const [outgoingCount, setOutgoingCount] = React.useState<number | null>(null);
-	const [totalCount, setTotalCount] = React.useState<number | null>(null);
-
-	const [pageCursor, setPageCursor] = React.useState<string | null>(null);
-	const [cursorHistory, setCursorHistory] = React.useState([]);
-	const [nextCursor, setNextCursor] = React.useState<string | null>(null);
-	const [pageNumber, setPageNumber] = React.useState(1);
+	const [pageNumber] = React.useState(1);
 	const [perPage, setPerPage] = React.useState(50);
 	const [recipient, setRecipient] = React.useState<string>('');
 
+	// Set messages directly when provided
 	React.useEffect(() => {
-		(async function () {
-			const tags = [...DEFAULT_MESSAGE_TAGS];
-			if (currentAction) tags.push({ name: 'Action', values: [currentAction] });
-			if (props.txId) {
-				try {
-					const [gqlResponseIncoming, gqlResponseOutgoing] = await Promise.all([
-						permawebProvider.libs.getGQLData({
-							tags: tags,
-							recipients: [props.txId],
-						}),
-						permawebProvider.libs.getGQLData({
-							tags: [...tags, { name: 'From-Process', values: [props.txId] }],
-							...(recipient && checkValidAddress(recipient) ? { recipients: [recipient] } : {}),
-							paginator: perPage,
-						}),
-					]);
-					setIncomingCount(gqlResponseIncoming.count);
-					setOutgoingCount(gqlResponseOutgoing.count);
-				} catch (e: any) {
-					console.error(e);
-				}
-			}
-		})();
-	}, [props.txId, toggleFilterChange]);
-
-	React.useEffect(() => {
-		(async function () {
-			const tags = [...DEFAULT_MESSAGE_TAGS];
-			if (currentAction) tags.push({ name: 'Action', values: [currentAction] });
-
-			setLoadingMessages(true);
-			if (props.txId) {
-				try {
-					if (!props.childList && props.type === 'process') {
-						let gqlResponse: Types.DefaultGQLResponseType;
-						switch (currentFilter) {
-							case 'incoming':
-								gqlResponse = await permawebProvider.libs.getGQLData({
-									tags: tags,
-									recipients: [props.txId],
-									paginator: perPage,
-									...(pageCursor ? { cursor: pageCursor } : {}),
-								});
-								break;
-							case 'outgoing':
-								gqlResponse = await permawebProvider.libs.getGQLData({
-									tags: [...tags, { name: 'From-Process', values: [props.txId] }],
-									paginator: perPage,
-									...(recipient && checkValidAddress(recipient) ? { recipients: [recipient] } : {}),
-									...(pageCursor ? { cursor: pageCursor } : {}),
-								});
-								break;
-							default:
-								break;
-						}
-						setCurrentData(gqlResponse.data);
-						setNextCursor(gqlResponse.data.length >= perPage ? gqlResponse.nextCursor : null);
-					} else {
-						const resultResponse = await permawebProvider.deps.ao.result({
-							process: props.recipient,
-							message: props.txId,
-						});
-
-						if (resultResponse && !resultResponse.error) {
-							const gqlResponse = await permawebProvider.libs.getGQLData({
-								tags: [
-									...tags,
-									{ name: 'From-Process', values: [props.recipient] },
-									{
-										name: 'Reference',
-										values: resultResponse.Messages.map((result) => getTagValue(result.Tags, 'Reference')),
-									},
-								],
-							});
-
-							setCurrentData(gqlResponse.data);
-						} else {
-							setCurrentData([]);
-						}
-					}
-				} catch (e: any) {
-					console.error(e);
-				}
-			} else {
-				const arweaveResponse = await fetch(arweaveEndpoint);
-				const currentBlock = (await arweaveResponse.json()).height;
-
-				const gqlResponse = await permawebProvider.libs.getGQLData({
-					tags: tags,
-					paginator: perPage,
-					minBlock: currentBlock - 20,
-					maxBlock: currentBlock,
-					...(recipient && checkValidAddress(recipient) ? { recipients: [recipient] } : {}),
-					...(pageCursor ? { cursor: pageCursor } : {}),
-				});
-
-				setTotalCount(gqlResponse.count);
-				setCurrentData(gqlResponse.data);
-				setNextCursor(gqlResponse.data.length >= perPage ? gqlResponse.nextCursor : null);
-			}
+		if (props.messages) {
+			setCurrentData(props.messages);
 			setLoadingMessages(false);
-		})();
-	}, [props.txId, currentFilter, toggleFilterChange, pageCursor, permawebProvider.libs]);
-
-	const scrollToTop = () => {
-		if (tableContainerRef.current) {
-			setTimeout(() => {
-				tableContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			}, 10);
+		} else {
+			setLoadingMessages(true);
 		}
-	};
+	}, [props.messages]);
 
-	function handleNext() {
-		if (nextCursor) {
-			setCursorHistory((prevHistory) => [...prevHistory, pageCursor]);
-			setPageCursor(nextCursor);
-			setPageNumber((prevPage) => prevPage + 1);
-			scrollToTop();
+	// Apply filters to current data
+	React.useEffect(() => {
+		if (!currentData) {
+			setFilteredData(null);
+			return;
 		}
-	}
 
-	function handlePrevious() {
-		if (cursorHistory.length > 0) {
-			const newHistory = [...cursorHistory];
-			const previousCursor = newHistory.pop();
-			setCursorHistory(newHistory);
-			setPageCursor(previousCursor);
-			setPageNumber((prevPage) => Math.max(prevPage - 1, 1));
-			scrollToTop();
+		let filtered = [...currentData];
+
+		// Filter by action
+		if (currentAction) {
+			filtered = filtered.filter((msg) => {
+				let action = msg.body?.action || msg.type || 'Message';
+
+				// Handle child message format
+				if (msg.Tags && !action) {
+					action = msg.Tags.find((tag: any) => tag.name === 'Action')?.value || 'Message';
+				}
+
+				return action === currentAction;
+			});
 		}
-	}
 
-	function handleClear() {
-		setPageNumber(1);
-		setPageCursor(null);
-		setNextCursor(null);
-		setCursorHistory([]);
-	}
+		// Filter by recipient (for outgoing messages)
+		if (recipient && checkValidAddress(recipient)) {
+			filtered = filtered.filter((msg) => {
+				const target = msg.body?.target || msg.Target || msg.process;
+				return target === recipient;
+			});
+		}
+
+		// Filter by direction (incoming/outgoing) - for now just show all
+		// This could be enhanced based on the process/scheduler relationship
+
+		setFilteredData(filtered);
+	}, [currentData, currentAction, recipient]);
 
 	function handleFilterChange(filter: MessageFilterType) {
 		if (filter === 'incoming') setRecipient('');
 		setCurrentFilter(filter);
-		handleClear();
 	}
 
 	function handleActionChange(action: string) {
@@ -517,38 +473,32 @@ export default function MessageList(props: {
 	}
 
 	function handleFilterUpdate() {
-		setToggleFilterChange((prev) => !prev);
 		setShowFilters(false);
-		handleClear();
 	}
 
 	function handleActionAdd() {
-		flushSync(() => {
-			setActionOptions((prev) => [...prev, customAction]);
-			handleActionChange(customAction);
-			setCustomAction('');
-		});
+		setActionOptions((prev) => [...prev, customAction]);
+		handleActionChange(customAction);
+		setCustomAction('');
 	}
 
-	function getMessage() {
-		let message: string = language.associatedMessagesInfo;
-		if (loadingMessages) message = `${language.associatedMessagesLoading}...`;
-		if (currentData?.length <= 0) message = language.associatedMessagesNotFound;
-		return (
-			<S.UpdateWrapper childList={props.childList}>
-				<p>{message}</p>
-			</S.UpdateWrapper>
-		);
+	// Non-functional pagination handlers
+	function handleNext() {
+		// Pagination not functional - could be implemented later
+	}
+
+	function handlePrevious() {
+		// Pagination not functional - could be implemented later
 	}
 
 	function getPages() {
-		const count = totalCount ? totalCount : currentFilter === 'incoming' ? incomingCount : outgoingCount;
-		const totalPages = count ? Math.ceil(count / perPage) : 1;
+		const count = filteredData?.length || 0;
+		const totalPages = Math.ceil(count / perPage);
 		return (
 			<>
-				<p>{`Page (${formatCount(pageNumber.toString())} of ${formatCount(totalPages.toString())})`}</p>
+				<p>{`Page (${pageNumber} of ${totalPages})`}</p>
 				<S.Divider />
-				<p>{`${!showFilters ? perPage : '-'} per page`}</p>
+				<p>{`${perPage} per page`}</p>
 			</>
 		);
 	}
@@ -560,17 +510,28 @@ export default function MessageList(props: {
 					type={'alt3'}
 					label={language.previous}
 					handlePress={handlePrevious}
-					disabled={cursorHistory.length === 0 || loadingMessages}
+					disabled={true} // Always disabled since pagination is non-functional
 				/>
 				{showPages && <S.DPageCounter>{getPages()}</S.DPageCounter>}
 				<Button
 					type={'alt3'}
 					label={language.next}
 					handlePress={handleNext}
-					disabled={!nextCursor || loadingMessages}
+					disabled={true} // Always disabled since pagination is non-functional
 				/>
 				{showPages && <S.MPageCounter>{getPages()}</S.MPageCounter>}
 			</>
+		);
+	}
+
+	function getMessage() {
+		let message: string = language.associatedMessagesInfo;
+		if (loadingMessages) message = `${language.associatedMessagesLoading}...`;
+		if (filteredData?.length <= 0) message = language.associatedMessagesNotFound;
+		return (
+			<S.UpdateWrapper childList={props.childList}>
+				<p>{message}</p>
+			</S.UpdateWrapper>
 		);
 	}
 
@@ -594,14 +555,14 @@ export default function MessageList(props: {
 								<>
 									<Button
 										type={'alt3'}
-										label={`${language.incoming}${incomingCount ? ` (${formatCount(incomingCount.toString())})` : ''}`}
+										label={`${language.incoming} (${currentData?.length || 0})`}
 										handlePress={() => handleFilterChange('incoming')}
 										active={currentFilter === 'incoming'}
 										disabled={loadingMessages}
 									/>
 									<Button
 										type={'alt3'}
-										label={`${language.outgoing}${outgoingCount ? ` (${formatCount(outgoingCount.toString())})` : ''}`}
+										label={`${language.outgoing} (${currentData?.length || 0})`}
 										handlePress={() => handleFilterChange('outgoing')}
 										active={currentFilter === 'outgoing'}
 										disabled={loadingMessages}
@@ -625,7 +586,7 @@ export default function MessageList(props: {
 							{recipient && checkValidAddress(recipient) && !showFilters && (
 								<Button
 									type={'alt3'}
-									label={formatAddress(recipient, false)}
+									label={recipient.slice(0, 8) + '...'}
 									handlePress={() => {
 										setRecipient('');
 										handleFilterUpdate();
@@ -651,13 +612,13 @@ export default function MessageList(props: {
 						</S.HeaderActions>
 					</S.Header>
 				)}
-				{currentData?.length > 0 ? (
+				{filteredData?.length > 0 ? (
 					<S.Wrapper childList={props.childList}>
 						{!props.childList && (
 							<S.HeaderWrapper>
-								<S.ID>
-									<p>{language.id}</p>
-								</S.ID>
+								<S.Slot>
+									<p>{language.slot}</p>
+								</S.Slot>
 								<S.Action>
 									<p>{language.action}</p>
 								</S.Action>
@@ -682,12 +643,14 @@ export default function MessageList(props: {
 							</S.HeaderWrapper>
 						)}
 						<S.BodyWrapper childList={props.childList} isOverallLast={props.isOverallLast}>
-							{currentData.map((element: Types.GQLNodeResponseType, index: number) => {
-								const isLastChild = index === currentData.length - 1;
+							{filteredData.map((element: RawMessageType, index: number) => {
+								const isLastChild = index === filteredData.length - 1;
+								// Use slot, Anchor, or index as key
+								const key = element.slot ?? element.Anchor ?? `msg-${index}`;
 
 								return (
 									<Message
-										key={element.node.id}
+										key={key}
 										element={element}
 										type={props.type}
 										currentFilter={currentFilter}

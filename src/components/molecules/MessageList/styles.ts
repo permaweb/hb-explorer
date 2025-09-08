@@ -168,8 +168,9 @@ export const BodyWrapper = styled.div<{
 		border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
+
 export const ElementWrapper = styled.div<{ open: boolean; lastChild?: boolean }>`
-	height: 40px;
+	height: 42.5px;
 	min-width: 100%;
 	width: fit-content;
 	position: relative;
@@ -245,6 +246,24 @@ export const ID = styled(ElementItem)`
 	display: flex;
 	align-items: center;
 	gap: 12.5px;
+`;
+
+export const Slot = styled(ElementItem)`
+	min-width: 65px;
+	width: 65px;
+	display: flex;
+	align-items: center;
+	gap: 12.5px;
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt1};
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 `;
 
 export const Action = styled(ElementItem)`

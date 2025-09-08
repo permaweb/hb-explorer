@@ -5,17 +5,19 @@ import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { ASSETS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { stripUrlProtocol } from 'helpers/utils';
+import { extractDetailsFromPath, stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
 import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
 import { usePathValidation } from 'hooks/usePathValidation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
+import { ExplorerTabProcess } from './ExplorerTabProcess';
 import * as S from './styles';
 
 export default function ExplorerTab(props: {
 	tab: ExplorerTabObjectType;
 	onPathChange: (args: ExplorerTabObjectType) => void;
+	// onSubPathChange?: (subPath: string) => void;
 }) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
@@ -23,7 +25,7 @@ export default function ExplorerTab(props: {
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
-	const [inputPath, setInputPath] = React.useState<string>(props.tab?.path ?? '');
+	const [inputPath, setInputPath] = React.useState<string>(props.tab?.label ?? '');
 	const [autoSubmitTimerId, setAutoSubmitTimerId] = React.useState<NodeJS.Timeout | null>(null);
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [pendingPathChange, setPendingPathChange] = React.useState<boolean>(false);
@@ -54,7 +56,7 @@ export default function ExplorerTab(props: {
 					id: hyperBeamRequest.id,
 					type: hyperBeamRequest.type,
 					variant: hyperBeamRequest.variant,
-					path: inputPath,
+					path: hyperBeamRequest.type === 'process' ? `${inputPath}/messages` : inputPath,
 					label: inputPath,
 				});
 			}
@@ -124,7 +126,7 @@ export default function ExplorerTab(props: {
 
 		switch (props.tab.type) {
 			case 'process':
-				return <p>Process</p>;
+				return <ExplorerTabProcess tab={props.tab} />;
 			case 'message':
 				return <p>Message</p>;
 			case 'path':

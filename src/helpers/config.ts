@@ -86,6 +86,11 @@ export const ASSETS = {
 	youtube: getTxEndpoint('vEToNqLt0U4CXLW-u7DykeGNqFLfuzKWebnu_1d5FRs'),
 };
 
+export const FAVICONS = {
+	light: 'yEzIy4fUp2LvpPWkZNDwZ9T8SUFG9QS0-76iKz8KwPo',
+	dark: 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis',
+};
+
 export const TAGS = {
 	keys: {
 		onBoot: 'On-Boot',
@@ -205,6 +210,7 @@ export const HB_ENDPOINTS = {
 	metrics: `/~hyperbuddy@1.0/metrics`,
 	operator: `/~meta@1.0/info/address`,
 	ledger: `/ledger~node-process@1.0/now/balance`,
+	schedule: (id: string) => `/${id}/schedule`,
 };
 
 export const HB_METRIC_CATEGORIES = {
