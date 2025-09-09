@@ -13,6 +13,7 @@ import * as S from './styles';
 export default function ExplorerTabProcess(props: {
 	tab: ExplorerTabObjectType;
 	hyperBeamRequest: UseHyperBeamRequestReturn;
+	refreshKey?: number;
 }) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
@@ -26,14 +27,26 @@ export default function ExplorerTabProcess(props: {
 				icon: ASSETS.overview,
 				disabled: false,
 				url: URLS.explorerInfo(props.tab.id),
-				view: () => <ExplorerTabProcessOverview tab={props.tab} hyperBeamRequest={props.hyperBeamRequest} />,
+				view: () => (
+					<ExplorerTabProcessOverview
+						tab={props.tab}
+						headers={props.hyperBeamRequest?.headers}
+						refreshKey={props.refreshKey}
+					/>
+				),
 			},
 			{
 				label: language.messages,
 				icon: ASSETS.message,
 				disabled: false,
 				url: URLS.explorerMessages(props.tab.id),
-				view: () => <ExplorerTabProcessMessages tab={props.tab} hyperBeamRequest={props.hyperBeamRequest} />,
+				view: () => (
+					<ExplorerTabProcessMessages
+						tab={props.tab}
+						hyperBeamRequest={props.hyperBeamRequest}
+						refreshKey={props.refreshKey}
+					/>
+				),
 			},
 			{
 				label: language.read,
@@ -62,7 +75,7 @@ export default function ExplorerTabProcess(props: {
 				view: () => <p></p>,
 			},
 		];
-	}, [props.tab]);
+	}, [props.tab.id, props.refreshKey, props.hyperBeamRequest?.headers]);
 
 	const processTabs = React.useMemo(() => {
 		const matchingTab = tabs.find((tab) => tab.url === currentHash);

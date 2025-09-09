@@ -18,7 +18,7 @@ export default function ProcessRead(props: {
 }) {
 	const permawebProvider = usePermawebProvider();
 
-	const [cuLocation, setCuLocation] = React.useState(null);
+	const [cuLocation, _setCuLocation] = React.useState(stripUrlProtocol(window.hyperbeamUrl));
 	const [startTime, setStartTime] = React.useState(null);
 	const [roundtripTime, setRoundtripTime] = React.useState(null);
 	const [elapsed, setElapsed] = React.useState(0);
@@ -29,30 +29,6 @@ export default function ProcessRead(props: {
 	const [errorLog, setErrorLog] = React.useState([]);
 
 	const isInitialMount = React.useRef(true);
-
-	React.useEffect(() => {
-		(async function () {
-			setCuLocation(null);
-			setCurrentOutput(null);
-			setReadLog([]);
-			setErrorLog([]);
-
-			if (props.variant === VariantEnum.Legacynet) {
-				try {
-					const response = await fetch(`https://cu.ao-testnet.xyz/results/${props.processId}`, {
-						method: 'GET',
-					});
-
-					const cu = new URL(response.url);
-					setCuLocation(cu.host);
-				} catch (e: any) {
-					console.error(e);
-				}
-			} else {
-				setCuLocation(stripUrlProtocol(window.hyperbeamUrl));
-			}
-		})();
-	}, [props.processId, props.variant]);
 
 	const safelyParseNestedJSON = (input) => {
 		if (typeof input === 'string') {
@@ -86,15 +62,7 @@ export default function ProcessRead(props: {
 				tick();
 
 				let response: any;
-
-				if (props.variant === VariantEnum.Legacynet) {
-					response = await permawebProvider.libs.readProcess({
-						processId: props.processId,
-						action: 'Info',
-					});
-				} else {
-					response = await hbFetch(HB_ENDPOINTS.processNow(props.processId), { json: true });
-				}
+				response = await hbFetch(HB_ENDPOINTS.processNow(props.processId), { json: true });
 
 				const parsedResponse = safelyParseNestedJSON(response);
 				setCurrentOutput(parsedResponse);
@@ -213,11 +181,7 @@ export default function ProcessRead(props: {
 			</S.SectionWrapper>
 			{!props.hideOutput && currentOutput && (
 				<S.OutputWrapper>
-					<JSONReader
-						data={currentOutput}
-						header={props.variant === VariantEnum.Legacynet ? 'Info' : 'Now'}
-						maxHeight={600}
-					/>
+					<JSONReader data={currentOutput} header={'Now'} maxHeight={600} />
 				</S.OutputWrapper>
 			)}
 		</S.Wrapper>

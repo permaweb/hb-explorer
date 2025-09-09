@@ -6,15 +6,13 @@ import { debounce } from 'lodash';
 import { Copyable } from 'components/atoms/Copyable';
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
-import { Toggle } from 'components/atoms/Toggle';
 import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
 import { checkValidAddress, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
-import { usePathValidation } from 'hooks/usePathValidation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { useSettingsProvider } from 'providers/SettingsProvider';
+import { WalletConnect } from 'wallet/WalletConnect';
 import { CloseHandler } from 'wrappers/CloseHandler';
 
 import * as S from './styles';
@@ -25,7 +23,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
-	const { settings, updateSettings } = useSettingsProvider();
 
 	const [_desktop, setDesktop] = React.useState(checkWindowCutoff(parseInt(STYLING.cutoffs.desktop)));
 
@@ -38,9 +35,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
-	// Use shared validation hook
-	const { validationStatus } = usePathValidation({ path: inputPath });
-
 	// Use shared autocomplete hook
 	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
 		useDeviceAutocomplete({
@@ -50,6 +44,13 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 			onValueChange: (value, newCursorPosition) => {
 				setInputPath(value);
 				setCursorPosition(newCursorPosition);
+			},
+			onAutoSubmit: (completedPath) => {
+				const pathToUse = completedPath || inputPath;
+				if (pathToUse) {
+					navigate(`${URLS.explorer}${pathToUse}`);
+					setInputPath('');
+				}
 			},
 		});
 
@@ -129,7 +130,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper cacheStatus={showAutocomplete ? 'default' : validationStatus}>
+				<S.SearchInputWrapper cacheStatus={'default'}>
 					<ReactSVG src={ASSETS.search} />
 					<FormField
 						ref={inputRef}
@@ -248,15 +249,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 								}}
 							/>
 						</S.MMenuWrapper>
-						<Toggle
-							options={[
-								{ label: 'light-primary', icon: ASSETS.light },
-								{ label: 'dark-primary', icon: ASSETS.dark },
-							]}
-							activeOption={settings.theme}
-							handleToggle={(option: string) => updateSettings('theme', option as any)}
-							disabled={false}
-						/>
+						<WalletConnect />
 					</S.ActionsWrapper>
 				</S.Content>
 			</S.Header>

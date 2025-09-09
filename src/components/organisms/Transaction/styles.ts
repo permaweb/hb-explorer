@@ -278,7 +278,7 @@ export const OverviewLine = styled.div`
 		color: ${(props) => props.theme.colors.font.primary};
 		text-align: right;
 		text-align: right;
-		max-width: 65%;
+		max-width: 50%;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

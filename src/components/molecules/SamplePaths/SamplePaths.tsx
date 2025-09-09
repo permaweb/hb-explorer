@@ -52,7 +52,7 @@ export default function SamplePaths({ onPathSelect }: SamplePathsProps) {
 				</S.HeaderTitle>
 				<S.HeaderDescription>Explore helpful HyperBEAM paths on this node</S.HeaderDescription>
 			</S.Header>
-			<S.PathGrid>
+			<S.PathList>
 				{SAMPLE_PATHS.map((sample, index) => (
 					<S.PathCard key={index} onClick={() => onPathSelect(sample.path)}>
 						<S.PathIcon>
@@ -70,7 +70,7 @@ export default function SamplePaths({ onPathSelect }: SamplePathsProps) {
 						</S.PathAction>
 					</S.PathCard>
 				))}
-			</S.PathGrid>
+			</S.PathList>
 		</S.Wrapper>
 	);
 }

@@ -17,6 +17,7 @@ import { useLanguageProvider } from 'providers/LanguageProvider';
 import { ExplorerTab } from './ExplorerTab';
 import * as S from './styles';
 
+// TODO: Process read / write / source / aos
 export default function Explorer() {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -34,10 +35,30 @@ export default function Explorer() {
 		const stored = localStorage.getItem(storageKey);
 		return stored && JSON.parse(stored).length > 0 ? JSON.parse(stored) : [{ id: '', label: '', type: null }];
 	});
-	const [activeTabIndex, setActiveTabIndex] = React.useState<number>(getInitialIndex());
+	const [activeTabIndex, setActiveTabIndex] = React.useState<number>(() => {
+		const stored = localStorage.getItem(storageKey);
+		const storedTabs =
+			stored && JSON.parse(stored).length > 0 ? JSON.parse(stored) : [{ id: '', label: '', type: null }];
+
+		// Find the tab that matches the current URL
+		const { path, subPath } = extractDetailsFromPath(location.pathname);
+
+		if (path && storedTabs.length > 0) {
+			const existingTabIndex = storedTabs.findIndex((tab: ExplorerTabObjectType) => {
+				return tab.type === 'process' ? tab.id === path : tab.path === `${path}${subPath}`;
+			});
+
+			if (existingTabIndex !== -1) {
+				return existingTabIndex;
+			}
+		}
+
+		return 0;
+	});
 
 	const [showClearConfirmation, setShowClearConfirmation] = React.useState<boolean>(false);
 	const [isClearing, setIsClearing] = React.useState<boolean>(false);
+	const [hasInitialized, setHasInitialized] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 		const header = document.getElementById('navigation-header');
@@ -81,7 +102,11 @@ export default function Explorer() {
 		localStorage.setItem(storageKey, JSON.stringify(tabs));
 	}, [tabs]);
 
-	// TODO: On process tabs redirect - rewrite updated subpath (/info /messages) to tabs
+	React.useEffect(() => {
+		setHasInitialized(true);
+	}, []);
+
+	// Handle URL changes and tab synchronization
 	React.useEffect(() => {
 		const { path, subPath } = extractDetailsFromPath(location.pathname);
 
@@ -98,7 +123,7 @@ export default function Explorer() {
 				const currentTab = tabs[existingTabIndex];
 				const newPath = `${path}${subPath}`;
 
-				// Only update if the path has actually changed
+				// Update tab path if it has changed
 				if (currentTab.path !== newPath || currentTab.basePath !== newPath) {
 					setTabs((prev) => {
 						const updated = [...prev];
@@ -110,63 +135,55 @@ export default function Explorer() {
 						return updated;
 					});
 				}
-				setActiveTabIndex(existingTabIndex);
-			} else {
-				// Tab doesn't exist, create a new one
-				if (tabs.length === 1 && tabs[0].id === '') {
-					setTabs((prev) => {
-						const updated = [...prev];
-						updated[0] = {
-							id: path,
-							type: 'path',
-							variant: VariantEnum.Mainnet,
-							basePath: `${path}${subPath}`,
-							path: `${path}${subPath}`,
-							label: path,
-						};
-						return updated;
-					});
-					setActiveTabIndex(0);
-				} else {
-					const newIndex = tabs.length;
-					setTabs((prev) => [
-						...prev,
-						{
-							id: path,
-							type: 'path',
-							variant: VariantEnum.Mainnet,
-							basePath: `${path}${subPath}`,
-							path: `${path}${subPath}`,
-							label: path,
-						},
-					]);
-					setActiveTabIndex(newIndex);
+
+				// Only switch tabs if this isn't the initial load and we're navigating programmatically
+				// Don't switch tabs on refresh/initial load to maintain user's current tab
+				if (hasInitialized && activeTabIndex !== existingTabIndex) {
+					setActiveTabIndex(existingTabIndex);
 				}
+			} else {
+				// Tab doesn't exist, create a new one only if we're navigating programmatically
+				if (hasInitialized) {
+					if (tabs.length === 1 && tabs[0].id === '') {
+						setTabs((prev) => {
+							const updated = [...prev];
+							updated[0] = {
+								id: path,
+								type: 'path',
+								variant: VariantEnum.Mainnet,
+								basePath: `${path}${subPath}`,
+								path: `${path}${subPath}`,
+								label: path,
+							};
+							return updated;
+						});
+						setActiveTabIndex(0);
+					} else {
+						const newIndex = tabs.length;
+						setTabs((prev) => [
+							...prev,
+							{
+								id: path,
+								type: 'path',
+								variant: VariantEnum.Mainnet,
+								basePath: `${path}${subPath}`,
+								path: `${path}${subPath}`,
+								label: path,
+							},
+						]);
+						setActiveTabIndex(newIndex);
+					}
 
-				navigate(`${baseUrl}${path}${subPath}`);
+					navigate(`${baseUrl}${path}${subPath}`);
+				}
+			}
+		} else {
+			// No path in URL (e.g., just /explorer), redirect to first tab if it exists and has content
+			if (hasInitialized && tabs.length > 0 && tabs[0].id && tabs[0].path) {
+				navigate(`${baseUrl}${tabs[0].path}`);
 			}
 		}
-	}, [location.pathname]);
-
-	function getInitialIndex() {
-		if (tabs.length <= 0) return 0;
-
-		let currentId = location.pathname.replace(`${baseUrl}/`, '');
-		const parts = location.pathname.split('/');
-
-		for (const part of parts) {
-			if (checkValidAddress(part)) {
-				currentId = part;
-				break;
-			}
-		}
-
-		for (let i = 0; i < tabs.length; i++) {
-			if (tabs[i].id === currentId) return i;
-		}
-
-		return 0;
-	}
+	}, [location.pathname, hasInitialized]);
 
 	const handlePathChange = (tabIndex: number, args: ExplorerTabObjectType) => {
 		if (isClearing) return;
@@ -202,6 +219,12 @@ export default function Explorer() {
 	const handleTabRedirect = (index: number) => {
 		setActiveTabIndex(index);
 		const tab = tabs[index];
+
+		// Don't navigate if it's an empty tab - just switch to it
+		if (!tab.id) {
+			return;
+		}
+
 		const basePath = `${baseUrl}${tab.id}`;
 
 		// If tab has a stored path different from just the id, extract and set the hash part
@@ -234,7 +257,10 @@ export default function Explorer() {
 			}
 		}, 0);
 
-		navigate(id ? `${baseUrl}${id}` : baseUrl);
+		// Don't navigate when adding empty tab - let it stay on the new empty tab
+		if (id) {
+			navigate(`${baseUrl}${id}`);
+		}
 	};
 
 	const handleDeleteTab = (deletedIndex: number) => {
@@ -357,12 +383,14 @@ export default function Explorer() {
 				<ViewWrapper>
 					<>
 						{tabs.map((tab: ExplorerTabObjectType, index) => {
+							const active = index === activeTabIndex;
+
 							return (
-								<S.TabWrapper key={index} active={index === activeTabIndex}>
+								<S.TabWrapper key={index} active={active}>
 									<ExplorerTab
 										tab={tab}
+										active={active}
 										onPathChange={(args: ExplorerTabObjectType) => handlePathChange(index, args)}
-										// onSubPathChange={(subPath: string) => handleSubPathChange(index, subPath)}
 									/>
 								</S.TabWrapper>
 							);

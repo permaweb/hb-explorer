@@ -8,9 +8,9 @@ import { FormField } from 'components/atoms/FormField';
 import { Loader } from 'components/atoms/Loader';
 import { Panel } from 'components/atoms/Panel';
 import { JSONReader } from 'components/molecules/JSONReader';
-import { ASSETS, DEFAULT_ACTIONS } from 'helpers/config';
-import { MessageFilterType, RawMessageType, TransactionType } from 'helpers/types';
-import { checkValidAddress, getRelativeDate, hbFetch } from 'helpers/utils';
+import { ASSETS, DEFAULT_ACTIONS, HB_ENDPOINTS } from 'helpers/config';
+import { MessageFilterType, RawMessageType } from 'helpers/types';
+import { checkValidAddress, formatCount, getRelativeDate, hbFetch } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { Editor } from '../Editor';
@@ -43,7 +43,6 @@ function normalizeChildMessages(parsedMessages: any): RawMessageType[] {
 
 function Message(props: {
 	element: RawMessageType;
-	type: TransactionType;
 	currentFilter: MessageFilterType;
 	parentId: string;
 	handleOpen: (id: string) => void;
@@ -117,12 +116,15 @@ function Message(props: {
 	}
 
 	function getFrom() {
-		let from = props.element.body?.scheduler || props.element.body?.authority || '-'; // Child messages come from system
-		// Handle both formats
+		let from = props.element.body?.scheduler || props.element.body?.authority || '-';
+
 		if (props.element.body?.commitments) {
-			const committers = Object.keys(props.element.body?.commitments);
-			const firstCommitter = committers[0];
-			from = props.element.body?.commitments[firstCommitter].committer;
+			const entries = Object.values(props.element.body.commitments) as any[];
+			const withCommitter = entries.find((c) => c?.committer);
+
+			if (withCommitter) {
+				from = withCommitter.committer;
+			}
 		}
 
 		return (
@@ -235,7 +237,7 @@ function Message(props: {
 		}
 
 		return (
-			<Panel open={open} width={550} header={header} handleClose={handleClose}>
+			<Panel open={open} width={650} header={header} handleClose={handleClose}>
 				<S.OverlayWrapper>
 					<S.OverlayInfo>
 						<S.OverlayInfoHeader>
@@ -297,7 +299,7 @@ function Message(props: {
 					<Copyable value={props.element['hash-chain']} />
 				</S.ID> */}
 				<S.Slot>
-					<p>{props.element.slot ?? props.element.Anchor ?? '-'}</p>
+					<Copyable value={(props.element.slot ?? props.element.Anchor ?? '-').toString()} />
 				</S.Slot>
 				{getAction(true, false)}
 				{getFrom()}
@@ -317,8 +319,6 @@ function Message(props: {
 			</S.ElementWrapper>
 			{open && (
 				<MessageList
-					txId={props.element['hash-chain'] || props.element.Anchor}
-					type={props.type}
 					currentFilter={props.currentFilter}
 					recipient={props.element.body?.target || props.element.Target || props.element.process}
 					parentId={props.parentId}
@@ -334,20 +334,22 @@ function Message(props: {
 }
 
 export default function MessageList(props: {
-	txId?: string;
-	type?: TransactionType;
+	processId?: string;
+	messages?: RawMessageType[];
 	currentFilter?: MessageFilterType;
 	recipient?: string | null;
 	parentId?: string;
 	handleMessageOpen?: (id: string) => void;
 	childList?: boolean;
 	isOverallLast?: boolean;
-	messages?: RawMessageType[];
+	refreshKey?: number;
 }) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
 	const tableContainerRef = React.useRef(null);
+
+	const [totalMessages, setTotalMessages] = React.useState<number | null>(null);
 
 	const [showFilters, setShowFilters] = React.useState<boolean>(false);
 	const [currentFilter, _setCurrentFilter] = React.useState<MessageFilterType>(props.currentFilter ?? 'incoming');
@@ -361,9 +363,85 @@ export default function MessageList(props: {
 	const [filteredData, setFilteredData] = React.useState<RawMessageType[] | null>(null);
 	const [loadingMessages, setLoadingMessages] = React.useState<boolean>(false);
 
-	const [pageNumber] = React.useState(1);
-	const [perPage, setPerPage] = React.useState(50);
+	const [pageNumber, setPageNumber] = React.useState(1);
+	const [perPage, setPerPage] = React.useState(25);
 	const [recipient, setRecipient] = React.useState<string>('');
+	const [sortOrder, setSortOrder] = React.useState<'newest' | 'oldest'>('newest');
+
+	React.useEffect(() => {
+		(async function () {
+			if (props.processId && !props.childList && !totalMessages) {
+				setLoadingMessages(true);
+				try {
+					const totalSlots = await hbFetch(HB_ENDPOINTS.currentSlot(props.processId));
+					setTotalMessages(parseInt(totalSlots));
+				} catch (e: any) {
+					console.error(e);
+				}
+				setLoadingMessages(false);
+			}
+		})();
+	}, [props.processId, props.childList, totalMessages]);
+
+	React.useEffect(() => {
+		(async function () {
+			if (props.processId && !props.childList && totalMessages) {
+				setLoadingMessages(true);
+				try {
+					// Calculate from/to based on sort order
+					let fromSlot: number;
+					let toSlot: number;
+
+					if (sortOrder === 'newest') {
+						// For newest first: start from highest slots
+						// Page 1: (totalMessages - perPage) to (totalMessages - 1)
+						// Page 2: (totalMessages - 2*perPage) to (totalMessages - perPage - 1)
+						toSlot = totalMessages - (pageNumber - 1) * perPage - 1;
+						fromSlot = Math.max(0, toSlot - perPage + 1);
+					} else {
+						// For oldest first: start from lowest slots (original logic)
+						// Page 1: 0 to (perPage - 1)
+						// Page 2: perPage to (2*perPage - 1)
+						fromSlot = perPage * pageNumber - perPage;
+						toSlot = Math.min(totalMessages - 1, perPage * pageNumber - 1);
+					}
+
+					const response = await hbFetch(HB_ENDPOINTS.schedule(props.processId), {
+						headers: {
+							from: fromSlot.toString(),
+							to: toSlot.toString(),
+						},
+						json: true,
+					});
+
+					if (response?.assignments) {
+						const assignments = Object.keys(response.assignments).map((assignment: any) => {
+							return { ...response.assignments[assignment] };
+						});
+
+						// Sort by slot number according to sort order
+						const sortedAssignments = assignments.sort((a: any, b: any) => {
+							const aSlot = a.slot || 0;
+							const bSlot = b.slot || 0;
+
+							if (sortOrder === 'newest') {
+								return bSlot - aSlot; // Highest slot first
+							} else {
+								return aSlot - bSlot; // Lowest slot first
+							}
+						});
+
+						setCurrentData(sortedAssignments);
+					} else {
+						setCurrentData([]);
+					}
+				} catch (e: any) {
+					console.error(e);
+				}
+				setLoadingMessages(false);
+			}
+		})();
+	}, [props.processId, props.childList, totalMessages, perPage, pageNumber, sortOrder]);
 
 	// Set messages directly when provided
 	React.useEffect(() => {
@@ -376,6 +454,20 @@ export default function MessageList(props: {
 	}, [props.messages]);
 
 	// Apply filters to current data
+	// Reset page number when perPage or sortOrder changes
+	React.useEffect(() => {
+		setPageNumber(1);
+	}, [perPage, sortOrder]);
+
+	// Handle refresh trigger - reset data and trigger refetch
+	React.useEffect(() => {
+		if (props.refreshKey !== undefined && props.refreshKey > 0 && !props.childList) {
+			setTotalMessages(null);
+			setCurrentData(null);
+			setFilteredData(null);
+		}
+	}, [props.refreshKey, props.childList]);
+
 	React.useEffect(() => {
 		if (!currentData) {
 			setFilteredData(null);
@@ -431,17 +523,24 @@ export default function MessageList(props: {
 		setCustomAction('');
 	}
 
-	// Non-functional pagination handlers
 	function handleNext() {
-		// Pagination not functional - could be implemented later
+		if (!totalMessages) return;
+		const totalPages = Math.ceil(totalMessages / perPage);
+		if (pageNumber < totalPages) {
+			setPageNumber(pageNumber + 1);
+		}
 	}
 
 	function handlePrevious() {
-		// Pagination not functional - could be implemented later
+		if (pageNumber > 1) {
+			setPageNumber(pageNumber - 1);
+		}
 	}
 
 	function getPages() {
-		const count = filteredData?.length || 0;
+		if (!totalMessages) return null;
+
+		const count = totalMessages || 0;
 		const totalPages = Math.ceil(count / perPage);
 		return (
 			<>
@@ -453,21 +552,15 @@ export default function MessageList(props: {
 	}
 
 	function getPaginator(showPages: boolean) {
+		const totalPages = totalMessages ? Math.ceil(totalMessages / perPage) : 0;
+		const isPreviousDisabled = pageNumber <= 1 || loadingMessages;
+		const isNextDisabled = pageNumber >= totalPages || loadingMessages || !totalMessages;
+
 		return (
 			<>
-				<Button
-					type={'alt3'}
-					label={language.previous}
-					handlePress={handlePrevious}
-					disabled={true} // Always disabled since pagination is non-functional
-				/>
+				<Button type={'alt3'} label={language.previous} handlePress={handlePrevious} disabled={isPreviousDisabled} />
 				{showPages && <S.DPageCounter>{getPages()}</S.DPageCounter>}
-				<Button
-					type={'alt3'}
-					label={language.next}
-					handlePress={handleNext}
-					disabled={true} // Always disabled since pagination is non-functional
-				/>
+				<Button type={'alt3'} label={language.next} handlePress={handleNext} disabled={isNextDisabled} />
 				{showPages && <S.MPageCounter>{getPages()}</S.MPageCounter>}
 			</>
 		);
@@ -492,7 +585,10 @@ export default function MessageList(props: {
 				{!props.childList && (
 					<S.Header>
 						<S.HeaderMain>
-							<p>{language.messages}</p>
+							<p>
+								{language.messages}
+								{totalMessages ? <span>({formatCount(totalMessages.toString())})</span> : null}
+							</p>
 							{loadingMessages && (
 								<div className={'loader'}>
 									<Loader xSm relative />
@@ -545,17 +641,15 @@ export default function MessageList(props: {
 									icon={ASSETS.close}
 								/>
 							)}
-							<S.FilterWrapper>
-								<Button
-									type={'alt3'}
-									label={language.filter}
-									handlePress={() => setShowFilters((prev) => !prev)}
-									active={showFilters}
-									disabled={loadingMessages}
-									icon={ASSETS.filter}
-									iconLeftAlign
-								/>
-							</S.FilterWrapper>
+							<Button
+								type={'alt3'}
+								label={sortOrder === 'newest' ? 'Toggle: Old to New' : 'Toggle: New to Old'}
+								handlePress={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
+								active={false}
+								disabled={loadingMessages}
+								icon={ASSETS.arrows}
+								iconLeftAlign
+							/>
 							<S.Divider />
 							{getPaginator(false)}
 						</S.HeaderActions>
@@ -601,7 +695,6 @@ export default function MessageList(props: {
 									<Message
 										key={key}
 										element={element}
-										type={props.type}
 										currentFilter={currentFilter}
 										parentId={props.parentId}
 										handleOpen={props.handleMessageOpen ? (id: string) => props.handleMessageOpen(id) : null}
@@ -672,7 +765,7 @@ export default function MessageList(props: {
 							invalid={{ status: invalidPerPage, message: invalidPerPage ? 'Value must be between 0 and 100' : null }}
 						/>
 
-						{(currentFilter !== 'incoming' || !props.txId) && (
+						{/* {(currentFilter !== 'incoming' || !props.txId) && (
 							<FormField
 								label={language.recipient}
 								value={recipient}
@@ -681,7 +774,7 @@ export default function MessageList(props: {
 								invalid={{ status: recipient ? !checkValidAddress(recipient) : null, message: null }}
 								hideErrorMessage
 							/>
-						)}
+						)} */}
 
 						<S.FilterApply>
 							<Button

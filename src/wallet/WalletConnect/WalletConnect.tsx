@@ -2,9 +2,8 @@ import React from 'react';
 import { ReactSVG } from 'react-svg';
 
 import { Avatar } from 'components/atoms/Avatar';
-import { Panel } from 'components/atoms/Panel';
+import { Toggle } from 'components/atoms/Toggle';
 import { ASSETS } from 'helpers/config';
-import { darkTheme, lightTheme } from 'helpers/themes';
 import { formatAddress } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -24,7 +23,6 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 
 	const [showWallet, setShowWallet] = React.useState<boolean>(false);
 	const [showWalletDropdown, setShowWalletDropdown] = React.useState<boolean>(false);
-	const [showThemeSelector, setShowThemeSelector] = React.useState<boolean>(false);
 	const [copied, setCopied] = React.useState<boolean>(false);
 
 	const [label, setLabel] = React.useState<string | null>(null);
@@ -74,31 +72,8 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 		setShowWalletDropdown(false);
 	}
 
-	const THEMES = {
-		light: {
-			label: 'Light themes',
-			icon: ASSETS.light,
-			variants: [
-				{
-					id: 'light-primary',
-					name: 'Light Default',
-					background: lightTheme.neutral1,
-					accent1: lightTheme.primary1,
-				},
-			],
-		},
-		dark: {
-			label: 'Dark themes',
-			icon: ASSETS.dark,
-			variants: [
-				{
-					id: 'dark-primary',
-					name: 'Dark Default',
-					background: darkTheme.neutral1,
-					accent1: darkTheme.primary1,
-				},
-			],
-		},
+	const handleThemeChange = (option: string) => {
+		updateSettings('theme', option as any);
 	};
 
 	return (
@@ -133,10 +108,24 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 									<ReactSVG src={ASSETS.write} />
 									{language.profile}
 								</li>
-								<li onClick={() => setShowThemeSelector(true)}>
+							</S.DBodyWrapper>
+							<S.DBodyWrapper>
+								<S.ThemeToggleHeader>
 									<ReactSVG src={ASSETS.design} />
-									{language.appearance}
-								</li>
+									<p>{language.appearance}</p>
+								</S.ThemeToggleHeader>
+								<S.ThemeToggleBody>
+									<Toggle
+										options={[
+											{ id: 'light-primary', label: 'Light', icon: ASSETS.light },
+											{ id: 'dark-primary', label: 'Dark', icon: ASSETS.dark },
+											{ id: 'system', label: 'Auto', icon: ASSETS.system },
+										]}
+										activeOption={settings.theme}
+										handleToggle={handleThemeChange}
+										disabled={false}
+									/>
+								</S.ThemeToggleBody>
 							</S.DBodyWrapper>
 							<S.DFooterWrapper>
 								<li onClick={handleDisconnect}>
@@ -148,39 +137,6 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 					)}
 				</S.Wrapper>
 			</CloseHandler>
-			<Panel
-				open={showThemeSelector}
-				width={430}
-				header={language.chooseAppAppearance}
-				handleClose={() => setShowThemeSelector(false)}
-			>
-				<S.MWrapper className={'modal-wrapper'}>
-					{Object.entries(THEMES).map(([key, theme]) => (
-						<S.ThemeSection key={key}>
-							<S.ThemeSectionHeader>
-								<ReactSVG src={theme.icon} />
-								<p>{theme.label}</p>
-							</S.ThemeSectionHeader>
-							<S.ThemeSectionBody>
-								{theme.variants.map((variant) => (
-									<S.ThemeSectionBodyElement
-										key={variant.id}
-										onClick={() => updateSettings('theme', variant.id as any)}
-									>
-										<S.Preview background={variant.background} accent={variant.accent1}>
-											<div id={'preview-accent-1'} />
-										</S.Preview>
-										<div>
-											<S.Indicator active={settings.theme === variant.id} />
-											<p>{variant.name}</p>
-										</div>
-									</S.ThemeSectionBodyElement>
-								))}
-							</S.ThemeSectionBody>
-						</S.ThemeSection>
-					))}
-				</S.MWrapper>
-			</Panel>
 		</>
 	);
 }

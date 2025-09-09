@@ -350,20 +350,26 @@ export function stripUrlProtocol(url: string) {
 export async function hbFetch(
 	endpoint: string,
 	opts?: {
+		headers?: Record<string, string>;
 		json?: boolean;
 		rawBodyOnly?: boolean;
 	}
 ) {
 	try {
-		let headers: any = {};
+		let headers: Record<string, string> = {};
 
-		if (opts?.json) headers['require-codec'] = 'application/json';
-		if (opts?.json) headers['accept'] = 'application/json';
-		if (opts?.json) headers['accept-bundle'] = 'true';
+		if (opts?.json) {
+			headers['accept'] = 'application/json';
+			headers['accept-bundle'] = 'true';
+			headers['require-codec'] = 'application/json';
+		}
 
 		const response = await fetch(`${window.hyperbeamUrl}${endpoint}`, {
 			method: 'GET',
-			headers: { ...headers },
+			headers: {
+				...headers,
+				...(opts?.headers || {}),
+			},
 		});
 
 		if (opts?.json) {
@@ -374,11 +380,222 @@ export async function hbFetch(
 
 			return responseBody;
 		}
+
 		return await response.text();
 	} catch (e: any) {
 		throw new Error(e);
 	}
 }
+
+// export async function hbFetch(
+// 	endpoint: string,
+// 	opts?: {
+// 		json?: boolean;
+// 		rawBodyOnly?: boolean; // if true, strip wrappers or return just data blobs
+// 		tryExtractOnJsonFail?: boolean; // optional: default true
+// 	}
+// ) {
+// 	const shouldExtract = opts?.tryExtractOnJsonFail ?? true;
+
+// 	// Build headers
+// 	const headers: Record<string, string> = {};
+// 	if (opts?.json) {
+// 		headers['require-codec'] = 'application/json';
+// 		headers['accept-bundle'] = 'true';
+// 	}
+
+// 	const url = `${window.hyperbeamUrl}${endpoint}`;
+// 	let response: Response;
+
+// 	try {
+// 		response = await fetch(url, { method: 'GET', headers });
+// 	} catch (networkErr) {
+// 		// No response available (e.g., DNS/connection error)
+// 		throw networkErr;
+// 	}
+
+// 	// Helper: strip fields if requested
+// 	const maybeTrim = (obj: any) => {
+// 		if (!opts?.rawBodyOnly || obj == null || typeof obj !== 'object') return obj;
+// 		const copy = { ...obj };
+// 		if ('commitments' in copy) delete copy.commitments;
+// 		if ('status' in copy) delete copy.status;
+// 		return copy;
+// 	};
+
+// 	// Prefer JSON when requested
+// 	if (opts?.json) {
+// 		try {
+// 			// Use clone so we can still read text later if parse fails
+// 			const body = await response.clone().json();
+// 			return maybeTrim(body);
+// 		} catch {
+// 			if (!shouldExtract) {
+// 				// Fall back to plain text only
+// 				return await response.text();
+// 			}
+// 			// Try extract from text fallback
+// 			const text = await response.text();
+// 			const blobs = extractAllJson(text);
+// 			return blobs;
+// 		}
+// 	}
+
+// 	// Non-JSON mode: return text; you can opt-in to auto-extraction here if desired
+// 	const text = await response.text();
+// 	return text;
+// }
+
+/**
+ * Extract every valid JSON blob from a raw multipart/text-ish HTTP response.
+ * - Finds top-level balanced {...} or [...] blocks and parses them.
+ * - Also finds JSON that is stringified inside quotes (e.g., "value":"{...}").
+ * - Returns an array of { data, start, end, source }.
+ *
+ * @param {string} text
+ * @returns {Array<{ data:any, start:number, end:number, source:'raw'|'quoted' }>}
+ */
+function extractAllJson(text) {
+	const results = [];
+	const seen = new Set(); // dedupe by canonical string
+
+	// -------- Pass 1: scan for balanced raw JSON blocks ({...} or [...]) --------
+	const isOpen = (c) => c === '{' || c === '[';
+	const closerFor = (c) => (c === '{' ? '}' : ']');
+
+	let i = 0;
+	const N = text.length;
+
+	while (i < N) {
+		const c = text[i];
+
+		// Start only when not inside a string (we'll track string state as we scan)
+		if (isOpen(c)) {
+			const open = c;
+			const close = closerFor(c);
+
+			let depth = 0;
+			let inStr = false;
+			let escaped = false;
+			let end = -1;
+
+			for (let j = i; j < N; j++) {
+				const ch = text[j];
+
+				if (inStr) {
+					if (escaped) {
+						escaped = false; // skip next char
+					} else if (ch === '\\') {
+						escaped = true;
+					} else if (ch === '"') {
+						inStr = false;
+					}
+					continue;
+				}
+
+				// not in string
+				if (ch === '"') {
+					inStr = true;
+					escaped = false;
+					continue;
+				}
+
+				if (ch === open) depth++;
+				else if (ch === close) depth--;
+
+				if (depth === 0) {
+					end = j;
+					const candidate = text.slice(i, end + 1);
+					try {
+						const parsed = JSON.parse(candidate);
+						const key = canonicalStringify(parsed);
+						if (!seen.has(key)) {
+							seen.add(key);
+							results.push({ data: parsed, start: i, end, source: 'raw' });
+						}
+					} catch (_) {
+						/* not JSON; ignore */
+					}
+					// jump past this block to avoid capturing nested duplicates
+					i = end + 1;
+					break;
+				}
+			}
+
+			if (end === -1) {
+				// Unbalanced; move on
+				i++;
+			}
+			continue; // next loop step from updated i
+		}
+
+		i++;
+	}
+
+	// -------- Pass 2: JSON string values that contain stringified JSON ----------
+	// e.g. ..."value":"{\"Roles\":{...}}"
+	// This regex captures any JSON-style string value; we then try to JSON.parse the content.
+	// It’s intentionally broad to catch most cases.
+	const stringValueRe = /"[^"\n\r]*"\s*:\s*"((?:\\.|[^"\\])*)"/g;
+	for (const match of text.matchAll(stringValueRe)) {
+		const raw = match[1];
+		// Unescape the JSON string value safely
+		let unescaped;
+		try {
+			// Wrap in quotes and let JSON.parse handle escapes
+			unescaped = JSON.parse(`"${raw}"`);
+		} catch {
+			continue;
+		}
+
+		// If the unescaped string is itself JSON, parse it
+		if (typeof unescaped === 'string') {
+			const s = unescaped.trim();
+			if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+				try {
+					const parsed = JSON.parse(s);
+					const key = canonicalStringify(parsed);
+					if (!seen.has(key)) {
+						seen.add(key);
+						// We don't have exact start/end of the inner JSON within the overall text;
+						// return the match index for reference.
+						results.push({ data: parsed, start: match.index ?? -1, end: -1, source: 'quoted' });
+					}
+				} catch {
+					/* not JSON; ignore */
+				}
+			}
+		}
+	}
+
+	return results;
+}
+
+/**
+ * Stable stringify to dedupe objects/arrays regardless of key order.
+ * (Sorts object keys recursively.)
+ */
+function canonicalStringify(value) {
+	if (value === null || typeof value !== 'object') return JSON.stringify(value);
+
+	if (Array.isArray(value)) {
+		return '[' + value.map(canonicalStringify).join(',') + ']';
+	}
+
+	const keys = Object.keys(value).sort();
+	const parts = keys.map((k) => JSON.stringify(k) + ':' + canonicalStringify(value[k]));
+	return '{' + parts.join(',') + '}';
+}
+
+/* --------------------------- Example usage --------------------------- */
+// const raw = `... your full HTTP response string ...`;
+// const blobs = extractAllJson(raw);
+// // Optionally pick the largest object (by string length):
+// const largest = blobs
+//   .map(b => ({ ...b, size: JSON.stringify(b.data).length }))
+//   .sort((a, b) => b.size - a.size)[0];
+// console.log('Found', blobs.length, 'JSON blob(s).');
+// console.dir(largest?.data, { depth: 3 });
 
 export function parseHeaders(input) {
 	const out = {};

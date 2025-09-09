@@ -3,21 +3,22 @@ import { ReactSVG } from 'react-svg';
 
 import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
+import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
+import { SamplePaths } from 'components/molecules/SamplePaths';
 import { ASSETS, DEFAULT_TABS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
+import { stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
 import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
-import { usePathValidation } from 'hooks/usePathValidation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import { ExplorerTabPath } from './ExplorerTabPath';
 import { ExplorerTabProcess } from './ExplorerTabProcess';
 import * as S from './styles';
 
-// TODO: Autocomplete
 export default function ExplorerTab(props: {
 	tab: ExplorerTabObjectType;
+	active: boolean;
 	onPathChange: (args: ExplorerTabObjectType) => void;
 }) {
 	const languageProvider = useLanguageProvider();
@@ -30,47 +31,55 @@ export default function ExplorerTab(props: {
 	const [autoSubmitTimerId, setAutoSubmitTimerId] = React.useState<NodeJS.Timeout | null>(null);
 	const [copied, setCopied] = React.useState<boolean>(false);
 	const [pendingPathChange, setPendingPathChange] = React.useState<boolean>(false);
+	const [refreshKey, setRefreshKey] = React.useState<number>(0);
 
 	const hyperBeamRequest = useHyperBeamRequest();
 
-	const { showAutocomplete, handleKeyDown } = useDeviceAutocomplete({
-		inputValue: inputPath,
-		cursorPosition,
-		inputRef,
-		onValueChange: (value, newCursorPosition) => {
-			setInputPath(value);
-			setCursorPosition(newCursorPosition);
-		},
-	});
-
-	const { validationStatus: cacheStatus } = usePathValidation({ path: inputPath });
+	const { showAutocomplete, handleKeyDown, autocompleteOptions, selectedOptionIndex, acceptAutocomplete } =
+		useDeviceAutocomplete({
+			inputValue: inputPath,
+			cursorPosition,
+			inputRef,
+			onValueChange: (value, newCursorPosition) => {
+				setInputPath(value);
+				setCursorPosition(newCursorPosition);
+			},
+			onAutoSubmit: (completedPath) => handleSubmit(completedPath),
+		});
 
 	React.useEffect(() => {
 		setInputPath(props.tab?.basePath ?? '');
 	}, [props.tab?.basePath]);
 
 	React.useEffect(() => {
-		if (!inputPath || hyperBeamRequest.loading || pendingPathChange) return;
-
-		const shouldAutoSubmit = checkValidAddress(inputPath) || (props.tab?.type === 'process' && inputPath);
-
-		if (shouldAutoSubmit && !hyperBeamRequest.id) {
-			handleSubmit();
-		}
-	}, [inputPath, props.tab?.type, hyperBeamRequest.loading, hyperBeamRequest.id, pendingPathChange]);
+		if (props.active) handleSubmit();
+	}, [props.active]);
 
 	React.useEffect(() => {
 		if (pendingPathChange && !hyperBeamRequest.loading) {
 			if (!hyperBeamRequest.error && hyperBeamRequest.id) {
 				const currentSubPath = props.tab?.path?.replace(props.tab?.basePath || '', '') || DEFAULT_TABS.process;
-				props.onPathChange({
+				const newTabData = {
 					id: hyperBeamRequest.id,
 					type: hyperBeamRequest.type,
 					variant: hyperBeamRequest.variant,
 					basePath: inputPath,
 					path: hyperBeamRequest.type === 'process' ? `${inputPath}${currentSubPath}` : inputPath,
 					label: hyperBeamRequest.headers?.name?.data ?? inputPath,
-				});
+				};
+
+				// Only call onPathChange if the tab data has actually changed
+				const hasChanged =
+					props.tab?.id !== newTabData.id ||
+					props.tab?.type !== newTabData.type ||
+					props.tab?.variant !== newTabData.variant ||
+					props.tab?.basePath !== newTabData.basePath ||
+					props.tab?.path !== newTabData.path ||
+					props.tab?.label !== newTabData.label;
+
+				if (hasChanged) {
+					props.onPathChange(newTabData);
+				}
 			}
 			setPendingPathChange(false);
 		}
@@ -134,13 +143,21 @@ export default function ExplorerTab(props: {
 	};
 
 	function getTab() {
-		if (!props.tab?.type) return null;
+		if (!props.tab?.type)
+			return (
+				<SamplePaths
+					onPathSelect={(path) => {
+						setInputPath(path);
+						handleSubmit(path);
+					}}
+				/>
+			);
 
 		switch (props.tab.type) {
 			case 'process':
-				return <ExplorerTabProcess tab={props.tab} hyperBeamRequest={hyperBeamRequest} />;
+				return <ExplorerTabProcess tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
 			case 'path':
-				return <ExplorerTabPath tab={props.tab} hyperBeamRequest={hyperBeamRequest} />;
+				return <ExplorerTabPath tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
 		}
 	}
 
@@ -148,7 +165,7 @@ export default function ExplorerTab(props: {
 		<S.Wrapper>
 			<S.HeaderWrapper>
 				<S.SearchWrapper>
-					<S.SearchInputWrapper cacheStatus={showAutocomplete ? 'default' : cacheStatus}>
+					<S.SearchInputWrapper cacheStatus={'default'}>
 						<ReactSVG src={ASSETS.search} />
 						<FormField
 							ref={inputRef}
@@ -164,23 +181,24 @@ export default function ExplorerTab(props: {
 							hideErrorMessage
 							sm
 						/>
-						{/* <AutocompleteDropdown
+						<AutocompleteDropdown
 							options={autocompleteOptions}
 							selectedIndex={selectedOptionIndex}
 							onSelect={acceptAutocomplete}
 							visible={showAutocomplete}
 							showTabHint={true}
 							inputRef={inputRef}
-						/> */}
+						/>
 					</S.SearchInputWrapper>
 					<IconButton
 						type={'alt1'}
-						src={ASSETS.go}
+						src={ASSETS.refresh}
 						handlePress={() => {
 							if (autoSubmitTimerId) {
 								clearTimeout(autoSubmitTimerId);
 								setAutoSubmitTimerId(null);
 							}
+							setRefreshKey((prev) => prev + 1);
 							handleSubmit();
 						}}
 						disabled={hyperBeamRequest.loading || !inputPath}
@@ -188,7 +206,7 @@ export default function ExplorerTab(props: {
 							wrapper: 32.5,
 							icon: 17.5,
 						}}
-						tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.run}
+						tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.refresh}
 					/>
 
 					<IconButton
@@ -222,7 +240,7 @@ export default function ExplorerTab(props: {
 					</S.PathInfoWrapper>
 				</S.HeaderActionsWrapper>
 			</S.HeaderWrapper>
-			<S.BodyWrapper>{getTab()}</S.BodyWrapper>
+			<S.BodyWrapper>{props.active ? getTab() : null}</S.BodyWrapper>
 		</S.Wrapper>
 	);
 }

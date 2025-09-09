@@ -8,7 +8,8 @@ import * as S from './styles';
 
 export default function ExplorerTabProcessOverview(props: {
 	tab: ExplorerTabObjectType;
-	hyperBeamRequest: UseHyperBeamRequestReturn;
+	headers?: any;
+	refreshKey?: number;
 }) {
 	if (!props.tab) return null;
 
@@ -35,19 +36,17 @@ export default function ExplorerTabProcessOverview(props: {
 			<S.HeaderWrapper className={'border-wrapper-alt3 fade-in'}>
 				<S.HeaderTitle>
 					<h4>Headers</h4>
-					<span>{`(${
-						props.hyperBeamRequest?.headers ? Object.keys(props.hyperBeamRequest.headers).length : '-'
-					})`}</span>
+					<span>{`(${props.headers ? Object.keys(props.headers).length : '-'})`}</span>
 				</S.HeaderTitle>
-				<S.HeaderContent>
-					{props.hyperBeamRequest?.headers ? (
+				{props.headers && Object.keys(props.headers).length > 0 ? (
+					<S.HeaderContent>
 						<>
-							{Object.keys(props.hyperBeamRequest.headers).map((header) => {
-								return <HeaderLine key={header} label={header} value={props.hyperBeamRequest.headers[header].data} />;
+							{Object.keys(props.headers).map((header) => {
+								return <HeaderLine key={header} label={header} value={props.headers[header].data} />;
 							})}
 						</>
-					) : null}
-				</S.HeaderContent>
+					</S.HeaderContent>
+				) : null}
 			</S.HeaderWrapper>
 
 			<S.BodyWrapper className={'fade-in'}>

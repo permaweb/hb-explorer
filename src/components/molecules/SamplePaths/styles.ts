@@ -39,13 +39,17 @@ export const HeaderDescription = styled.p`
 	line-height: 1.5;
 `;
 
-export const PathGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+export const PathList = styled.div`
+	display: flex;
+	flex-direction: column;
 	gap: 20px;
+	justify-content: center;
+	align-items: center;
 `;
 
 export const PathCard = styled.div`
+	width: 100%;
+	max-width: 500px;
 	background: ${(props) => props.theme.colors.container.primary.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-radius: 12px;

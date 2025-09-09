@@ -70,6 +70,7 @@ export const ASSETS = {
 	setup: getTxEndpoint('dyFHmCSxONAiUPJsr6HeAdED_MSsRAL9nQDvdmGryT0'),
 	shortcuts: getTxEndpoint('RHIjV5uz9SGb9FVDdc-MAQlXFRtfpnTwQWLexcClMW0'),
 	success: getTxEndpoint('mVnNwxm-F6CV043zVtORE-EaMWfd2j8w6HHX70IcVbI'),
+	system: getTxEndpoint('-bTRY8OqzqN0ZQWYzFNTcj99-0c9FVaOf2lkEil-e5Q'),
 	telegram: getTxEndpoint('uerxx9yd8y3DGRIJ4F9TjF4BryagPuINo5-Jo8qmno4'),
 	time: getTxEndpoint('EDfjYP_Fq8XycJ92uVeLDCmOCUMoSoPVbAhfE1ZwCJE'),
 	tools: getTxEndpoint('ORGiGGMr6wIsjVNmWuy9m-CIH8jbY3juwoDLDdxvER8'),
@@ -117,10 +118,7 @@ export const DEFAULT_ACTIONS = {
 	creditNotice: { name: TAGS.values.creditNotice },
 };
 
-export const DEFAULT_AO_TAGS = [
-	{ name: 'Data-Protocol', values: ['ao'] },
-	// { name: 'Variant', values: ['ao.TN.1'] }, // TODO
-];
+export const DEFAULT_AO_TAGS = [{ name: 'Data-Protocol', values: ['ao'] }];
 
 export const DEFAULT_MESSAGE_TAGS = [{ name: 'Type', values: ['Message'] }, ...DEFAULT_AO_TAGS];
 
@@ -133,6 +131,7 @@ export const DOM = {
 export const STORAGE = {
 	walletType: `wallet-type`,
 	profile: (id: string) => `profile-${id}`,
+	profileByWallet: (id: string) => `profile-by-wallet-${id}`,
 };
 
 export const STYLING = {
@@ -215,7 +214,8 @@ export const HB_ENDPOINTS = {
 	operator: `/~meta@1.0/info/address`,
 	ledger: `/ledger~node-process@1.0/now/balance`,
 	schedule: (id: string) => `/${id}/schedule`,
-	processNow: (id: string) => `/${id}/~process@1.0/now`,
+	currentSlot: (id: string) => `/${id}/slot/current`,
+	processNow: (id: string) => `/${id}~process@1.0/now`,
 };
 
 export const HB_METRIC_CATEGORIES = {

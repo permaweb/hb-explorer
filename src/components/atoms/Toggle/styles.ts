@@ -19,6 +19,7 @@ export const Label = styled.div`
 `;
 
 export const Options = styled.div`
+	width: 100%;
 	display: flex;
 	align-items: center;
 	gap: 2.5px;
@@ -28,6 +29,7 @@ export const Options = styled.div`
 	border-radius: 50px;
 
 	button {
+		flex: 1;
 		border: none !important;
 
 		span {

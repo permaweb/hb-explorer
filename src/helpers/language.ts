@@ -26,7 +26,7 @@ export const language = {
 		connectToContinue: `Connect your wallet to continue`,
 		console: `Console`,
 		copied: `Copied`,
-		copyFullUrl: `Copy Full URL`,
+		copyFullUrl: `Copy URL`,
 		copyId: `Copy ID`,
 		copyJSON: `Copy JSON`,
 		copyPath: `Copy Path`,

@@ -7,6 +7,7 @@ export interface UseDeviceAutocompleteProps {
 	cursorPosition: number;
 	inputRef: React.RefObject<HTMLInputElement>;
 	onValueChange: (value: string, cursorPosition: number) => void;
+	onAutoSubmit?: (completedPath?: string) => void;
 }
 
 export interface UseDeviceAutocompleteReturn {
@@ -23,6 +24,7 @@ export function useDeviceAutocomplete({
 	cursorPosition,
 	inputRef,
 	onValueChange,
+	onAutoSubmit,
 }: UseDeviceAutocompleteProps): UseDeviceAutocompleteReturn {
 	const [showAutocomplete, setShowAutocomplete] = React.useState<boolean>(false);
 	const [autocompleteOptions, setAutocompleteOptions] = React.useState<string[]>([]);
@@ -67,6 +69,36 @@ export function useDeviceAutocomplete({
 		return () => document.removeEventListener('click', handleClickOutside);
 	}, []);
 
+	// Helper function to handle autocomplete acceptance and auto-submit
+	const acceptAutocompleteAndSubmit = (selectedOption: string) => {
+		acceptAutocomplete(selectedOption);
+		// Trigger auto-submit with the completed path after accepting autocomplete
+		if (onAutoSubmit) {
+			setTimeout(() => {
+				// Calculate the new path that would result from accepting the autocomplete
+				const beforeCursor = inputValue.substring(0, cursorPosition);
+				const segments = beforeCursor.split('/');
+				const beforeLastSegment = segments.slice(0, -1).join('/');
+
+				// Find the end of the current device name
+				let deviceEnd = cursorPosition;
+				for (let i = cursorPosition; i < inputValue.length; i++) {
+					if (inputValue[i] === '/') {
+						deviceEnd = i;
+						break;
+					} else if (i === inputValue.length - 1) {
+						deviceEnd = inputValue.length;
+					}
+				}
+
+				const afterDevice = inputValue.substring(deviceEnd);
+				const completedPath = (beforeLastSegment ? beforeLastSegment + '/' : '') + selectedOption + afterDevice;
+
+				onAutoSubmit(completedPath);
+			}, 0);
+		}
+	};
+
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (showAutocomplete && autocompleteOptions.length > 0) {
 			switch (e.key) {
@@ -81,12 +113,12 @@ export function useDeviceAutocomplete({
 				case 'Tab':
 					e.preventDefault();
 					e.stopPropagation();
-					acceptAutocomplete(autocompleteOptions[selectedOptionIndex]);
+					acceptAutocompleteAndSubmit(autocompleteOptions[selectedOptionIndex]);
 					return;
 				case 'Enter':
 					if (selectedOptionIndex >= 0) {
 						e.preventDefault();
-						acceptAutocomplete(autocompleteOptions[selectedOptionIndex]);
+						acceptAutocompleteAndSubmit(autocompleteOptions[selectedOptionIndex]);
 						return;
 					}
 					break;

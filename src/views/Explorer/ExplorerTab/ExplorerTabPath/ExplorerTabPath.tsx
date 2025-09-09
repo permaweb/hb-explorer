@@ -99,6 +99,7 @@ const resultsCache = new Map<
 export default function ExplorerTabPath(props: {
 	tab: ExplorerTabObjectType;
 	hyperBeamRequest: UseHyperBeamRequestReturn;
+	refreshKey?: number;
 }) {
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
@@ -305,7 +306,7 @@ export default function ExplorerTabPath(props: {
 					<Tabs onTabClick={() => {}} type={'primary'}>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
-								<Editor initialData={hyperbuddyData} language={'html'} loading={false} readOnly />
+								<Editor initialData={hyperbuddyData} loading={false} readOnly />
 							) : (
 								<Loader sm relative />
 							)}

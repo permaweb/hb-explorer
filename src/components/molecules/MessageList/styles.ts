@@ -32,6 +32,16 @@ export const HeaderMain = styled.div`
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
+		display: flex;
+		align-items: center;
+		gap: 7.5px;
+
+		span {
+			font-size: ${(props) => props.theme.typography.size.base};
+			font-family: ${(props) => props.theme.typography.family.primary};
+			font-weight: ${(props) => props.theme.typography.weight.bold};
+			color: ${(props) => props.theme.colors.font.alt1};
+		}
 	}
 
 	.update-wrapper {
@@ -436,7 +446,7 @@ export const OverlayLine = styled.div`
 		color: ${(props) => props.theme.colors.font.primary};
 		text-align: right;
 		text-align: right;
-		max-width: 65%;
+		max-width: 50%;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

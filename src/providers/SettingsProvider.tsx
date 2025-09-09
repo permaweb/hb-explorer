@@ -6,7 +6,7 @@ import { STYLING } from 'helpers/config';
 import { darkTheme, lightTheme, theme } from 'helpers/themes';
 import { checkWindowCutoff } from 'helpers/window';
 
-type ThemeType = 'light-primary' | 'dark-primary';
+type ThemeType = 'light-primary' | 'dark-primary' | 'system';
 
 interface Settings {
 	theme: ThemeType;
@@ -111,6 +111,20 @@ export function SettingsProvider(props: SettingsProviderProps) {
 		};
 	}, [settings.isDesktop, settings.sidebarOpen]);
 
+	// Listen for system theme changes when system theme is selected
+	React.useEffect(() => {
+		if (settings.theme === 'system') {
+			const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+			const handleChange = () => {
+				// Force re-render by updating the settings object
+				setSettings((prevSettings) => ({ ...prevSettings }));
+			};
+
+			mediaQuery.addEventListener('change', handleChange);
+			return () => mediaQuery.removeEventListener('change', handleChange);
+		}
+	}, [settings.theme]);
+
 	const updateSettings = <K extends keyof Settings>(key: K, value: Settings[K]) => {
 		setSettings((prevSettings) => {
 			const newSettings = { ...prevSettings, [key]: value };
@@ -125,6 +139,9 @@ export function SettingsProvider(props: SettingsProviderProps) {
 				return theme(lightTheme);
 			case 'dark-primary':
 				return theme(darkTheme);
+			case 'system':
+				const systemPrefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+				return theme(systemPrefersDark ? darkTheme : lightTheme);
 			default:
 				return theme(lightTheme);
 		}
