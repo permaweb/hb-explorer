@@ -1,10 +1,13 @@
 import React from 'react';
 
 import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
+import { ExplorerTabType, VariantEnum } from 'helpers/types';
 
 export interface HyperBeamRequestState {
 	loading: boolean;
 	response: Response | null;
+	type: ExplorerTabType | null;
+	variant: VariantEnum | null;
 	headers: any;
 	links: any;
 	signature: string | null;
@@ -135,6 +138,8 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 	const [state, setState] = React.useState<HyperBeamRequestState>({
 		loading: false,
 		response: null,
+		type: null,
+		variant: null,
 		headers: null,
 		links: null,
 		signature: null,
@@ -206,10 +211,19 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 				}
 			}
 
+			let type: ExplorerTabType = 'path';
+			if (filteredHeaders?.type) type = filteredHeaders.type.data.toLowerCase() as ExplorerTabType;
+
+			let variant = VariantEnum.Mainnet;
+			if (filteredHeaders?.variant) variant = filteredHeaders.variant.data;
+
 			setState((prev) => ({
 				...prev,
 				loading: false,
+				id: type === 'process' ? path : id,
 				response,
+				type: type,
+				variant,
 				lastSuccessfulResponse: response,
 				headers: filteredHeaders,
 				links: linkHeaders,
@@ -218,7 +232,6 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 				signatureValid,
 				signatureAlg,
 				signatureKeyId,
-				id,
 				error: false,
 				hasContent: true,
 				submittedPath: path,
@@ -238,6 +251,8 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 		setState({
 			loading: false,
 			response: null,
+			type: null,
+			variant: null,
 			headers: null,
 			links: null,
 			signature: null,

@@ -2,11 +2,12 @@ import React from 'react';
 
 import Arweave from 'arweave';
 import { connect, createSigner } from '@permaweb/aoconnect';
-import PermawebLibs, { Types } from '@permaweb/libs';
+import Permaweb, { Types } from '@permaweb/libs';
 
 import { Panel } from 'components/atoms/Panel';
 import { ProfileManager } from 'components/organisms/ProfileManager';
-import { STORAGE } from 'helpers/config';
+import { HB_ENDPOINTS } from 'helpers/config';
+import { hbFetch } from 'helpers/utils';
 
 import { useArweaveProvider } from './ArweaveProvider';
 import { useLanguageProvider } from './LanguageProvider';
@@ -18,6 +19,7 @@ interface PermawebContextState {
 	showProfileManager: boolean;
 	setShowProfileManager: (toggle: boolean) => void;
 	refreshProfile: () => void;
+	nodeOperator: string | null;
 }
 
 const DEFAULT_CONTEXT = {
@@ -27,6 +29,7 @@ const DEFAULT_CONTEXT = {
 	showProfileManager: false,
 	setShowProfileManager(_toggle: boolean) {},
 	refreshProfile() {},
+	nodeOperator: null,
 };
 
 const PermawebContext = React.createContext<PermawebContextState>(DEFAULT_CONTEXT);
@@ -43,41 +46,73 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 	const [libs, setLibs] = React.useState<any>(null);
 	const [deps, setDeps] = React.useState<any>(null);
 
-	const [profile, setProfile] = React.useState<Types.ProfileType | null>(null);
+	const [profile, _setProfile] = React.useState<Types.ProfileType | null>(null);
 	const [showProfileManager, setShowProfileManager] = React.useState<boolean>(false);
-	const [refreshProfileTrigger, setRefreshProfileTrigger] = React.useState<boolean>(false);
+	const [_refreshProfileTrigger, setRefreshProfileTrigger] = React.useState<boolean>(false);
+	const [nodeOperator, setNodeOperator] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
-		const ao = connect({ MODE: 'legacy' });
-		const arweave = Arweave.init({});
-		const signer = arProvider.wallet ? createSigner(arProvider.wallet) : null;
+		(async function () {
+			try {
+				const signer = createSigner(arProvider.wallet);
 
-		const depsToUse = { ao, arweave, signer };
+				let ao: any;
 
-		setDeps(depsToUse);
-		setLibs(PermawebLibs.init(depsToUse));
+				ao = connect({
+					MODE: 'mainnet',
+					URL: window.hyperbeamUrl,
+					signer,
+				});
+
+				const operator = await hbFetch(HB_ENDPOINTS.operator);
+				setNodeOperator(operator);
+
+				const dependencies = {
+					ao: ao,
+					arweave: Arweave.init({}),
+					signer: signer,
+					node: {
+						url: window.hyperbeamUrl,
+						scheduler: operator,
+					},
+				};
+
+				setDeps(dependencies);
+
+				const initializedLibs = Permaweb.init(dependencies);
+				setLibs(initializedLibs);
+			} catch (error) {
+				console.error('Error in PermawebProvider initialization:', error);
+			}
+		})();
 	}, [arProvider.wallet]);
 
 	// React.useEffect(() => {
 	// 	(async function () {
-	// 		if (arProvider.wallet && arProvider.walletAddress) {
+	// 		if (libs?.getProfileByWalletAddress) {
+	// 			if (!arProvider.walletAddress) {
+	// 				// Clear profile when wallet disconnects
+	// 				setProfile(null);
+	// 				return;
+	// 			}
+
 	// 			const cachedProfile = getCachedProfile(arProvider.walletAddress);
+
 	// 			if (cachedProfile) {
 	// 				setProfile(cachedProfile);
 	// 			}
 
 	// 			try {
-	// 				const fetchedProfile = await libs.getProfileByWalletAddress(arProvider.walletAddress);
-	// 				setProfile(fetchedProfile);
-	// 				cacheProfile(arProvider.walletAddress, fetchedProfile);
+	// 				const freshProfile = await resolveProfile(arProvider.walletAddress);
+	// 				if (freshProfile) {
+	// 					setProfile(freshProfile);
+	// 				}
 	// 			} catch (e: any) {
-	// 				console.error(e);
+	// 				console.error('Failed to fetch fresh profile:', e);
 	// 			}
-	// 		} else {
-	// 			setProfile(null);
 	// 		}
 	// 	})();
-	// }, [arProvider.wallet, arProvider.walletAddress]);
+	// }, [arProvider.walletAddress, libs?.getProfileByWalletAddress]);
 
 	// React.useEffect(() => {
 	// 	(async function () {
@@ -90,9 +125,9 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 	// 				while (!changeDetected && tries < maxTries) {
 	// 					try {
 	// 						const existingProfile = profile;
-	// 						const newProfile = await libs.getProfileByWalletAddress(arProvider.walletAddress);
+	// 						const newProfile = await resolveProfile(arProvider.walletAddress);
 
-	// 						if (JSON.stringify(existingProfile) !== JSON.stringify(newProfile)) {
+	// 						if (newProfile && JSON.stringify(existingProfile) !== JSON.stringify(newProfile)) {
 	// 							setProfile(newProfile);
 	// 							cacheProfile(arProvider.walletAddress, newProfile);
 	// 							changeDetected = true;
@@ -116,14 +151,33 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 	// 	})();
 	// }, [refreshProfileTrigger]);
 
-	function getCachedProfile(address: string) {
-		const cached = localStorage.getItem(STORAGE.profile(address));
-		return cached ? JSON.parse(cached) : null;
-	}
+	// async function resolveProfile(address: string) {
+	// 	if (libs) {
+	// 		try {
+	// 			let fetchedProfile: any;
+	// 			const cachedProfile = getCachedProfile(address);
+	// 			if (cachedProfile?.id) fetchedProfile = await libs.getProfileById(cachedProfile.id);
+	// 			else fetchedProfile = await libs.getProfileByWalletAddress(address);
+	// 			let profileToUse = { ...fetchedProfile };
 
-	function cacheProfile(address: string, profileData: any) {
-		localStorage.setItem(STORAGE.profile(address), JSON.stringify(profileData));
-	}
+	// 			if (!fetchedProfile?.id && cachedProfile) profileToUse = cachedProfile;
+	// 			cacheProfile(address, profileToUse);
+
+	// 			return profileToUse;
+	// 		} catch (e: any) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// }
+
+	// function getCachedProfile(address: string) {
+	// 	const cached = localStorage.getItem(STORAGE.profileByWallet(address));
+	// 	return cached ? JSON.parse(cached) : null;
+	// }
+
+	// function cacheProfile(address: string, profileData: any) {
+	// 	if (profileData) localStorage.setItem(STORAGE.profileByWallet(address), JSON.stringify(profileData));
+	// }
 
 	return (
 		<PermawebContext.Provider
@@ -134,6 +188,7 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 				showProfileManager,
 				setShowProfileManager,
 				refreshProfile: () => setRefreshProfileTrigger((prev) => !prev),
+				nodeOperator: nodeOperator,
 			}}
 		>
 			{props.children}

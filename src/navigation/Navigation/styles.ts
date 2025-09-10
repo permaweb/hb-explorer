@@ -159,7 +159,7 @@ export const SubmitWrapper = styled.div`
 	right: 4.5px;
 `;
 
-export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error'; hasDropdown?: boolean }>`
+export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | 'error' }>`
 	width: 100%;
 	position: relative;
 
@@ -177,11 +177,6 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 						return props.theme.colors.form.border;
 				}
 			}} !important;
-
-		border-radius: ${(props) =>
-			props.hasDropdown
-				? `${STYLING.dimensions.radius.primary} ${STYLING.dimensions.radius.primary} 0 0 !important`
-				: `${STYLING.dimensions.radius.primary} !important`};
 
 		&:focus {
 			outline: 0;

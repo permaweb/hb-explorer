@@ -70,7 +70,7 @@ export default function ProcessEditor(props: { processId: string; type: 'read' |
 		return <WalletBlock />;
 	}
 
-	return (
+	return arProvider.walletAddress ? (
 		<S.Wrapper ref={editorRef}>
 			<S.EditorWrapper>
 				<JSONWriter
@@ -92,5 +92,7 @@ export default function ProcessEditor(props: { processId: string; type: 'read' |
 				<JSONReader data={output} header={language.response} placeholder={language.runForResponse} noFullScreen />
 			</S.ResultWrapper>
 		</S.Wrapper>
+	) : (
+		<WalletBlock />
 	);
 }

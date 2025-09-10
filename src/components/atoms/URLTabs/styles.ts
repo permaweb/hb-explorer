@@ -21,6 +21,7 @@ export const TabsHeader = styled.div<{ useFixed: boolean }>`
 `;
 
 export const Tabs = styled.div`
+	width: 100%;
 	display: flex;
 	align-items: center;
 	gap: 20px;
@@ -32,8 +33,10 @@ export const EndWrapper = styled.div`
 	align-items: center;
 	gap: 15px;
 
+	flex: 1;
 	button {
 		min-width: 160px;
+		flex: 1;
 	}
 `;
 
@@ -44,6 +47,11 @@ export const Tab = styled.div<{ active: boolean }>`
 	justify-content: center;
 	align-items: center;
 	position: relative;
+
+	flex: 1;
+	button {
+		flex: 1;
+	}
 `;
 
 export const View = styled.div`

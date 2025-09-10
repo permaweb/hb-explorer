@@ -31,8 +31,8 @@ export const Wrapper = styled.div<{
 		height: ${(props) => `${props.dimensions.icon.toString()}px`};
 		width: ${(props) => `${props.dimensions.icon.toString()}px`};
 		padding: 2.5px 0 0 0px;
-		color: ${(props) => props.theme.colors.font.alt1};
-		fill: ${(props) => props.theme.colors.font.alt1};
+		color: ${(props) => props.theme.colors.font.primary};
+		fill: ${(props) => props.theme.colors.font.primary};
 	}
 
 	pointer-events: none;

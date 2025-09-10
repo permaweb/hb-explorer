@@ -59,7 +59,7 @@ export default function _Editor(props: {
 
 	function getColors(theme: DefaultTheme) {
 		return {
-			'editor.background': theme.colors.container.primary.background,
+			'editor.background': theme.colors.container.alt1.background,
 			'editorLineNumber.foreground': theme.colors.font.alt1,
 			'editorCursor.foreground': theme.colors.font.alt1,
 			'editorBracketHighlight.foreground1': theme.colors.editor.alt5,

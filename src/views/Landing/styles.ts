@@ -100,7 +100,6 @@ export const Subheader = styled.div`
 export const Indicator = styled.div`
 	height: 10.5px;
 	width: 10.5px;
-	margin: 1.5px 0 0 0;
 	border-radius: 50%;
 
 	animation: pulse 1.075s infinite;

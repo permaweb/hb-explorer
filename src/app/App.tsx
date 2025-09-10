@@ -7,7 +7,7 @@ const Landing = getLazyImport('Landing');
 const Explorer = getLazyImport('Explorer');
 const NotFound = getLazyImport('NotFound');
 
-import { DOM, LINKS, URLS } from 'helpers/config';
+import { DOM, FAVICONS, LINKS, URLS } from 'helpers/config';
 import { getDeviceNames } from 'helpers/deviceNames';
 import { arweaveEndpoint } from 'helpers/endpoints';
 import { Navigation } from 'navigation/Navigation';
@@ -40,26 +40,24 @@ export default function App() {
 	React.useEffect(() => {
 		const setFavicon = () => {
 			const baseUrl = window.hyperbeamUrl || arweaveEndpoint;
-			const lightFaviconId = 'yEzIy4fUp2LvpPWkZNDwZ9T8SUFG9QS0-76iKz8KwPo';
-			const darkFaviconId = 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis';
 
 			const existingIcons = document.querySelectorAll('link[rel="icon"]');
 			existingIcons.forEach((icon) => icon.remove());
 
 			const defaultIcon = document.createElement('link');
 			defaultIcon.rel = 'icon';
-			defaultIcon.href = `${baseUrl}/${lightFaviconId}`;
+			defaultIcon.href = `${baseUrl}/${FAVICONS.light}`;
 			document.head.appendChild(defaultIcon);
 
 			const lightIcon = document.createElement('link');
 			lightIcon.rel = 'icon';
-			lightIcon.href = `${baseUrl}/${lightFaviconId}`;
+			lightIcon.href = `${baseUrl}/${FAVICONS.light}`;
 			lightIcon.media = '(prefers-color-scheme: light)';
 			document.head.appendChild(lightIcon);
 
 			const darkIcon = document.createElement('link');
 			darkIcon.rel = 'icon';
-			darkIcon.href = `${baseUrl}/${darkFaviconId}`;
+			darkIcon.href = `${baseUrl}/${FAVICONS.dark}`;
 			darkIcon.media = '(prefers-color-scheme: dark)';
 			document.head.appendChild(darkIcon);
 		};
@@ -138,7 +136,9 @@ export default function App() {
 					<Routes>
 						{getRoute(URLS.base, <Landing />)}
 						{getRoute(URLS.explorer, <Explorer />)}
-						{getRoute(`${URLS.explorer}:rest/*`, <Explorer />)}
+						{getRoute(`${URLS.explorer}:id`, <Explorer />)}
+						{getRoute(`${URLS.explorer}:id/:active`, <Explorer />)}
+						{getRoute(`${URLS.explorer}:id/*`, <Explorer />)}
 						{getRoute(URLS.notFound, <NotFound />)}
 						{getRoute(`*`, <NotFound />)}
 					</Routes>

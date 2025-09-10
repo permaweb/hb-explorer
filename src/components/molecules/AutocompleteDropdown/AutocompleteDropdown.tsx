@@ -26,7 +26,7 @@ export default function AutocompleteDropdown({
 		if (visible && inputRef?.current) {
 			const rect = inputRef.current.getBoundingClientRect();
 			setPosition({
-				top: rect.bottom - 1, // Subtract 2px to align with border
+				top: rect.bottom + 7.5, // Subtract 2px to align with border
 				left: rect.left,
 				width: rect.width,
 			});

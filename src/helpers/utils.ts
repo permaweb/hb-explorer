@@ -220,6 +220,129 @@ export function stripAnsiChars(input: string) {
 	return input.toString().replace(ansiRegex, '');
 }
 
+export function ansiToHtml(input: string, theme?: any): string {
+	if (!input) return '';
+
+	const getAnsiColorMap = (theme?: any) => {
+		if (!theme) {
+			// Fallback colors if no theme provided
+			return {
+				'0': { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' }, // reset
+				'1': { fontWeight: 'normal' },
+				'4': { textDecoration: 'underline' }, // underline
+				'30': { color: '#000000' }, // black
+				'31': { color: '#e74c3c' }, // red
+				'32': { color: '#2ecc71' }, // green
+				'33': { color: '#f39c12' }, // yellow
+				'34': { color: '#3498db' }, // blue
+				'35': { color: '#9b59b6' }, // magenta
+				'36': { color: '#1abc9c' }, // cyan
+				'37': { color: '#ecf0f1' }, // white
+				'90': { color: '#95a5a6' }, // bright black (gray)
+				'91': { color: '#e74c3c' }, // bright red
+				'92': { color: '#2ecc71' }, // bright green
+				'93': { color: '#f1c40f' }, // bright yellow
+				'94': { color: '#74b9ff' }, // bright blue
+				'95': { color: '#e84393' }, // bright magenta
+				'96': { color: '#00cec9' }, // bright cyan
+				'97': { color: '#ffffff' }, // bright white
+			};
+		}
+
+		return {
+			'0': { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' }, // reset
+			'1': { fontWeight: 'normal' },
+			'4': { textDecoration: 'underline' }, // underline
+			'30': { color: theme.colors.editor.alt10 }, // black
+			'31': { color: theme.colors.editor.primary }, // red
+			'32': { color: theme.colors.editor.alt3 }, // green
+			'33': { color: theme.colors.editor.alt6 }, // yellow
+			'34': { color: theme.colors.editor.alt4 }, // blue
+			'35': { color: theme.colors.editor.alt8 }, // magenta
+			'36': { color: theme.colors.editor.alt7 }, // cyan
+			'37': { color: '#EEEEEE' }, // white
+			'90': { color: theme.colors.editor.alt10 }, // bright black
+			'91': { color: theme.colors.warning.primary }, // bright red
+			'92': { color: theme.colors.editor.alt3 }, // bright green
+			'93': { color: theme.colors.editor.alt6 }, // bright yellow
+			'94': { color: theme.colors.editor.alt4 }, // bright blue
+			'95': { color: theme.colors.editor.alt8 }, // bright magenta
+			'96': { color: theme.colors.editor.alt7 }, // bright cyan
+			'97': { color: '#EEEEEE' }, // bright white
+		};
+	};
+
+	const ansiColorMap = getAnsiColorMap(theme);
+
+	let result = input;
+	let currentStyles = { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' };
+	let openSpans = 0;
+
+	// First convert octal escape sequences (\27) to standard escape sequences (\x1B)
+	result = result.replace(/\\27/g, '\x1B');
+
+	// Convert escaped whitespace characters to actual whitespace
+	result = result.replace(/\\n/g, '\n');
+	result = result.replace(/\\t/g, '\t');
+	result = result.replace(/\\r/g, '\r');
+
+	// Replace ANSI escape sequences with HTML spans
+	result = result.replace(/\x1B\[([0-9;]*)m/g, (_, codes) => {
+		let html = '';
+
+		// Close current span if we have styles applied
+		if (openSpans > 0) {
+			html += '</span>';
+			openSpans--;
+		}
+
+		if (codes === '' || codes === '0') {
+			// Reset all styles
+			currentStyles = { color: '', background: '', fontWeight: 'normal', textDecoration: 'none' };
+		} else {
+			// Apply new styles
+			const codeArray = codes.split(';');
+			for (const code of codeArray) {
+				if (ansiColorMap[code]) {
+					Object.assign(currentStyles, ansiColorMap[code]);
+				}
+			}
+		}
+
+		// Create new span with current styles if any are applied
+		const hasStyles =
+			currentStyles.color ||
+			currentStyles.background ||
+			currentStyles.fontWeight !== 'normal' ||
+			currentStyles.textDecoration !== 'none';
+
+		if (hasStyles) {
+			const styles = [];
+			if (currentStyles.color) styles.push(`color: ${currentStyles.color}`);
+			if (currentStyles.background) styles.push(`background-color: ${currentStyles.background}`);
+			if (currentStyles.fontWeight !== 'normal') styles.push(`font-weight: ${currentStyles.fontWeight}`);
+			if (currentStyles.textDecoration !== 'none') styles.push(`text-decoration: ${currentStyles.textDecoration}`);
+			styles.push(`font-family: 'Source Code Pro', serif`);
+
+			html += `<span style="${styles.join('; ')}">`;
+			openSpans++;
+		}
+
+		return html;
+	});
+
+	// Close any remaining open spans
+	while (openSpans > 0) {
+		result += '</span>';
+		openSpans--;
+	}
+
+	// Convert newlines to HTML line breaks
+	result = result.replace(/\n/g, '<br>');
+
+	return result;
+}
+
 export function stripUrlProtocol(url: string) {
 	return url.replace(/^https?:\/\//, '');
 }
@@ -227,20 +350,26 @@ export function stripUrlProtocol(url: string) {
 export async function hbFetch(
 	endpoint: string,
 	opts?: {
+		headers?: Record<string, string>;
 		json?: boolean;
 		rawBodyOnly?: boolean;
 	}
 ) {
 	try {
-		let headers: any = {};
+		let headers: Record<string, string> = {};
 
-		if (opts?.json) headers['require-codec'] = 'application/json';
-		if (opts?.json) headers['accept'] = 'application/json';
-		if (opts?.json) headers['accept-bundle'] = 'true';
+		if (opts?.json) {
+			headers['accept'] = 'application/json';
+			headers['accept-bundle'] = 'true';
+			headers['require-codec'] = 'application/json';
+		}
 
 		const response = await fetch(`${window.hyperbeamUrl}${endpoint}`, {
 			method: 'GET',
-			headers: { ...headers },
+			headers: {
+				...headers,
+				...(opts?.headers || {}),
+			},
 		});
 
 		if (opts?.json) {
@@ -251,11 +380,222 @@ export async function hbFetch(
 
 			return responseBody;
 		}
+
 		return await response.text();
 	} catch (e: any) {
 		throw new Error(e);
 	}
 }
+
+// export async function hbFetch(
+// 	endpoint: string,
+// 	opts?: {
+// 		json?: boolean;
+// 		rawBodyOnly?: boolean; // if true, strip wrappers or return just data blobs
+// 		tryExtractOnJsonFail?: boolean; // optional: default true
+// 	}
+// ) {
+// 	const shouldExtract = opts?.tryExtractOnJsonFail ?? true;
+
+// 	// Build headers
+// 	const headers: Record<string, string> = {};
+// 	if (opts?.json) {
+// 		headers['require-codec'] = 'application/json';
+// 		headers['accept-bundle'] = 'true';
+// 	}
+
+// 	const url = `${window.hyperbeamUrl}${endpoint}`;
+// 	let response: Response;
+
+// 	try {
+// 		response = await fetch(url, { method: 'GET', headers });
+// 	} catch (networkErr) {
+// 		// No response available (e.g., DNS/connection error)
+// 		throw networkErr;
+// 	}
+
+// 	// Helper: strip fields if requested
+// 	const maybeTrim = (obj: any) => {
+// 		if (!opts?.rawBodyOnly || obj == null || typeof obj !== 'object') return obj;
+// 		const copy = { ...obj };
+// 		if ('commitments' in copy) delete copy.commitments;
+// 		if ('status' in copy) delete copy.status;
+// 		return copy;
+// 	};
+
+// 	// Prefer JSON when requested
+// 	if (opts?.json) {
+// 		try {
+// 			// Use clone so we can still read text later if parse fails
+// 			const body = await response.clone().json();
+// 			return maybeTrim(body);
+// 		} catch {
+// 			if (!shouldExtract) {
+// 				// Fall back to plain text only
+// 				return await response.text();
+// 			}
+// 			// Try extract from text fallback
+// 			const text = await response.text();
+// 			const blobs = extractAllJson(text);
+// 			return blobs;
+// 		}
+// 	}
+
+// 	// Non-JSON mode: return text; you can opt-in to auto-extraction here if desired
+// 	const text = await response.text();
+// 	return text;
+// }
+
+/**
+ * Extract every valid JSON blob from a raw multipart/text-ish HTTP response.
+ * - Finds top-level balanced {...} or [...] blocks and parses them.
+ * - Also finds JSON that is stringified inside quotes (e.g., "value":"{...}").
+ * - Returns an array of { data, start, end, source }.
+ *
+ * @param {string} text
+ * @returns {Array<{ data:any, start:number, end:number, source:'raw'|'quoted' }>}
+ */
+function extractAllJson(text) {
+	const results = [];
+	const seen = new Set(); // dedupe by canonical string
+
+	// -------- Pass 1: scan for balanced raw JSON blocks ({...} or [...]) --------
+	const isOpen = (c) => c === '{' || c === '[';
+	const closerFor = (c) => (c === '{' ? '}' : ']');
+
+	let i = 0;
+	const N = text.length;
+
+	while (i < N) {
+		const c = text[i];
+
+		// Start only when not inside a string (we'll track string state as we scan)
+		if (isOpen(c)) {
+			const open = c;
+			const close = closerFor(c);
+
+			let depth = 0;
+			let inStr = false;
+			let escaped = false;
+			let end = -1;
+
+			for (let j = i; j < N; j++) {
+				const ch = text[j];
+
+				if (inStr) {
+					if (escaped) {
+						escaped = false; // skip next char
+					} else if (ch === '\\') {
+						escaped = true;
+					} else if (ch === '"') {
+						inStr = false;
+					}
+					continue;
+				}
+
+				// not in string
+				if (ch === '"') {
+					inStr = true;
+					escaped = false;
+					continue;
+				}
+
+				if (ch === open) depth++;
+				else if (ch === close) depth--;
+
+				if (depth === 0) {
+					end = j;
+					const candidate = text.slice(i, end + 1);
+					try {
+						const parsed = JSON.parse(candidate);
+						const key = canonicalStringify(parsed);
+						if (!seen.has(key)) {
+							seen.add(key);
+							results.push({ data: parsed, start: i, end, source: 'raw' });
+						}
+					} catch (_) {
+						/* not JSON; ignore */
+					}
+					// jump past this block to avoid capturing nested duplicates
+					i = end + 1;
+					break;
+				}
+			}
+
+			if (end === -1) {
+				// Unbalanced; move on
+				i++;
+			}
+			continue; // next loop step from updated i
+		}
+
+		i++;
+	}
+
+	// -------- Pass 2: JSON string values that contain stringified JSON ----------
+	// e.g. ..."value":"{\"Roles\":{...}}"
+	// This regex captures any JSON-style string value; we then try to JSON.parse the content.
+	// It’s intentionally broad to catch most cases.
+	const stringValueRe = /"[^"\n\r]*"\s*:\s*"((?:\\.|[^"\\])*)"/g;
+	for (const match of text.matchAll(stringValueRe)) {
+		const raw = match[1];
+		// Unescape the JSON string value safely
+		let unescaped;
+		try {
+			// Wrap in quotes and let JSON.parse handle escapes
+			unescaped = JSON.parse(`"${raw}"`);
+		} catch {
+			continue;
+		}
+
+		// If the unescaped string is itself JSON, parse it
+		if (typeof unescaped === 'string') {
+			const s = unescaped.trim();
+			if ((s.startsWith('{') && s.endsWith('}')) || (s.startsWith('[') && s.endsWith(']'))) {
+				try {
+					const parsed = JSON.parse(s);
+					const key = canonicalStringify(parsed);
+					if (!seen.has(key)) {
+						seen.add(key);
+						// We don't have exact start/end of the inner JSON within the overall text;
+						// return the match index for reference.
+						results.push({ data: parsed, start: match.index ?? -1, end: -1, source: 'quoted' });
+					}
+				} catch {
+					/* not JSON; ignore */
+				}
+			}
+		}
+	}
+
+	return results;
+}
+
+/**
+ * Stable stringify to dedupe objects/arrays regardless of key order.
+ * (Sorts object keys recursively.)
+ */
+function canonicalStringify(value) {
+	if (value === null || typeof value !== 'object') return JSON.stringify(value);
+
+	if (Array.isArray(value)) {
+		return '[' + value.map(canonicalStringify).join(',') + ']';
+	}
+
+	const keys = Object.keys(value).sort();
+	const parts = keys.map((k) => JSON.stringify(k) + ':' + canonicalStringify(value[k]));
+	return '{' + parts.join(',') + '}';
+}
+
+/* --------------------------- Example usage --------------------------- */
+// const raw = `... your full HTTP response string ...`;
+// const blobs = extractAllJson(raw);
+// // Optionally pick the largest object (by string length):
+// const largest = blobs
+//   .map(b => ({ ...b, size: JSON.stringify(b.data).length }))
+//   .sort((a, b) => b.size - a.size)[0];
+// console.log('Found', blobs.length, 'JSON blob(s).');
+// console.dir(largest?.data, { depth: 3 });
 
 export function parseHeaders(input) {
 	const out = {};
@@ -277,4 +617,12 @@ export function joinHeaders(headers) {
 	return Array.from(headers.entries())
 		.map(([name, value]) => `${name}: ${value}`)
 		.join('\n');
+}
+
+export function extractDetailsFromPath(pathname: string) {
+	const parts = pathname.replace(/#.*/, '').split('/').filter(Boolean);
+
+	const path = parts[1] || '';
+	const subPath = parts.slice(2).join('/') || '';
+	return { path, subPath: subPath ? `/${subPath}` : '' };
 }

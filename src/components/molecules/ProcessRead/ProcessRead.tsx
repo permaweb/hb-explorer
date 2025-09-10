@@ -3,15 +3,19 @@ import React from 'react';
 import { Button } from 'components/atoms/Button';
 import { Loader } from 'components/atoms/Loader';
 import { JSONReader } from 'components/molecules/JSONReader';
-import { checkValidAddress, formatMs } from 'helpers/utils';
-import { usePermawebProvider } from 'providers/PermawebProvider';
+import { HB_ENDPOINTS } from 'helpers/config';
+import { VariantEnum } from 'helpers/types';
+import { checkValidAddress, formatMs, hbFetch, stripUrlProtocol } from 'helpers/utils';
 
 import * as S from './styles';
 
-export default function ProcessRead(props: { processId: string; autoRun: boolean; hideOutput?: boolean }) {
-	const permawebProvider = usePermawebProvider();
-
-	const [cuLocation, setCuLocation] = React.useState(null);
+export default function ProcessRead(props: {
+	processId: string;
+	variant: VariantEnum;
+	autoRun: boolean;
+	hideOutput?: boolean;
+}) {
+	const [cuLocation, _setCuLocation] = React.useState(stripUrlProtocol(window.hyperbeamUrl));
 	const [startTime, setStartTime] = React.useState(null);
 	const [roundtripTime, setRoundtripTime] = React.useState(null);
 	const [elapsed, setElapsed] = React.useState(0);
@@ -22,25 +26,6 @@ export default function ProcessRead(props: { processId: string; autoRun: boolean
 	const [errorLog, setErrorLog] = React.useState([]);
 
 	const isInitialMount = React.useRef(true);
-
-	React.useEffect(() => {
-		(async function () {
-			setCuLocation(null);
-			setCurrentOutput(null);
-			setReadLog([]);
-			setErrorLog([]);
-			try {
-				const response = await fetch(`https://cu.ao-testnet.xyz/results/${props.processId}`, {
-					method: 'GET',
-				});
-
-				const cu = new URL(response.url);
-				setCuLocation(cu.host);
-			} catch (e: any) {
-				console.error(e);
-			}
-		})();
-	}, [props.processId]);
 
 	const safelyParseNestedJSON = (input) => {
 		if (typeof input === 'string') {
@@ -73,11 +58,8 @@ export default function ProcessRead(props: { processId: string; autoRun: boolean
 
 				tick();
 
-				await new Promise((r) => setTimeout(r, 1000));
-				const response = await permawebProvider.libs.readProcess({
-					processId: props.processId,
-					action: 'Info',
-				});
+				let response: any;
+				response = await hbFetch(HB_ENDPOINTS.processNow(props.processId), { json: true });
 
 				const parsedResponse = safelyParseNestedJSON(response);
 				setCurrentOutput(parsedResponse);
@@ -113,10 +95,10 @@ export default function ProcessRead(props: { processId: string; autoRun: boolean
 
 	return (
 		<S.Wrapper>
-			<S.SectionWrapper className={'border-wrapper-primary'}>
+			<S.SectionWrapper className={'border-wrapper-alt3'}>
 				<S.Header>
 					<S.HeaderMain>
-						<p>{`${cuLocation ?? '-'}`}</p>
+						<p>{`CU: ${cuLocation ?? '-'}`}</p>
 					</S.HeaderMain>
 					<Button
 						type={'alt3'}
@@ -196,7 +178,7 @@ export default function ProcessRead(props: { processId: string; autoRun: boolean
 			</S.SectionWrapper>
 			{!props.hideOutput && currentOutput && (
 				<S.OutputWrapper>
-					<JSONReader data={currentOutput} header={'Info'} maxHeight={600} />
+					<JSONReader data={currentOutput} header={'Now'} maxHeight={600} />
 				</S.OutputWrapper>
 			)}
 		</S.Wrapper>

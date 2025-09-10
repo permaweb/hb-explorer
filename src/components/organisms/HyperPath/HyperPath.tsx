@@ -157,6 +157,7 @@ export default function HyperPath(props: {
 				setInputPath(value);
 				setCursorPosition(newCursorPosition);
 			},
+			onAutoSubmit: (completedPath) => handleSubmit(completedPath),
 		});
 
 	React.useEffect(() => {
