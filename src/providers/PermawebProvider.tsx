@@ -6,7 +6,7 @@ import Permaweb, { Types } from '@permaweb/libs';
 
 import { Panel } from 'components/atoms/Panel';
 import { ProfileManager } from 'components/organisms/ProfileManager';
-import { HB_ENDPOINTS, STORAGE } from 'helpers/config';
+import { HB_ENDPOINTS } from 'helpers/config';
 import { hbFetch } from 'helpers/utils';
 
 import { useArweaveProvider } from './ArweaveProvider';
@@ -38,7 +38,6 @@ export function usePermawebProvider(): PermawebContextState {
 	return React.useContext(PermawebContext);
 }
 
-// TODO: Dup fetches
 export function PermawebProvider(props: { children: React.ReactNode }) {
 	const arProvider = useArweaveProvider();
 	const languageProvider = useLanguageProvider();
@@ -47,9 +46,9 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 	const [libs, setLibs] = React.useState<any>(null);
 	const [deps, setDeps] = React.useState<any>(null);
 
-	const [profile, setProfile] = React.useState<Types.ProfileType | null>(null);
+	const [profile, _setProfile] = React.useState<Types.ProfileType | null>(null);
 	const [showProfileManager, setShowProfileManager] = React.useState<boolean>(false);
-	const [refreshProfileTrigger, setRefreshProfileTrigger] = React.useState<boolean>(false);
+	const [_refreshProfileTrigger, setRefreshProfileTrigger] = React.useState<boolean>(false);
 	const [nodeOperator, setNodeOperator] = React.useState<string | null>(null);
 
 	React.useEffect(() => {
@@ -88,97 +87,97 @@ export function PermawebProvider(props: { children: React.ReactNode }) {
 		})();
 	}, [arProvider.wallet]);
 
-	React.useEffect(() => {
-		(async function () {
-			if (libs?.getProfileByWalletAddress) {
-				if (!arProvider.walletAddress) {
-					// Clear profile when wallet disconnects
-					setProfile(null);
-					return;
-				}
+	// React.useEffect(() => {
+	// 	(async function () {
+	// 		if (libs?.getProfileByWalletAddress) {
+	// 			if (!arProvider.walletAddress) {
+	// 				// Clear profile when wallet disconnects
+	// 				setProfile(null);
+	// 				return;
+	// 			}
 
-				const cachedProfile = getCachedProfile(arProvider.walletAddress);
+	// 			const cachedProfile = getCachedProfile(arProvider.walletAddress);
 
-				if (cachedProfile) {
-					setProfile(cachedProfile);
-				}
+	// 			if (cachedProfile) {
+	// 				setProfile(cachedProfile);
+	// 			}
 
-				try {
-					const freshProfile = await resolveProfile(arProvider.walletAddress);
-					if (freshProfile) {
-						setProfile(freshProfile);
-					}
-				} catch (e: any) {
-					console.error('Failed to fetch fresh profile:', e);
-				}
-			}
-		})();
-	}, [arProvider.walletAddress, libs?.getProfileByWalletAddress]);
+	// 			try {
+	// 				const freshProfile = await resolveProfile(arProvider.walletAddress);
+	// 				if (freshProfile) {
+	// 					setProfile(freshProfile);
+	// 				}
+	// 			} catch (e: any) {
+	// 				console.error('Failed to fetch fresh profile:', e);
+	// 			}
+	// 		}
+	// 	})();
+	// }, [arProvider.walletAddress, libs?.getProfileByWalletAddress]);
 
-	React.useEffect(() => {
-		(async function () {
-			if (arProvider.wallet && arProvider.walletAddress) {
-				const fetchProfileUntilChange = async () => {
-					let changeDetected = false;
-					let tries = 0;
-					const maxTries = 10;
+	// React.useEffect(() => {
+	// 	(async function () {
+	// 		if (arProvider.wallet && arProvider.walletAddress) {
+	// 			const fetchProfileUntilChange = async () => {
+	// 				let changeDetected = false;
+	// 				let tries = 0;
+	// 				const maxTries = 10;
 
-					while (!changeDetected && tries < maxTries) {
-						try {
-							const existingProfile = profile;
-							const newProfile = await resolveProfile(arProvider.walletAddress);
+	// 				while (!changeDetected && tries < maxTries) {
+	// 					try {
+	// 						const existingProfile = profile;
+	// 						const newProfile = await resolveProfile(arProvider.walletAddress);
 
-							if (newProfile && JSON.stringify(existingProfile) !== JSON.stringify(newProfile)) {
-								setProfile(newProfile);
-								cacheProfile(arProvider.walletAddress, newProfile);
-								changeDetected = true;
-							} else {
-								await new Promise((resolve) => setTimeout(resolve, 1000));
-								tries++;
-							}
-						} catch (error) {
-							console.error(error);
-							break;
-						}
-					}
+	// 						if (newProfile && JSON.stringify(existingProfile) !== JSON.stringify(newProfile)) {
+	// 							setProfile(newProfile);
+	// 							cacheProfile(arProvider.walletAddress, newProfile);
+	// 							changeDetected = true;
+	// 						} else {
+	// 							await new Promise((resolve) => setTimeout(resolve, 1000));
+	// 							tries++;
+	// 						}
+	// 					} catch (error) {
+	// 						console.error(error);
+	// 						break;
+	// 					}
+	// 				}
 
-					if (!changeDetected) {
-						console.warn(`No changes detected after ${maxTries} attempts`);
-					}
-				};
+	// 				if (!changeDetected) {
+	// 					console.warn(`No changes detected after ${maxTries} attempts`);
+	// 				}
+	// 			};
 
-				await fetchProfileUntilChange();
-			}
-		})();
-	}, [refreshProfileTrigger]);
+	// 			await fetchProfileUntilChange();
+	// 		}
+	// 	})();
+	// }, [refreshProfileTrigger]);
 
-	async function resolveProfile(address: string) {
-		if (libs) {
-			try {
-				let fetchedProfile: any;
-				const cachedProfile = getCachedProfile(address);
-				if (cachedProfile?.id) fetchedProfile = await libs.getProfileById(cachedProfile.id);
-				else fetchedProfile = await libs.getProfileByWalletAddress(address);
-				let profileToUse = { ...fetchedProfile };
+	// async function resolveProfile(address: string) {
+	// 	if (libs) {
+	// 		try {
+	// 			let fetchedProfile: any;
+	// 			const cachedProfile = getCachedProfile(address);
+	// 			if (cachedProfile?.id) fetchedProfile = await libs.getProfileById(cachedProfile.id);
+	// 			else fetchedProfile = await libs.getProfileByWalletAddress(address);
+	// 			let profileToUse = { ...fetchedProfile };
 
-				if (!fetchedProfile?.id && cachedProfile) profileToUse = cachedProfile;
-				cacheProfile(address, profileToUse);
+	// 			if (!fetchedProfile?.id && cachedProfile) profileToUse = cachedProfile;
+	// 			cacheProfile(address, profileToUse);
 
-				return profileToUse;
-			} catch (e: any) {
-				console.error(e);
-			}
-		}
-	}
+	// 			return profileToUse;
+	// 		} catch (e: any) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// }
 
-	function getCachedProfile(address: string) {
-		const cached = localStorage.getItem(STORAGE.profileByWallet(address));
-		return cached ? JSON.parse(cached) : null;
-	}
+	// function getCachedProfile(address: string) {
+	// 	const cached = localStorage.getItem(STORAGE.profileByWallet(address));
+	// 	return cached ? JSON.parse(cached) : null;
+	// }
 
-	function cacheProfile(address: string, profileData: any) {
-		if (profileData) localStorage.setItem(STORAGE.profileByWallet(address), JSON.stringify(profileData));
-	}
+	// function cacheProfile(address: string, profileData: any) {
+	// 	if (profileData) localStorage.setItem(STORAGE.profileByWallet(address), JSON.stringify(profileData));
+	// }
 
 	return (
 		<PermawebContext.Provider

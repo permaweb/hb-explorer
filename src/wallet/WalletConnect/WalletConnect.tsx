@@ -104,10 +104,10 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 									<ReactSVG src={ASSETS.copy} />
 									{copied ? `${language.copied}!` : language.walletAddress}
 								</li>
-								<li onClick={() => permawebProvider.setShowProfileManager(true)}>
+								{/* <li onClick={() => permawebProvider.setShowProfileManager(true)}>
 									<ReactSVG src={ASSETS.write} />
 									{language.profile}
-								</li>
+								</li> */}
 							</S.DBodyWrapper>
 							<S.DBodyWrapper>
 								<S.ThemeToggleHeader>

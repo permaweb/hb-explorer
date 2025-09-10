@@ -179,3 +179,62 @@ export const Indicator = styled.div`
 export const BodyWrapper = styled.div`
 	width: 100%;
 `;
+
+export const Placeholder = styled.div`
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	padding: 80px 0;
+`;
+
+export const PlaceholderIcon = styled.div`
+	height: 150px;
+	width: 150px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: ${(props) => props.theme.colors.container.alt1.background};
+	border: 1px solid ${(props) => props.theme.colors.border.primary};
+	border-radius: 50%;
+
+	svg {
+		height: 85px;
+		width: 85px;
+		color: ${(props) => props.theme.colors.icon.primary.fill};
+		fill: ${(props) => props.theme.colors.icon.primary.fill};
+		margin: 5px 0 0 0;
+	}
+`;
+
+export const PlaceholderDescription = styled.div`
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+
+	p,
+	span {
+		text-align: center;
+	}
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.alt2};
+		text-transform: uppercase;
+	}
+
+	span {
+		display: block;
+		max-width: 350px;
+		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+		color: ${(props) => props.theme.colors.font.alt1};
+	}
+`;

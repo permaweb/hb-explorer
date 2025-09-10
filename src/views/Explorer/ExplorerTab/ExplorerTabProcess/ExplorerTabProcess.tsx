@@ -43,7 +43,7 @@ export default function ExplorerTabProcess(props: {
 
 	React.useEffect(() => {
 		(async function () {
-			if (arProvider.walletAddress && props.tab?.id) {
+			if (arProvider.walletAddress && props.tab?.id && permawebProvider.libs?.getGQLData) {
 				try {
 					const response = await permawebProvider.libs.getGQLData({ ids: [props.tab.id] });
 					const responseData = response?.data?.[0];
@@ -53,7 +53,7 @@ export default function ExplorerTabProcess(props: {
 				}
 			}
 		})();
-	}, [arProvider.walletAddress, props.tab?.id]);
+	}, [arProvider.walletAddress, props.tab?.id, permawebProvider.libs?.getGQLData]);
 
 	// Memoize view components to prevent recreation
 	const overviewView = React.useCallback(
@@ -131,15 +131,15 @@ export default function ExplorerTabProcess(props: {
 			},
 		];
 
-		if (owner === arProvider.walletAddress) {
-			dynamicTabs.push({
-				label: language.aos,
-				icon: ASSETS.console,
-				disabled: false,
-				url: URLS.explorerAOS(props.tab.id),
-				view: consoleView,
-			});
-		}
+		// if (arProvider.walletAddress && owner === arProvider.walletAddress) {
+		// 	dynamicTabs.push({
+		// 		label: language.aos,
+		// 		icon: ASSETS.console,
+		// 		disabled: false,
+		// 		url: URLS.explorerAOS(props.tab.id),
+		// 		view: consoleView,
+		// 	});
+		// }
 
 		return dynamicTabs;
 	}, [

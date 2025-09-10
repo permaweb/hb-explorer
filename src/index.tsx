@@ -14,9 +14,7 @@ import { persistor, store } from 'store';
 
 import './fonts.css';
 
-// TODO
-// window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
-window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'https://hb.portalinto.com' : window.location.origin;
+window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
 document.title = stripUrlProtocol(window.hyperbeamUrl);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

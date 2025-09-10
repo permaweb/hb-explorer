@@ -179,7 +179,7 @@ export const BodyWrapper = styled.div<{
 	}
 `;
 
-export const ElementWrapper = styled.div<{ open: boolean; lastChild?: boolean }>`
+export const ElementWrapper = styled.div<{ open: boolean; disabled?: boolean; lastChild?: boolean }>`
 	height: 42.5px;
 	min-width: 100%;
 	width: fit-content;
@@ -189,8 +189,9 @@ export const ElementWrapper = styled.div<{ open: boolean; lastChild?: boolean }>
 	justify-content: space-between;
 	gap: 15px;
 	padding: 0 15px;
-	cursor: pointer;
-	background: ${(props) => props.theme.colors.container.primary.background};
+	cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
+	background: ${(props) =>
+		props.disabled ? props.theme.colors.container.primary.background : props.theme.colors.container.primary.background};
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
@@ -203,14 +204,20 @@ export const ElementWrapper = styled.div<{ open: boolean; lastChild?: boolean }>
 	}
 
 	&:hover {
-		background: ${(props) => props.theme.colors.container.primary.active};
-		border-left: 1px solid ${(props) => props.theme.colors.border.alt4} !important;
-		border-right: 1px solid ${(props) => props.theme.colors.border.alt4} !important;
-		border-bottom: 1px solid ${(props) => props.theme.colors.border.alt4} !important;
+		background: ${({ disabled, theme }) =>
+			disabled ? theme.colors.container.primary.background : theme.colors.container.primary.active};
+
+		${({ disabled, theme }) =>
+			!disabled &&
+			`
+			border-left: 1px solid ${theme.colors.border.alt4} !important;
+			border-right: 1px solid ${theme.colors.border.alt4} !important;
+			border-bottom: 1px solid ${theme.colors.border.alt4} !important;	
+			`}
 	}
 
 	&:hover::after {
-		content: '';
+		content: ${({ disabled }) => (disabled ? 'none' : "''")};
 		position: absolute;
 		height: 1px;
 		width: calc(100% + 2px);
@@ -218,7 +225,7 @@ export const ElementWrapper = styled.div<{ open: boolean; lastChild?: boolean }>
 		left: -1px;
 		right: 0;
 		bottom: 0;
-		border-top: 1px solid ${(props) => props.theme.colors.border.alt4};
+		border-top: 1px solid ${({ theme }) => theme.colors.border.alt4};
 		transition: all 100ms;
 	}
 
@@ -273,6 +280,21 @@ export const Slot = styled(ElementItem)`
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+`;
+
+export const SlotValue = styled.div`
+	p {
+		background: ${(props) => props.theme.colors.button.primary.background};
+		border: 1px solid ${(props) => props.theme.colors.button.primary.border};
+		border-radius: ${STYLING.dimensions.radius.alt1};
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+		padding: 0.5px 10px 1px 10px;
+		min-width: 40px;
+		text-align: center;
 	}
 `;
 
@@ -376,6 +398,20 @@ export const Output = styled(ElementItem)`
 	}
 `;
 
+export const IO = styled(ElementItem)`
+	min-width: 75px;
+	width: 75px;
+	justify-content: center;
+	p {
+		text-align: right;
+	}
+
+	button {
+		padding: 4.5px 12.5px !important
+;
+	}
+`;
+
 export const Time = styled(ElementItem)`
 	min-width: 115px;
 	width: 115px;
@@ -410,7 +446,6 @@ export const OverlayTagsWrapper = styled.div`
 	flex-direction: column;
 	gap: 15px;
 	padding: 15px;
-	margin: 2.5px 0 0 0;
 `;
 
 export const OverlayTagsHeader = styled.div`
@@ -437,9 +472,9 @@ export const OverlayLine = styled.div`
 
 	p,
 	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-size: ${(props) => props.theme.typography.size.xSmall} !important;
+		font-family: ${(props) => props.theme.typography.family.primary} !important;
+		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
 	}
 
 	p {
@@ -517,6 +552,14 @@ export const Editor = styled.div`
 	height: 600px;
 	width: 100%;
 `;
+
+export const InputWrapper = styled.div`
+	margin: 0 0 15px 0;
+`;
+
+export const InputDataWrapper = styled(InputWrapper)``;
+
+export const ResultWrapper = styled.div``;
 
 export const FooterWrapper = styled.div`
 	width: 100%;

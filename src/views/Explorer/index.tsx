@@ -53,7 +53,6 @@ const MemoizedExplorerTab = React.memo(
 	}
 );
 
-// TODO: Process Source
 export default function Explorer() {
 	const navigate = useNavigate();
 	const location = useLocation();

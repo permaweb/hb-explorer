@@ -22,9 +22,7 @@ function normalizeChildMessages(parsedMessages: any): RawMessageType[] {
 	if (!parsedMessages?.Messages) return [];
 
 	return parsedMessages.Messages.map((msg: any, index: number) => ({
-		slot: index + 1, // Use index as slot for child messages
-		timestamp: Date.now(), // Use current time since we don't have timestamp
-		process: msg.Target || 'unknown',
+		process: msg.Target || 'Unknown',
 		type: 'Message',
 		'hash-chain': msg.Anchor || `anchor-${index}`,
 		'data-protocol': 'ao',
@@ -44,9 +42,10 @@ function normalizeChildMessages(parsedMessages: any): RawMessageType[] {
 function Message(props: {
 	element: RawMessageType;
 	currentFilter: MessageFilterType;
-	parentId: string;
+	processId?: string;
 	handleOpen: (id: string) => void;
 	lastChild?: boolean;
+	childList?: boolean;
 	isOverallLast?: boolean;
 }) {
 	const currentTheme: any = useTheme();
@@ -64,7 +63,7 @@ function Message(props: {
 
 	React.useEffect(() => {
 		(async function () {
-			if ((open || showViewResult) && !result) {
+			if ((open || showViewResult || showViewData) && !result) {
 				if (props.element.process && props.element.slot) {
 					try {
 						const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
@@ -83,25 +82,13 @@ function Message(props: {
 				}
 			}
 		})();
-	}, [open, showViewResult, result]);
+	}, [open, showViewResult, showViewData, result]);
 
 	const excludedTagNames = ['Type', 'Authority', 'Module', 'Scheduler'];
 	const bodyEntries = props.element.body ? Object.entries(props.element.body) : [];
 	const filteredTags = bodyEntries
 		.filter(([key]) => !excludedTagNames.includes(key))
 		.map(([name, value]) => ({ name, value: typeof value === 'string' ? value : JSON.stringify(value) }));
-
-	function handleShowViewData(e: any) {
-		e.preventDefault();
-		e.stopPropagation();
-		setShowViewData((prev) => !prev);
-	}
-
-	function handleShowViewResult(e: any) {
-		e.preventDefault();
-		e.stopPropagation();
-		setShowViewResult((prev) => !prev);
-	}
 
 	function getActionLabel() {
 		// Handle both formats
@@ -116,7 +103,7 @@ function Message(props: {
 	}
 
 	function getFrom() {
-		let from = props.element.body?.scheduler || props.element.body?.authority || '-';
+		let from = props.element.body?.scheduler || props.element.body?.authority || props.processId;
 
 		if (props.element.body?.commitments) {
 			const entries = Object.values(props.element.body.commitments) as any[];
@@ -191,10 +178,10 @@ function Message(props: {
 		const data = props.element?.body?.data;
 
 		if (typeof data === 'object') {
-			return <JSONReader data={data} header={language.data} maxHeight={600} />;
+			return <JSONReader data={data} header={language.input} maxHeight={600} />;
 		}
 
-		return <Editor initialData={data} header={language.data} language={'lua'} readOnly loading={false} />;
+		return <Editor initialData={data} header={language.input} language={'lua'} readOnly loading={false} />;
 	}
 
 	const OverlayLine = ({ label, value, render }: { label: string; value: any; render?: (v: any) => JSX.Element }) => {
@@ -216,51 +203,50 @@ function Message(props: {
 	};
 
 	function getMessageOverlay() {
-		let open = false;
-		let header = null;
-		let handleClose = () => {};
-		let content = null;
-		let loading = true;
+		const isOpen = showViewData || showViewResult;
+		const header = `${language.message}`;
+		const handleClose = () => {
+			setShowViewData(false);
+			setShowViewResult(false);
+		};
 
-		if (showViewData) {
-			open = true;
-			header = language.input;
-			handleClose = () => setShowViewData(false);
-			content = getData();
-			if (props.element?.body?.data) loading = false;
-		} else if (showViewResult) {
-			open = true;
-			header = language.result;
-			handleClose = () => setShowViewResult(false);
-			content = <JSONReader data={result} header={language.output} noWrapper />;
-			if (result) loading = false;
-		}
+		const inputData = getData();
+		const outputData = result ? <JSONReader data={result} header={language.result} noWrapper /> : null;
+		const loading = false;
 
 		return (
-			<Panel open={open} width={650} header={header} handleClose={handleClose}>
+			<Panel open={isOpen} width={700} header={header} handleClose={handleClose}>
 				<S.OverlayWrapper>
 					<S.OverlayInfo>
 						<S.OverlayInfoHeader>
 							<S.OverlayInfoLine>
 								<S.OverlayInfoLineValue>
-									<p>{`${language.message}: `}</p>
+									<p>{props.element.slot ? `${language.slot}: ${props.element.slot ?? '-'}` : 'Result'}</p>
 								</S.OverlayInfoLineValue>
-								<Copyable value={props.element['hash-chain']} />
 							</S.OverlayInfoLine>
 							<S.OverlayInfoLine>{getAction(false, true)}</S.OverlayInfoLine>
 						</S.OverlayInfoHeader>
-						<S.OverlayOutput>{loading ? <p>{`${language.loading}...`}</p> : <>{content}</>}</S.OverlayOutput>
-						{showViewData && (
-							<S.OverlayTagsWrapper className={'border-wrapper-alt3'}>
-								<S.OverlayTagsHeader>
-									<p>{language.headers}</p>
-									<span>{`(${filteredTags.length})`}</span>
-								</S.OverlayTagsHeader>
-								{filteredTags.map((tag: { name: string; value: string }, index: number) => (
-									<OverlayLine key={index} label={tag.name} value={tag.value} />
-								))}
-							</S.OverlayTagsWrapper>
-						)}
+						<S.OverlayOutput>
+							{loading ? (
+								<p>{`${language.loading}...`}</p>
+							) : (
+								<>
+									<S.InputWrapper>
+										{inputData && <S.InputDataWrapper>{inputData}</S.InputDataWrapper>}
+										<S.OverlayTagsWrapper className={'border-wrapper-alt3'}>
+											<S.OverlayTagsHeader>
+												<p>{language.inputHeaders}</p>
+												<span>{`(${filteredTags.length})`}</span>
+											</S.OverlayTagsHeader>
+											{filteredTags.map((tag: { name: string; value: string }, index: number) => (
+												<OverlayLine key={index} label={tag.name} value={tag.value} />
+											))}
+										</S.OverlayTagsWrapper>
+									</S.InputWrapper>
+									{outputData && <S.ResultWrapper>{outputData}</S.ResultWrapper>}
+								</>
+							)}
+						</S.OverlayOutput>
 					</S.OverlayInfo>
 					<S.OverlayActions>
 						<Button type={'primary'} label={language.close} handlePress={handleClose} />
@@ -275,7 +261,8 @@ function Message(props: {
 			<S.ElementWrapper
 				key={props.element.slot}
 				className={'message-list-element'}
-				onClick={() => setOpen((prev) => !prev)}
+				onClick={() => (props.childList ? {} : setOpen((prev) => !prev))}
+				disabled={props.childList}
 				open={open}
 				lastChild={props.lastChild}
 			>
@@ -299,29 +286,35 @@ function Message(props: {
 					<Copyable value={props.element['hash-chain']} />
 				</S.ID> */}
 				<S.Slot>
-					<Copyable value={(props.element.slot ?? props.element.Anchor ?? '-').toString()} />
+					<S.SlotValue>
+						<p>{(props.element.slot ?? 'Result').toString()}</p>
+					</S.SlotValue>
 				</S.Slot>
 				{getAction(true, false)}
 				{getFrom()}
 				{getTo()}
-				<S.Input>
-					<Button type={'alt3'} label={language.view} handlePress={(e) => handleShowViewData(e)} />
-				</S.Input>
-				<S.Output>
-					<Button type={'alt3'} label={language.view} handlePress={(e) => handleShowViewResult(e)} />
-				</S.Output>
+				<S.IO>
+					<Button
+						type={'alt3'}
+						label={language.view}
+						handlePress={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							setShowViewData(true);
+							setShowViewResult(true);
+						}}
+					/>
+				</S.IO>
 				<S.Time>
 					<p>{props.element.timestamp ? getRelativeDate(props.element.timestamp) : '-'}</p>
 				</S.Time>
-				<S.Results open={open}>
-					<ReactSVG src={ASSETS.arrow} />
-				</S.Results>
+				<S.Results open={open}>{!props.childList && <ReactSVG src={ASSETS.arrow} />}</S.Results>
 			</S.ElementWrapper>
 			{open && (
 				<MessageList
 					currentFilter={props.currentFilter}
 					recipient={props.element.body?.target || props.element.Target || props.element.process}
-					parentId={props.parentId}
+					processId={props.processId}
 					handleMessageOpen={props.handleOpen ? (id: string) => props.handleOpen(id) : null}
 					childList
 					isOverallLast={props.isOverallLast && props.lastChild}
@@ -338,7 +331,6 @@ export default function MessageList(props: {
 	messages?: RawMessageType[];
 	currentFilter?: MessageFilterType;
 	recipient?: string | null;
-	parentId?: string;
 	handleMessageOpen?: (id: string) => void;
 	childList?: boolean;
 	isOverallLast?: boolean;
@@ -653,7 +645,7 @@ export default function MessageList(props: {
 							)}
 							<Button
 								type={'alt3'}
-								label={sortOrder === 'newest' ? 'Toggle: Old to New' : 'Toggle: New to Old'}
+								label={`Sort By: ${sortOrder === 'newest' ? 'Old to New' : 'New to Old'}`}
 								handlePress={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
 								active={false}
 								disabled={loadingMessages}
@@ -681,12 +673,9 @@ export default function MessageList(props: {
 								<S.To>
 									<p>{language.to}</p>
 								</S.To>
-								<S.Input>
-									<p>{language.input}</p>
-								</S.Input>
-								<S.Output>
-									<p>{language.output}</p>
-								</S.Output>
+								<S.IO>
+									<p>{language.io}</p>
+								</S.IO>
 								<S.Time>
 									<p>{language.time}</p>
 								</S.Time>
@@ -706,9 +695,10 @@ export default function MessageList(props: {
 										key={key}
 										element={element}
 										currentFilter={currentFilter}
-										parentId={props.parentId}
+										processId={props.processId}
 										handleOpen={props.handleMessageOpen ? (id: string) => props.handleMessageOpen(id) : null}
 										lastChild={isLastChild}
+										childList={props.childList}
 										isOverallLast={props.isOverallLast && isLastChild}
 									/>
 								);
