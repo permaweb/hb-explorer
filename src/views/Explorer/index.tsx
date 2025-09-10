@@ -17,7 +17,43 @@ import { useLanguageProvider } from 'providers/LanguageProvider';
 import { ExplorerTab } from './ExplorerTab';
 import * as S from './styles';
 
-// TODO: Process Source / AOS
+// Memoized ExplorerTab to prevent unnecessary rerenders
+const MemoizedExplorerTab = React.memo(
+	({
+		tab,
+		active,
+		tabIndex,
+		onPathChange,
+	}: {
+		tab: ExplorerTabObjectType;
+		active: boolean;
+		tabIndex: number;
+		onPathChange: (tabIndex: number, args: ExplorerTabObjectType) => void;
+	}) => {
+		const handlePathChange = React.useCallback(
+			(args: ExplorerTabObjectType) => {
+				onPathChange(tabIndex, args);
+			},
+			[tabIndex, onPathChange]
+		);
+
+		return <ExplorerTab tab={tab} active={active} onPathChange={handlePathChange} />;
+	},
+	(prevProps, nextProps) => {
+		// Custom comparison to prevent rerenders when only non-relevant props change
+		return (
+			prevProps.tab.tabId === nextProps.tab.tabId &&
+			prevProps.tab.id === nextProps.tab.id &&
+			prevProps.tab.type === nextProps.tab.type &&
+			prevProps.tab.path === nextProps.tab.path &&
+			prevProps.active === nextProps.active &&
+			prevProps.tabIndex === nextProps.tabIndex &&
+			prevProps.onPathChange === nextProps.onPathChange
+		);
+	}
+);
+
+// TODO: Process Source
 export default function Explorer() {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -33,12 +69,30 @@ export default function Explorer() {
 
 	const [tabs, setTabs] = React.useState<ExplorerTabObjectType[]>(() => {
 		const stored = localStorage.getItem(storageKey);
-		return stored && JSON.parse(stored).length > 0 ? JSON.parse(stored) : [{ id: '', label: '', type: null }];
+		return stored && JSON.parse(stored).length > 0
+			? JSON.parse(stored)
+			: [
+					{
+						id: '',
+						label: '',
+						type: null,
+						tabId: `blank-${Date.now()}`,
+					},
+			  ];
 	});
 	const [activeTabIndex, setActiveTabIndex] = React.useState<number>(() => {
 		const stored = localStorage.getItem(storageKey);
 		const storedTabs =
-			stored && JSON.parse(stored).length > 0 ? JSON.parse(stored) : [{ id: '', label: '', type: null }];
+			stored && JSON.parse(stored).length > 0
+				? JSON.parse(stored)
+				: [
+						{
+							id: '',
+							label: '',
+							type: null,
+							tabId: `blank-${Date.now()}`,
+						},
+				  ];
 
 		// Find the tab that matches the current URL
 		const { path, subPath } = extractDetailsFromPath(location.pathname);
@@ -59,6 +113,7 @@ export default function Explorer() {
 	const [showClearConfirmation, setShowClearConfirmation] = React.useState<boolean>(false);
 	const [isClearing, setIsClearing] = React.useState<boolean>(false);
 	const [hasInitialized, setHasInitialized] = React.useState<boolean>(false);
+	const [isUpdatingFromChild, setIsUpdatingFromChild] = React.useState<boolean>(false);
 
 	React.useEffect(() => {
 		const header = document.getElementById('navigation-header');
@@ -108,6 +163,12 @@ export default function Explorer() {
 
 	// Handle URL changes and tab synchronization
 	React.useEffect(() => {
+		// Skip if we're in the middle of updating from a child component
+		if (isUpdatingFromChild) {
+			setIsUpdatingFromChild(false);
+			return;
+		}
+
 		const { path, subPath } = extractDetailsFromPath(location.pathname);
 
 		if (path) {
@@ -123,8 +184,11 @@ export default function Explorer() {
 				const currentTab = tabs[existingTabIndex];
 				const newPath = `${path}${subPath}`;
 
-				// Update tab path if it has changed
-				if (currentTab.path !== newPath || currentTab.basePath !== newPath) {
+				// Update tab path if it has changed, but only for meaningful changes
+				const shouldUpdatePath = currentTab.path !== newPath || currentTab.basePath !== path;
+				const isSignificantChange = newPath !== currentTab.basePath; // Don't update if just switching between same base path
+
+				if (shouldUpdatePath && isSignificantChange) {
 					setTabs((prev) => {
 						const updated = [...prev];
 						updated[existingTabIndex] = {
@@ -154,6 +218,7 @@ export default function Explorer() {
 								basePath: `${path}${subPath}`,
 								path: `${path}${subPath}`,
 								label: path,
+								tabId: `blank-${Date.now()}`,
 							};
 							return updated;
 						});
@@ -169,6 +234,7 @@ export default function Explorer() {
 								basePath: `${path}${subPath}`,
 								path: `${path}${subPath}`,
 								label: path,
+								tabId: `blank-${Date.now()}`,
 							},
 						]);
 						setActiveTabIndex(newIndex);
@@ -185,36 +251,45 @@ export default function Explorer() {
 		}
 	}, [location.pathname, hasInitialized]);
 
-	const handlePathChange = (tabIndex: number, args: ExplorerTabObjectType) => {
-		if (isClearing) return;
+	const handlePathChange = React.useCallback(
+		(tabIndex: number, args: ExplorerTabObjectType) => {
+			if (isClearing) return;
 
-		setTabs((prev) => {
-			const updated = [...prev];
-			if (updated[tabIndex]) {
-				updated[tabIndex] = {
-					...updated[tabIndex],
-					id: args.id,
-					type: args.type,
-					variant: args.variant,
-					basePath: args.basePath,
-					path: args.path,
-					label: args.label,
-				};
-			} else {
-				updated.push({
-					id: args.id,
-					type: args.type,
-					variant: args.variant,
-					basePath: args.basePath,
-					path: args.path,
-					label: args.label,
-				});
-			}
-			return updated;
-		});
+			// Set flag to prevent URL effect from interfering
+			setIsUpdatingFromChild(true);
 
-		navigate(`${baseUrl}${args.path}`);
-	};
+			setTabs((prev) => {
+				const updated = [...prev];
+				if (updated[tabIndex]) {
+					updated[tabIndex] = {
+						...updated[tabIndex],
+						id: args.id,
+						type: args.type,
+						variant: args.variant,
+						basePath: args.basePath,
+						path: args.path,
+						label: args.label,
+						// Preserve tabId for blank tabs, or set it if not present
+						tabId: updated[tabIndex].tabId || args.tabId,
+					};
+				} else {
+					updated.push({
+						id: args.id,
+						type: args.type,
+						variant: args.variant,
+						basePath: args.basePath,
+						path: args.path,
+						label: args.label,
+						tabId: args.tabId,
+					});
+				}
+				return updated;
+			});
+
+			navigate(`${baseUrl}${args.path}`);
+		},
+		[isClearing, baseUrl, navigate]
+	);
 
 	const handleTabRedirect = (index: number) => {
 		setActiveTabIndex(index);
@@ -236,7 +311,12 @@ export default function Explorer() {
 	};
 
 	const handleAddTab = (id?: string) => {
-		const newTab = { id: id ?? '', label: id ?? '', type: null } as ExplorerTabObjectType;
+		const newTab = {
+			id: id ?? '',
+			label: id ?? '',
+			type: null,
+			tabId: `blank-${Date.now()}-${Math.random()}`,
+		} as ExplorerTabObjectType;
 
 		flushSync(() => {
 			setIsClearing(true);
@@ -283,7 +363,17 @@ export default function Explorer() {
 			setTabs(
 				updatedTransactions.length > 0
 					? updatedTransactions
-					: [{ id: '', type: null, variant: null, basePath: '', path: '', label: '' }]
+					: [
+							{
+								id: '',
+								type: null,
+								variant: null,
+								basePath: '',
+								path: '',
+								label: '',
+								tabId: `blank-${Date.now()}`,
+							},
+					  ]
 			);
 			setActiveTabIndex(newActiveIndex);
 		});
@@ -301,7 +391,17 @@ export default function Explorer() {
 	const handleClearTabs = () => {
 		flushSync(() => {
 			setIsClearing(true);
-			setTabs([{ id: '', type: null, variant: null, basePath: '', path: '', label: '' }]);
+			setTabs([
+				{
+					id: '',
+					type: null,
+					variant: null,
+					basePath: '',
+					path: '',
+					label: '',
+					tabId: `blank-${Date.now()}`,
+				},
+			]);
 			setActiveTabIndex(0);
 		});
 
@@ -384,14 +484,12 @@ export default function Explorer() {
 					<>
 						{tabs.map((tab: ExplorerTabObjectType, index) => {
 							const active = index === activeTabIndex;
+							// Use tabId for stable keys, fallback to id-index combination
+							const key = tab.tabId || (tab.id ? `${tab.id}-${index}` : `empty-${index}`);
 
 							return (
-								<S.TabWrapper key={index} active={active}>
-									<ExplorerTab
-										tab={tab}
-										active={active}
-										onPathChange={(args: ExplorerTabObjectType) => handlePathChange(index, args)}
-									/>
+								<S.TabWrapper key={key} active={active}>
+									<MemoizedExplorerTab tab={tab} active={active} tabIndex={index} onPathChange={handlePathChange} />
 								</S.TabWrapper>
 							);
 						})}

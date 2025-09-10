@@ -98,6 +98,7 @@ export type ExplorerTabObjectType = {
 	basePath: string;
 	path: string;
 	label: string;
+	tabId?: string;
 };
 
 export type MetricDataPoint = {

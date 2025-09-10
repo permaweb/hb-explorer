@@ -6,7 +6,6 @@ import { JSONReader } from 'components/molecules/JSONReader';
 import { HB_ENDPOINTS } from 'helpers/config';
 import { VariantEnum } from 'helpers/types';
 import { checkValidAddress, formatMs, hbFetch, stripUrlProtocol } from 'helpers/utils';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 
 import * as S from './styles';
 
@@ -16,8 +15,6 @@ export default function ProcessRead(props: {
 	autoRun: boolean;
 	hideOutput?: boolean;
 }) {
-	const permawebProvider = usePermawebProvider();
-
 	const [cuLocation, _setCuLocation] = React.useState(stripUrlProtocol(window.hyperbeamUrl));
 	const [startTime, setStartTime] = React.useState(null);
 	const [roundtripTime, setRoundtripTime] = React.useState(null);
@@ -98,7 +95,7 @@ export default function ProcessRead(props: {
 
 	return (
 		<S.Wrapper>
-			<S.SectionWrapper className={'border-wrapper-primary'}>
+			<S.SectionWrapper className={'border-wrapper-alt3'}>
 				<S.Header>
 					<S.HeaderMain>
 						<p>{`CU: ${cuLocation ?? '-'}`}</p>

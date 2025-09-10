@@ -33,7 +33,7 @@ export const Options = styled.div`
 		border: none !important;
 
 		span {
-			font-size: ${(props) => props.theme.typography.size.xxxxSmall} !important;
+			font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
 		}
 
 		&:disabled {

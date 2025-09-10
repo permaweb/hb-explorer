@@ -38,6 +38,7 @@ export function usePermawebProvider(): PermawebContextState {
 	return React.useContext(PermawebContext);
 }
 
+// TODO: Dup fetches
 export function PermawebProvider(props: { children: React.ReactNode }) {
 	const arProvider = useArweaveProvider();
 	const languageProvider = useLanguageProvider();

@@ -9,7 +9,7 @@ import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Notification } from 'components/atoms/Notification';
 import { Editor } from 'components/molecules/Editor';
-import { ASSETS, TAGS } from 'helpers/config';
+import { ASSETS } from 'helpers/config';
 import { GQLNodeResponseType } from 'helpers/types';
 import { checkValidAddress, formatAddress, getTagValue } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
@@ -23,6 +23,7 @@ import * as S from './styles';
 
 export default function ConsoleInstance(props: {
 	processId: string;
+	owner: string | null;
 	active: boolean;
 	onTxChange?: (newTx: GQLNodeResponseType) => void;
 }) {
@@ -47,10 +48,9 @@ export default function ConsoleInstance(props: {
 	const logsFitAddon = React.useRef<FitAddon | null>(null);
 
 	const [inputProcessId, setInputProcessId] = React.useState<string>(props.processId ?? '');
-	const [loadingTx, setLoadingTx] = React.useState<boolean>(false);
-	const [txResponse, setTxResponse] = React.useState<GQLNodeResponseType | null>(null);
-	const [loadingOptions, setLoadingOptions] = React.useState<boolean>(false);
-	const [txOptions, setTxOptions] = React.useState<GQLNodeResponseType[] | null>(null);
+	const [loadingTx, _setLoadingTx] = React.useState<boolean>(false);
+	const [loadingOptions, _setLoadingOptions] = React.useState<boolean>(false);
+	const [txOptions, _setTxOptions] = React.useState<GQLNodeResponseType[] | null>(null);
 
 	const [prompt, setPrompt] = React.useState<string>('> ');
 	const [hasConnected, setHasConnected] = React.useState<boolean>(false);
@@ -62,8 +62,8 @@ export default function ConsoleInstance(props: {
 
 	const [pageCursor, setPageCursor] = React.useState<string | null>(null);
 	const [cursorHistory, setCursorHistory] = React.useState([]);
-	const [nextCursor, setNextCursor] = React.useState<string | null>(null);
-	const [perPage, _setPerPage] = React.useState<number>(10);
+	const [nextCursor, _setNextCursor] = React.useState<string | null>(null);
+	const [_perPage, _setPerPage] = React.useState<number>(10);
 
 	const [loadingMessage, setLoadingMessage] = React.useState<boolean>(false);
 
@@ -151,49 +151,6 @@ export default function ConsoleInstance(props: {
 
 	React.useEffect(() => {
 		(async function () {
-			if (props.active) {
-				if (inputProcessId && checkValidAddress(inputProcessId)) {
-					setLoadingTx(true);
-					try {
-						const response = await permawebProvider.libs.getGQLData({ ids: [inputProcessId] });
-						const responseData = response?.data?.[0];
-
-						setTxResponse(responseData ?? null);
-
-						if (responseData) {
-							if (props.onTxChange) props.onTxChange(responseData);
-						} else {
-							setError(language.txNotFound);
-						}
-					} catch (e: any) {
-						setError(e.message ?? language.errorFetchingTx);
-					}
-					setLoadingTx(false);
-				} else {
-					if (arProvider.walletAddress) {
-						setLoadingOptions(true);
-						try {
-							const gqlResponse = await permawebProvider.libs.getGQLData({
-								owners: [arProvider.walletAddress],
-								tags: [{ name: TAGS.keys.type, values: [TAGS.values.process] }],
-								paginator: perPage,
-								...(pageCursor ? { cursor: pageCursor } : {}),
-							});
-
-							setTxOptions(gqlResponse.data);
-							setNextCursor(gqlResponse.data.length >= perPage ? gqlResponse.nextCursor : null);
-						} catch (e: any) {
-							setError(e.message ?? language.errorOccurred);
-						}
-						setLoadingOptions(false);
-					}
-				}
-			}
-		})();
-	}, [inputProcessId, pageCursor, arProvider.walletAddress, props.active]);
-
-	React.useEffect(() => {
-		(async function () {
 			if (props.active && terminalRef.current && arProvider.wallet && checkValidAddress(inputProcessId)) {
 				await document.fonts.ready;
 
@@ -201,7 +158,7 @@ export default function ConsoleInstance(props: {
 					cursorBlink: false,
 					fontFamily: theme.typography.family.alt2,
 					fontSize: 13,
-					fontWeight: 700,
+					fontWeight: 600,
 					theme: getTheme(theme),
 				});
 
@@ -221,7 +178,16 @@ export default function ConsoleInstance(props: {
 				terminalInstance.current.write(`\x1b[32mWelcome to AOS\x1b[0m\r\n\r\n`);
 				terminalInstance.current.write(`\x1b[90mProcess ID:\x1b[0m \x1b[32m${inputProcessId}\x1b[0m\r\n\r\n`);
 				terminalInstance.current.write(`\x1b[90mToggle the editor with: (Ctrl + E) or '.editor'\x1b[0m\r\n`);
-				terminalInstance.current.write(`\r\n\x1b[32mPress Enter\x1b[0m\r\n`);
+
+				// Check access after terminal is created
+				const hasAccess = !props.owner || props.owner === arProvider.walletAddress;
+				terminalInstance.current.options.disableStdin = !hasAccess;
+
+				if (!hasAccess) {
+					terminalInstance.current.write(`\r\n\x1b[91mYou do not have access to connect to this process\x1b[0m\r\n`);
+				} else {
+					terminalInstance.current.write(`\r\n\x1b[32mPress Enter\x1b[0m\r\n`);
+				}
 
 				hideCursor();
 				terminalInstance.current.focus();
@@ -360,23 +326,11 @@ export default function ConsoleInstance(props: {
 				terminalInstance.current.dispose();
 			}
 		};
-	}, [props.active, inputProcessId, permawebProvider.libs]);
+	}, [props.active, inputProcessId, props.owner, arProvider.walletAddress, permawebProvider.libs]);
 
 	function stripAnsi(input: string): string {
 		return input.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '');
 	}
-
-	React.useEffect(() => {
-		if (!arProvider.walletAddress || !txResponse) return;
-		const hasAccess = txResponse?.node?.owner?.address === arProvider.walletAddress;
-		if (terminalInstance.current) {
-			terminalInstance.current.options.disableStdin = !hasAccess;
-
-			if (!hasAccess) {
-				terminalInstance.current.write(`\r\n\x1b[91mYou do not have access to connect to this process\x1b[0m\r\n`);
-			}
-		}
-	}, [arProvider.walletAddress, txResponse]);
 
 	React.useEffect(() => {
 		if (!showResults || !hasConnected) return;
@@ -386,7 +340,7 @@ export default function ConsoleInstance(props: {
 				cursorBlink: false,
 				fontFamily: theme.typography.family.alt2,
 				fontSize: 13,
-				fontWeight: 700,
+				fontWeight: 600,
 				theme: getTheme(theme, { useAltBackground: false }),
 			});
 
@@ -413,11 +367,18 @@ export default function ConsoleInstance(props: {
 	}, [showResults, hasConnected]);
 
 	React.useEffect(() => {
-		if (!props.active || !inputProcessId || !arProvider.walletAddress || !txResponse || !hasConnected || !showResults) {
+		if (
+			!props.active ||
+			!inputProcessId ||
+			!arProvider.walletAddress ||
+			!props.owner ||
+			!hasConnected ||
+			!showResults
+		) {
 			return;
 		}
 
-		const hasAccess = txResponse.node.owner.address === arProvider.walletAddress;
+		const hasAccess = props.owner === arProvider.walletAddress;
 		if (!hasAccess) {
 			return;
 		}
@@ -482,7 +443,7 @@ export default function ConsoleInstance(props: {
 		return () => {
 			canceled = true;
 		};
-	}, [props.active, inputProcessId, arProvider.walletAddress, txResponse, hasConnected, showResults]);
+	}, [props.active, inputProcessId, arProvider.walletAddress, props.owner, hasConnected, showResults]);
 
 	React.useEffect(() => {
 		if (terminalInstance.current) {

@@ -7,7 +7,7 @@ import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown'
 import { SamplePaths } from 'components/molecules/SamplePaths';
 import { ASSETS, DEFAULT_TABS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { stripUrlProtocol } from 'helpers/utils';
+import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
 import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -16,6 +16,7 @@ import { ExplorerTabPath } from './ExplorerTabPath';
 import { ExplorerTabProcess } from './ExplorerTabProcess';
 import * as S from './styles';
 
+// TODO: Auto submit
 export default function ExplorerTab(props: {
 	tab: ExplorerTabObjectType;
 	active: boolean;
@@ -30,8 +31,10 @@ export default function ExplorerTab(props: {
 	const [inputPath, setInputPath] = React.useState<string>(props.tab?.basePath ?? '');
 	const [autoSubmitTimerId, setAutoSubmitTimerId] = React.useState<NodeJS.Timeout | null>(null);
 	const [copied, setCopied] = React.useState<boolean>(false);
-	const [pendingPathChange, setPendingPathChange] = React.useState<boolean>(false);
 	const [refreshKey, setRefreshKey] = React.useState<number>(0);
+	const [shouldAutoSubmit, setShouldAutoSubmit] = React.useState<boolean>(false);
+	const [lastSubmittedPath, setLastSubmittedPath] = React.useState<string>('');
+	const [isFromUrlNavigation, setIsFromUrlNavigation] = React.useState<boolean>(false);
 
 	const hyperBeamRequest = useHyperBeamRequest();
 
@@ -43,20 +46,48 @@ export default function ExplorerTab(props: {
 			onValueChange: (value, newCursorPosition) => {
 				setInputPath(value);
 				setCursorPosition(newCursorPosition);
+				setIsFromUrlNavigation(false); // Mark as user input, not URL navigation
+				setShouldAutoSubmit(true);
 			},
 			onAutoSubmit: (completedPath) => handleSubmit(completedPath),
 		});
 
-	React.useEffect(() => {
-		setInputPath(props.tab?.basePath ?? '');
-	}, [props.tab?.basePath]);
+	const handleSubmit = React.useCallback(
+		async (pathToSubmit?: string) => {
+			const pathValue = pathToSubmit || inputPath;
+
+			if (pathValue && !hyperBeamRequest.loading) {
+				await hyperBeamRequest.submitRequest(pathValue);
+			}
+		},
+		[inputPath, hyperBeamRequest.loading, hyperBeamRequest.submitRequest]
+	);
+
+	// // Track when input is set from props (URL navigation) vs user input
+	// React.useEffect(() => {
+	// 	const basePath = props.tab?.basePath ?? '';
+	// 	setInputPath(basePath);
+	// 	setIsFromUrlNavigation(true);
+
+	// 	// For URL navigation to existing paths, submit request if tab is active and has no data yet
+	// 	if (props.active && basePath && !props.tab?.id) {
+	// 		handleSubmit(basePath);
+	// 	}
+	// }, [props.tab?.basePath]);
+
+	// // Only auto-submit when tab becomes active AND it's not from URL navigation
+	// React.useEffect(() => {
+	// 	if (props.active) {
+	// 		if (inputPath && !isFromUrlNavigation) {
+	// 			handleSubmit();
+	// 		}
+	// 		// Reset the URL navigation flag after checking
+	// 		setIsFromUrlNavigation(false);
+	// 	}
+	// }, [props.active]);
 
 	React.useEffect(() => {
-		if (props.active) handleSubmit();
-	}, [props.active]);
-
-	React.useEffect(() => {
-		if (pendingPathChange && !hyperBeamRequest.loading) {
+		if (!hyperBeamRequest.loading) {
 			if (!hyperBeamRequest.error && hyperBeamRequest.id) {
 				const currentSubPath = props.tab?.path?.replace(props.tab?.basePath || '', '') || DEFAULT_TABS.process;
 				const newTabData = {
@@ -81,26 +112,23 @@ export default function ExplorerTab(props: {
 					props.onPathChange(newTabData);
 				}
 			}
-			setPendingPathChange(false);
 		}
 	}, [
-		pendingPathChange,
 		hyperBeamRequest.loading,
 		hyperBeamRequest.error,
 		hyperBeamRequest.id,
 		hyperBeamRequest.type,
 		hyperBeamRequest.variant,
+		hyperBeamRequest.headers?.name?.data,
 		inputPath,
-		props,
+		props.tab?.id,
+		props.tab?.type,
+		props.tab?.variant,
+		props.tab?.basePath,
+		props.tab?.path,
+		props.tab?.label,
+		props.onPathChange,
 	]);
-
-	async function handleSubmit(pathToSubmit?: string) {
-		const pathValue = pathToSubmit || inputPath;
-		if (pathValue) {
-			setPendingPathChange(true);
-			await hyperBeamRequest.submitRequest(pathValue);
-		}
-	}
 
 	const copyInput = React.useCallback(async (value: string) => {
 		if (value?.length > 0) {
@@ -116,6 +144,11 @@ export default function ExplorerTab(props: {
 
 		setInputPath(newValue);
 		setCursorPosition(newCursorPosition);
+		setIsFromUrlNavigation(false); // Mark as user input, not URL navigation
+
+		// if (checkValidAddress(newValue)) {
+		// 	setShouldAutoSubmit(true);
+		// }
 
 		if (autoSubmitTimerId) {
 			clearTimeout(autoSubmitTimerId);
@@ -124,6 +157,7 @@ export default function ExplorerTab(props: {
 
 		if (newValue === '') {
 			hyperBeamRequest.reset();
+			setShouldAutoSubmit(false);
 		}
 	};
 
@@ -148,6 +182,7 @@ export default function ExplorerTab(props: {
 				<SamplePaths
 					onPathSelect={(path) => {
 						setInputPath(path);
+						setIsFromUrlNavigation(false); // Mark as user input
 						handleSubmit(path);
 					}}
 				/>
