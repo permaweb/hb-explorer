@@ -1,6 +1,9 @@
 import React from 'react';
 
 import { URLTabs } from 'components/atoms/URLTabs';
+import { ConsoleInstance } from 'components/organisms/ConsoleInstance';
+import { ProcessEditor } from 'components/organisms/ProcessEditor';
+import { ProcessSource } from 'components/organisms/ProcessSource';
 import { ASSETS, URLS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
 import { UseHyperBeamRequestReturn } from 'hooks/useHyperBeamRequest';
@@ -53,26 +56,30 @@ export default function ExplorerTabProcess(props: {
 				icon: ASSETS.read,
 				disabled: false,
 				url: URLS.explorerRead(props.tab.id),
-				// view: () => <ProcessEditor processId={inputTxId} type={'read'} />,
-				view: () => <p></p>,
+				view: () => <ProcessEditor processId={props.tab.id} type={'read'} />,
 			},
 			{
 				label: language.write,
 				icon: ASSETS.write,
 				disabled: false,
 				url: URLS.explorerWrite(props.tab.id),
-				// view: () => <ProcessEditor processId={inputTxId} type={'write'} />,
-				view: () => <p></p>,
+				view: () => <ProcessEditor processId={props.tab.id} type={'write'} />,
 			},
 			{
 				label: language.source,
 				icon: ASSETS.code,
 				disabled: false,
 				url: URLS.explorerSource(props.tab.id),
-				// view: () => (
-				// 	<ProcessSource processId={inputTxId} onBoot={getTagValue(txResponse?.node?.tags, TAGS.keys.onBoot)} />
-				// ),
-				view: () => <p></p>,
+				view: () => (
+					<ProcessSource processId={props.tab.id} onBoot={props.hyperBeamRequest?.headers?.['on-boot']?.data} />
+				),
+			},
+			{
+				label: language.aos,
+				icon: ASSETS.console,
+				disabled: false,
+				url: URLS.explorerAOS(props.tab.id),
+				view: () => <ConsoleInstance processId={props.tab.id} active={true} />,
 			},
 		];
 	}, [props.tab.id, props.refreshKey, props.hyperBeamRequest?.headers]);

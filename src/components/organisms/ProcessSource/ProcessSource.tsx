@@ -27,28 +27,30 @@ export default function ProcessSource(props: { processId: string; onBoot?: strin
 						const rawSrc = await srcResponse.text();
 						setSrc(rawSrc);
 					} else {
-						const gqlResponse = await permawebProvider.libs.getGQLData({
-							tags: [...DEFAULT_MESSAGE_TAGS, { name: 'Action', values: [DEFAULT_ACTIONS.eval.name] }],
-							recipients: [props.processId],
-							sort: 'ascending',
-						});
+						// TODO
+						setSrc('No source found');
+						// const gqlResponse = await permawebProvider.libs.getGQLData({
+						// 	tags: [...DEFAULT_MESSAGE_TAGS, { name: 'Action', values: [DEFAULT_ACTIONS.eval.name] }],
+						// 	recipients: [props.processId],
+						// 	sort: 'ascending',
+						// });
 
-						if (gqlResponse?.data) {
-							const sorted = [...gqlResponse.data]
-								.slice()
-								.sort((a: Types.GQLNodeResponseType, b: Types.GQLNodeResponseType) => {
-									const aSize = Number(a.node.data.size);
-									const bSize = Number(b.node.data.size);
-									if (aSize < bSize) return 1;
-									if (aSize > bSize) return -1;
-									return 0;
-								});
+						// if (gqlResponse?.data) {
+						// 	const sorted = [...gqlResponse.data]
+						// 		.slice()
+						// 		.sort((a: Types.GQLNodeResponseType, b: Types.GQLNodeResponseType) => {
+						// 			const aSize = Number(a.node.data.size);
+						// 			const bSize = Number(b.node.data.size);
+						// 			if (aSize < bSize) return 1;
+						// 			if (aSize > bSize) return -1;
+						// 			return 0;
+						// 		});
 
-							const foundSrcTx = sorted[0].node.id;
-							const srcResponse = await fetch(getTxEndpoint(foundSrcTx));
-							const rawSrc = await srcResponse.text();
-							setSrc(rawSrc);
-						}
+						// 	const foundSrcTx = sorted[0].node.id;
+						// 	const srcResponse = await fetch(getTxEndpoint(foundSrcTx));
+						// 	const rawSrc = await srcResponse.text();
+						// 	setSrc(rawSrc);
+						// }
 					}
 				} catch (e: any) {
 					console.error(e);

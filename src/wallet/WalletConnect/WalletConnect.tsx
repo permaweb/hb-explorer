@@ -119,7 +119,7 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 										options={[
 											{ id: 'light-primary', label: 'Light', icon: ASSETS.light },
 											{ id: 'dark-primary', label: 'Dark', icon: ASSETS.dark },
-											{ id: 'system', label: 'Auto', icon: ASSETS.system },
+											{ id: 'system', label: 'System', icon: ASSETS.system },
 										]}
 										activeOption={settings.theme}
 										handleToggle={handleThemeChange}

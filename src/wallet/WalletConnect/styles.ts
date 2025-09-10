@@ -60,7 +60,7 @@ export const FlexAction = styled.div`
 
 export const Dropdown = styled.div`
 	max-height: 65vh;
-	width: 325px;
+	width: 340px;
 	max-width: 75vw;
 	padding: 11.5px 10px;
 	position: absolute;

@@ -523,17 +523,27 @@ export default function MessageList(props: {
 		setCustomAction('');
 	}
 
+	const scrollToTop = () => {
+		if (tableContainerRef.current) {
+			setTimeout(() => {
+				tableContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 10);
+		}
+	};
+
 	function handleNext() {
 		if (!totalMessages) return;
 		const totalPages = Math.ceil(totalMessages / perPage);
 		if (pageNumber < totalPages) {
 			setPageNumber(pageNumber + 1);
+			scrollToTop();
 		}
 	}
 
 	function handlePrevious() {
 		if (pageNumber > 1) {
 			setPageNumber(pageNumber - 1);
+			scrollToTop();
 		}
 	}
 

@@ -163,7 +163,7 @@ export default function JSONWriter(props: {
 						</S.ErrorWrapper>
 					)}
 					<Button
-						type={'alt1'}
+						type={'primary'}
 						label={`${language.run} (⌘ + ⏎)`}
 						handlePress={submitHandler}
 						disabled={props.loading || Boolean(error)}

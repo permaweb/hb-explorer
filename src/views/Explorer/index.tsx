@@ -17,7 +17,7 @@ import { useLanguageProvider } from 'providers/LanguageProvider';
 import { ExplorerTab } from './ExplorerTab';
 import * as S from './styles';
 
-// TODO: Process read / write / source / aos
+// TODO: Process Source / AOS
 export default function Explorer() {
 	const navigate = useNavigate();
 	const location = useLocation();
