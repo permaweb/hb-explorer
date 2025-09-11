@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 import { ViewWrapper } from 'app/styles';
 import { Tabs } from 'components/atoms/Tabs';
 import { ViewHeader } from 'components/atoms/ViewHeader';
-import { HB_ENDPOINTS } from 'helpers/config';
+import { ASSETS, HB_ENDPOINTS } from 'helpers/config';
 import { formatCount, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -224,9 +224,9 @@ export default function Landing() {
 					</S.Tab>
 				</Tabs>
 			</S.TabsWrapper>
-			{/* <S.Graphic>
+			<S.Graphic>
 				<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-			</S.Graphic> */}
+			</S.Graphic>
 		</S.Wrapper>
 	);
 }

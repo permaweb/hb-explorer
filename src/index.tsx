@@ -12,8 +12,6 @@ import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
-import './fonts.css';
-
 window.hyperbeamUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
 document.title = stripUrlProtocol(window.hyperbeamUrl);
 
