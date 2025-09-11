@@ -40,6 +40,8 @@ export const MetricsSection = styled.div`
 	align-items: flex-start;
 	gap: 5px;
 	padding: 20px;
+	background: ${(props) => `${props.theme.colors.container.alt1.background}90`} !important;
+	backdrop-filter: blur(7.5px);
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.small};
@@ -121,11 +123,11 @@ export const Graphic = styled.div`
 	video {
 		width: 100%;
 		max-width: ${STYLING.cutoffs.max};
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.915 : 0)});
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9175 : 0)});
 		position: fixed;
-		opacity: 0.35;
+		opacity: 0.45;
 		z-index: 0;
-		top: -80px;
+		top: -105px;
 		left: 50%;
 		transform: translate(-50%, 0);
 	}
