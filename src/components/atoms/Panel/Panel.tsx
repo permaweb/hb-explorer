@@ -96,14 +96,6 @@ export default function Panel(props: IProps) {
 			<S.PanelOverlay open={props.open} />
 		</Portal>
 	);
-
-	// return (
-	// 	<Portal node={DOM.overlay}>
-	// 		<S.Wrapper open={true} noHeader={!props.header} top={window ? (window as any).pageYOffset : 0}>
-	// 			{getBody()}
-	// 		</S.Wrapper>
-	// 	</Portal>
-	// );
 }
 
 let panelOpenCounter = 0;

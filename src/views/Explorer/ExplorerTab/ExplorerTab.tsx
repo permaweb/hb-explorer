@@ -16,7 +16,7 @@ import { ExplorerTabPath } from './ExplorerTabPath';
 import { ExplorerTabProcess } from './ExplorerTabProcess';
 import * as S from './styles';
 
-// TODO: Clicking on input is submitting messages
+// TODO: Clicking on input is submitting process messages
 export default function ExplorerTab(props: {
 	tab: ExplorerTabObjectType;
 	active: boolean;

@@ -43,6 +43,7 @@ export const ASSETS = {
 	image: getTxEndpoint('357HeJjvG10nK28juQ8YMp6DlvHhGbmU7pOvZphEhUk'),
 	info: getTxEndpoint('QQ4EJ_wH2EY1_ElfSNKffixnzVcbnvd2547lmluvT-0'),
 	keyboard: getTxEndpoint('rMjFgHIRcEmy9P68Prpbgw9jvzWKL18m3vrJXIBwmao'),
+	label: getTxEndpoint('QeazO4n6KKFNcTfqrg28pW0LztRfNLpqoP5Wz3qLqeM'),
 	language: getTxEndpoint('SubbzPjabHW9zvY7Ecjqlwex47oxo1a5-Cgj84K1aYc'),
 	layout: getTxEndpoint('U2cqnDWOoQr3mBpIOdsnJUPKS-G4v0twlwFTqvj4qkY'),
 	light: getTxEndpoint('n-yu6JZZwWEF0aJE8B_UskiubcYmHDRTofyc5J1pvc4'),
