@@ -20,7 +20,7 @@ export const HeaderWrapper = styled.form`
 	overflow: visible;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		flex-direction: column-reverse;
+		flex-direction: column;
 		align-items: flex-start;
 	}
 `;

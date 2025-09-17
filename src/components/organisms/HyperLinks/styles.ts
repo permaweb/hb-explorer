@@ -23,6 +23,7 @@ export const InfoWrapper = styled.div`
 export const InfoLine = styled.div`
 	width: 100%;
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12.5px;
@@ -38,6 +39,7 @@ export const InfoBlockFlex = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 12.5px;
+	flex-wrap: wrap;
 `;
 
 export const InfoBlock = styled.div<{ background?: string }>`
