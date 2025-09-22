@@ -270,3 +270,21 @@ export const ModalActionsWrapper = styled.div`
 	flex-wrap: wrap;
 	gap: 15px;
 `;
+
+export const Graphic = styled.div`
+	video {
+		width: 100%;
+		max-width: ${STYLING.cutoffs.max};
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9175 : 0)});
+		position: fixed;
+		opacity: 0.15;
+		z-index: -1;
+		top: 60px;
+		left: 50%;
+		transform: translate(-50%, 0);
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		display: none;
+	}
+`;

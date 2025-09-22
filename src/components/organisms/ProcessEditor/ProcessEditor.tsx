@@ -57,11 +57,13 @@ export default function ProcessEditor(props: { processId: string; type: 'read' |
 						process: messageToSend.process,
 						message: response,
 					});
-					setOutput(result);
+
+					if (result) setOutput(result);
+					else setOutput({ Error: 'Error sending write request' });
 					break;
 			}
 		} catch (e: any) {
-			console.error(e);
+			setOutput({ Error: e.message ?? 'Error sending request' });
 		}
 		setLoading(false);
 	}
@@ -89,7 +91,12 @@ export default function ProcessEditor(props: { processId: string; type: 'read' |
 				/>
 			</S.EditorWrapper>
 			<S.ResultWrapper>
-				<JSONReader data={output} header={language.response} placeholder={language.runForResponse} noFullScreen />
+				<JSONReader
+					data={loading ? { Status: 'Loading...' } : output}
+					header={language.response}
+					placeholder={loading ? `${language.running}...` : language.runForResponse}
+					noFullScreen
+				/>
 			</S.ResultWrapper>
 		</S.Wrapper>
 	) : (

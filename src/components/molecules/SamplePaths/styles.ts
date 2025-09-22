@@ -50,7 +50,8 @@ export const PathList = styled.div`
 export const PathCard = styled.div`
 	width: 100%;
 	max-width: 500px;
-	background: ${(props) => props.theme.colors.container.primary.background};
+	background: ${(props) => `${props.theme.colors.container.alt1.background}90`} !important;
+	backdrop-filter: blur(7.5px);
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-radius: 12px;
 	padding: 12px 16px;

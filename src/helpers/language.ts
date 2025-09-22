@@ -115,6 +115,7 @@ export const language = {
 		resultsPerPage: `Results per page`,
 		resultingMessagesInfo: `Resulting messages will display here`,
 		run: `Run`,
+		running: `Running`,
 		runForResponse: `Run to get a response`,
 		save: `Save`,
 		sender: `Sender`,

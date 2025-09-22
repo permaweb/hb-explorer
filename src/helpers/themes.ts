@@ -139,7 +139,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 			other: currentTheme.actions.other,
 		},
 		border: {
-			primary: currentTheme.neutral4,
+			primary: currentTheme.neutral5,
 			alt1: currentTheme.neutral6,
 			alt2: currentTheme.neutral7,
 			alt3: currentTheme.neutral8,

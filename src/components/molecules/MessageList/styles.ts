@@ -14,6 +14,7 @@ export const Header = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	gap: 20px;
+	background: ${(props) => props.theme.colors.container.primary.background};
 	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-left: 1px solid ${(props) => props.theme.colors.border.primary};

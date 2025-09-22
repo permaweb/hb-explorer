@@ -115,6 +115,7 @@ export default function JSONWriter(props: {
 	function submitHandler() {
 		try {
 			const parsed = JSON.parse(jsonString);
+			parsed.tags.push({ name: 'Time', value: Date.now().toString() });
 			setError(null);
 			props.handleSubmit(parsed);
 		} catch {
@@ -124,7 +125,7 @@ export default function JSONWriter(props: {
 
 	return (
 		<S.Wrapper>
-			<S.EditorWrapper className={'border-wrapper-alt2 scroll-wrapper'}>
+			<S.EditorWrapper className={'border-wrapper-alt4 scroll-wrapper'}>
 				<S.Editor>
 					<LazyMonacoEditor
 						height={'100%'}
