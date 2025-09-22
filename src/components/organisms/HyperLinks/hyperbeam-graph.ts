@@ -1617,8 +1617,6 @@ export default function initializeHyperBEAMGraph() {
 			const gridSize = Math.ceil(Math.sqrt(nodes.length));
 			const spacing = 3 * SPACING_MULTIPLIER; // Very tight spacing
 
-			console.log(`Positioning ${nodes.length} nodes in ${gridSize}x${gridSize} grid with spacing: ${spacing}`);
-
 			nodes.forEach((node: any, index: number) => {
 				if (node.object) {
 					// Calculate grid position

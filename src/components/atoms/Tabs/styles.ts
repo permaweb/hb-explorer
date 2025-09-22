@@ -9,7 +9,6 @@ export const Wrapper = styled.div`
 export const Container = styled.div`
 	width: 100%;
 	position: relative;
-	background: ${(props) => props.theme.colors.view.background};
 `;
 
 export const Header = styled.div`

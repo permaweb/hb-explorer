@@ -87,6 +87,7 @@ export const InfoTitle = styled.div`
 
 export const SignatureHeader = styled(InfoHeader)`
 	border-bottom: none;
+	background: transparent;
 	padding: 12.5px 12.5px 8.5px 12.5px;
 `;
 
@@ -184,6 +185,7 @@ export const SignatureLine = styled.div`
 	justify-content: space-between;
 	gap: 7.5px;
 	padding: 10px 12.5px;
+	background: transparent !important;
 
 	p,
 	span {

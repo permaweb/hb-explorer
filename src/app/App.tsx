@@ -7,6 +7,7 @@ const Landing = getLazyImport('Landing');
 const Explorer = getLazyImport('Explorer');
 const NotFound = getLazyImport('NotFound');
 
+import { Loader } from 'components/atoms/Loader';
 import { DOM, FAVICONS, LINKS, URLS } from 'helpers/config';
 import { getDeviceNames } from 'helpers/deviceNames';
 import { arweaveEndpoint } from 'helpers/endpoints';
@@ -131,7 +132,7 @@ export default function App() {
 			<div id={DOM.loader} />
 			<div id={DOM.notification} />
 			<div id={DOM.overlay} />
-			<Suspense fallback={null}>
+			<Suspense fallback={<Loader />}>
 				<S.App>
 					<Routes>
 						{getRoute(URLS.base, <Landing />)}

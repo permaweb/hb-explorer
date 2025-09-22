@@ -16,8 +16,8 @@
 	"dependencies": {
 		"@monaco-editor/react": "^4.7.0",
 		"@othent/kms": "^1.0.7",
-		"@permaweb/aoconnect": "https://arweave.net/hPSAJ694Ba0KKyTeAwBdVIK1M3GVePFar2QfHpZqLhI",
-		"@permaweb/libs": "0.0.55",
+		"@permaweb/aoconnect": "https://arweave.net/ukZWnWNLVS6cdk9ohkHlmyY8NGRYde2EDfdeXB5BVwU",
+		"@permaweb/libs": "0.0.56",
 		"@types/d3": "^7.4.3",
 		"@types/three": "^0.180.0",
 		"arweave": "^1.15.5",

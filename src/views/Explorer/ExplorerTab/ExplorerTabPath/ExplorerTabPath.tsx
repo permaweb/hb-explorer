@@ -142,7 +142,7 @@ export default function ExplorerTabPath(props: {
 					try {
 						body = await props.hyperBeamRequest.response.clone().text();
 						setBodyType('raw');
-						setResponseBody(body);
+						setResponseBody(body || 'Empty Response Body');
 					} catch (e: any) {
 						console.error(e);
 						body = null;
@@ -157,6 +157,8 @@ export default function ExplorerTabPath(props: {
 					);
 					if (hyperbuddyResponse.ok) {
 						hyperbuddyDataResult = await hyperbuddyResponse.text();
+					} else {
+						hyperbuddyDataResult = 'Error Fetching Data';
 					}
 				} catch (e) {
 					console.error('Error fetching hyperbuddy data:', e);
@@ -304,9 +306,6 @@ export default function ExplorerTabPath(props: {
 				</S.InfoWrapper>
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
-						<S.Tab label={'Graph'}>
-							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
-						</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
 								<Editor initialData={hyperbuddyData} loading={false} readOnly />
@@ -324,6 +323,9 @@ export default function ExplorerTabPath(props: {
 									)}
 								</>
 							) : null}
+						</S.Tab>
+						<S.Tab label={'Graph'}>
+							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
 						</S.Tab>
 					</Tabs>
 				</S.BodyWrapper>

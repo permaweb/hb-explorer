@@ -73,6 +73,7 @@ export const TabsWrapper = styled.div`
 	position: relative;
 	z-index: 1;
 	margin: 25px 0 0 0;
+	background: ${(props) => props.theme.colors.container.primary.background};
 `;
 
 export const Tab = styled.div<{ label: string }>``;

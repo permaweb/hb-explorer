@@ -528,7 +528,11 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 						</Panel>
 					)}
 				</S.Wrapper>
-			) : null}
+			) : (
+				<S.WrapperEmpty className={'border-wrapper-primary'}>
+					<span>No Data Found</span>
+				</S.WrapperEmpty>
+			)}
 		</>
 	) : (
 		<Loader sm relative />

@@ -170,7 +170,7 @@ export default function _Editor(props: {
 					overflow: 'hidden',
 				}}
 				useFixedHeight={props.useFixedHeight}
-				className={'border-wrapper-alt2 scroll-wrapper'}
+				className={'border-wrapper-alt4 scroll-wrapper'}
 			>
 				<S.Editor>
 					<LazyMonacoEditor

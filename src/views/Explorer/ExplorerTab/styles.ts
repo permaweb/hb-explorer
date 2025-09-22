@@ -52,7 +52,6 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 	overflow: visible;
 
 	input {
-		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
 		border: 1px solid
 			${(props) => {
