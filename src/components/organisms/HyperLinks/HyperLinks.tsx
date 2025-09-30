@@ -1,5 +1,7 @@
 import React from 'react';
+import { ReactSVG } from 'react-svg';
 import * as d3 from 'd3';
+import { ungzip } from 'pako';
 import { useTheme } from 'styled-components';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -7,12 +9,13 @@ import SpriteText from 'three-spritetext';
 
 import { Button } from 'components/atoms/Button';
 import { Copyable } from 'components/atoms/Copyable';
+import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Panel } from 'components/atoms/Panel';
 import { Editor } from 'components/molecules/Editor';
 import { ASSETS, HB_ENDPOINTS } from 'helpers/config';
-import { formatAddress, hbFetch } from 'helpers/utils';
+import { formatAddress } from 'helpers/utils';
 
 import * as S from './styles';
 
@@ -28,14 +31,83 @@ declare global {
 	}
 }
 
+function extractBytes(erlangBlob: string): Uint8Array {
+	// erlangBlob looks like `{ok,<<31,139,8,...>>}` (may have newlines/spaces)
+	const m = erlangBlob.match(/<<([\s\S]*?)>>/);
+	if (!m) throw new Error('Could not find <<...>> blob');
+	const bytes = m[1]
+		.split(/[\s,]+/) // split on commas and whitespace
+		.filter(Boolean)
+		.map((n) => {
+			const num = Number(n);
+			if (!Number.isFinite(num) || num < 0 || num > 255) {
+				throw new Error(`Invalid byte: ${n}`);
+			}
+			return num;
+		});
+	return new Uint8Array(bytes);
+}
+
+function gunzipToString(arr: Uint8Array): string {
+	const inflated = ungzip(arr); // returns Uint8Array
+	return new TextDecoder('utf-8').decode(inflated);
+}
+
+/**
+ * Returns true iff `dataStr` contains an Erlang-style numeric binary (<<...>>)
+ * whose first three bytes match gzip: 0x1f, 0x8b, 0x08.
+ *
+ * Accepts inputs like: "{ok,<<31,139,8,0,...>>}" (with spaces/newlines allowed).
+ * Rejects string bitstrings like: '{ok,<<"1">>}' or '{ok,<<"http://...">>}'.
+ */
+export function isBinary(dataStr) {
+	if (typeof dataStr !== 'string') return false;
+
+	// Pull out the << ... >> portion
+	const m = dataStr.match(/<<([\s\S]*?)>>/);
+	if (!m) return false;
+
+	const inner = m[1].trim();
+
+	// If it starts with a quote, it's a string bitstring: <<"abc">>
+	if (inner.startsWith('"') || inner.startsWith("'")) return false;
+
+	// Parse decimal byte list: 0..255, allow whitespace and newlines
+	const parts = inner.split(/[\s,]+/).filter(Boolean);
+	if (parts.length < 3) return false;
+
+	const bytes = [];
+	for (const p of parts) {
+		// Disallow non-integers / out-of-range / hex etc.
+		if (!/^-?\d+$/.test(p)) return false;
+		const n = Number(p);
+		if (!Number.isInteger(n) || n < 0 || n > 255) return false;
+		bytes.push(n);
+	}
+
+	// Gzip header check: 0x1f 0x8b 0x08 (deflate)
+	return bytes[0] === 0x1f && bytes[1] === 0x8b && bytes[2] === 0x08;
+}
+
 export default function HyperLinks(props: { id?: string; path: string; onError?: (hasError: boolean) => void }) {
-	const [data, setRaw] = React.useState<any>(null);
+	const containerRef = React.useRef<HTMLDivElement | null>(null);
+	const graphControllerRef = React.useRef<any>(null);
+	const scriptLoadedRef = React.useRef(false);
+
+	const theme = useTheme() as any;
+
+	const [data, setData] = React.useState<any>(null);
+	const [scriptLoaded, setScriptLoaded] = React.useState(false);
+	const [graphReady, setGraphReady] = React.useState<number>(0);
 
 	const [activeNode, setActiveNode] = React.useState<any | null>(null);
-	const [showLinkData, setShowLinkData] = React.useState<boolean>(false);
-	const [linkData, setLinkData] = React.useState<any>(null);
+	const [showActiveData, setShowActiveData] = React.useState<boolean>(false);
+	const [activeData, setActiveData] = React.useState<any>(null);
 	const [isFullScreen, setIsFullScreen] = React.useState<boolean>(false);
 	const [showLabels, setShowLabels] = React.useState<boolean>(true);
+
+	const [currentFilter, setCurrentFilter] = React.useState<string>('');
+	const [currentFilters, setCurrentFilters] = React.useState<string[]>([]);
 
 	const [debugInfo, setDebugInfo] = React.useState({
 		fps: 0,
@@ -46,6 +118,273 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 		avgPerCell: 0,
 		cameraPosition: { x: 0, y: 0, z: 0 },
 	});
+
+	// Listen for fullscreen changes
+	React.useEffect(() => {
+		const handleFullscreenChange = () => {
+			setIsFullScreen(
+				Boolean(
+					document.fullscreenElement ||
+						(document as any).webkitFullscreenElement ||
+						(document as any).msFullscreenElement
+				)
+			);
+		};
+
+		document.addEventListener('fullscreenchange', handleFullscreenChange);
+		document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+		document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+		return () => {
+			document.removeEventListener('fullscreenchange', handleFullscreenChange);
+			document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+			document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+		};
+	}, []);
+
+	// Update renderer size when fullscreen changes or data panel opens/closes
+	React.useEffect(() => {
+		if (graphControllerRef.current?.sceneManager) {
+			// Small delay to allow DOM to update
+			setTimeout(() => {
+				graphControllerRef.current.sceneManager.onWindowResize();
+			}, 100);
+		}
+	}, [isFullScreen, showActiveData, activeData]);
+
+	React.useEffect(() => {
+		(async function () {
+			if (props.path) {
+				try {
+					const cacheRes = await fetch(`${window.hyperbeamUrl}/${props.path}${HB_ENDPOINTS.cache}`);
+					if (cacheRes.status === 404 && props.onError) {
+						props.onError(true);
+						setData({});
+					} else {
+						if (props.onError) props.onError(false);
+
+						const resData = await cacheRes.json();
+
+						if (resData.nodes && resData.links && Array.isArray(resData.nodes) && Array.isArray(resData.links)) {
+							const transformedData = {
+								nodes: resData.nodes.map((node: any) => ({
+									id: node.id,
+									label:
+										resData.links.find((link: any) => link.target === node.id)?.label ?? formatAddress(node.id, false),
+									type: node.type || 'simple',
+									data: node.data,
+								})),
+								links: resData.links.map((link: any) => ({
+									source: link.source,
+									target: link.target,
+									label: link.label || '',
+									data: link.data,
+								})),
+							};
+							setData(transformedData);
+						} else setData({});
+					}
+				} catch (e: any) {
+					console.error(e);
+					if (props.onError) props.onError(true);
+					setData({});
+				}
+			}
+		})();
+	}, [props.path, theme]);
+
+	React.useEffect(() => {
+		if (!graphControllerRef.current?.dataManager || !data?.nodes) return;
+
+		if (currentFilters.length === 0) {
+			// Show all nodes and links when no filters applied
+			data.nodes.forEach((node: any) => {
+				const nodeObj = graphControllerRef.current.dataManager.graphObjects.nodes.get(node.id);
+				if (nodeObj?.object) {
+					nodeObj.object.visible = true;
+				}
+			});
+			// Iterate through all link objects directly
+			graphControllerRef.current.dataManager.graphObjects.links.forEach((linkObj: any) => {
+				if (linkObj?.object) {
+					linkObj.object.visible = true;
+				}
+			});
+		} else {
+			// Filter nodes based on current filters (partial match support)
+			const matchingNodeIds = new Set<string>();
+
+			data.nodes.forEach((node: any) => {
+				const nodeObj = graphControllerRef.current.dataManager.graphObjects.nodes.get(node.id);
+				if (!nodeObj?.object) return;
+
+				const matchesFilter = currentFilters.some((filter) => {
+					const filterLower = filter.toLowerCase();
+					const labelMatch = node.label?.toLowerCase().includes(filterLower);
+					const dataMatch = typeof node.data === 'string' && node.data.toLowerCase().includes(filterLower);
+					const idMatch = node.id?.toLowerCase().includes(filterLower);
+					return labelMatch || dataMatch || idMatch;
+				});
+
+				nodeObj.object.visible = matchesFilter;
+				if (matchesFilter) {
+					matchingNodeIds.add(node.id);
+				}
+			});
+
+			// Hide links that don't connect two visible nodes
+			graphControllerRef.current.dataManager.graphObjects.links.forEach((linkObj: any) => {
+				if (linkObj?.object) {
+					const sourceVisible = matchingNodeIds.has(linkObj.sourceId);
+					const targetVisible = matchingNodeIds.has(linkObj.targetId);
+					linkObj.object.visible = sourceVisible && targetVisible;
+				}
+			});
+		}
+	}, [data, currentFilters, graphReady]);
+
+	React.useEffect(() => {
+		if (data && data.nodes && data.nodes.length > 0 && !activeNode) {
+			const rootNode = data.nodes.find((node: any) => node.type === 'composite');
+			setActiveNode(rootNode || data.nodes[0]);
+		}
+	}, [data, activeNode]);
+
+	React.useEffect(() => {
+		if (isBinary(activeNode?.data)) {
+			const bytes = extractBytes(activeNode.data);
+			const text = gunzipToString(bytes);
+			setActiveData(text);
+		} else setActiveData(activeNode?.data ?? '-');
+	}, [activeNode]);
+
+	React.useEffect(() => {
+		const loadGraphScript = async () => {
+			if (scriptLoadedRef.current) {
+				return;
+			}
+
+			// Make libraries globally available
+			// Create an extended THREE object with OrbitControls
+			const ExtendedTHREE = { ...THREE, OrbitControls };
+			window.THREE = ExtendedTHREE;
+			window.SpriteText = SpriteText;
+			window.d3 = d3;
+
+			try {
+				const { default: initializeHyperBEAMGraph } = await import('./hyperbeam-graph');
+				initializeHyperBEAMGraph();
+
+				scriptLoadedRef.current = true;
+				setScriptLoaded(true);
+			} catch (error) {
+				console.error('Graph: Failed to load graph script:', error);
+			}
+		};
+
+		loadGraphScript();
+	}, []);
+
+	React.useEffect(() => {
+		if (!containerRef.current || !scriptLoadedRef.current || !window.GraphController) {
+			return;
+		}
+
+		if (graphControllerRef.current) {
+			graphControllerRef.current.destroy?.();
+			graphControllerRef.current = null;
+		}
+
+		const containerId = `graph-container-${Math.random().toString(36).substring(2, 9)}`;
+		containerRef.current.id = containerId;
+
+		if (data.nodes.length === 0) {
+			return;
+		}
+
+		try {
+			const controller = new window.GraphController(containerId, theme);
+			graphControllerRef.current = controller;
+
+			if (controller.dataManager) {
+				controller.dataManager.graphData = data;
+
+				data.nodes.forEach((node: any) => {
+					if (!controller.dataManager.graphObjects.nodes.has(node.id)) {
+						controller.graphObjectManager.createNodeObject(node);
+					}
+				});
+
+				data.links.forEach((link: any) => {
+					if (!controller.dataManager.graphObjects.links.has(`${link.source}-${link.target}`)) {
+						controller.graphObjectManager.createLinkObject(link);
+					}
+				});
+
+				// Use compact grid positioning instead of circular
+				controller.positionNodesCompact();
+
+				controller.simulationManager.updateSimulation(false);
+
+				// Signal that graph is ready for filtering
+				setGraphReady((prev) => prev + 1);
+			}
+
+			const debugInterval = setInterval(() => {
+				if (controller) {
+					collectDebugStats(controller);
+				}
+			}, 50); // Update every 50ms for more responsive debug info (20fps)
+
+			controller.debugInterval = debugInterval;
+
+			const handleNodeClickInternal = (nodeId: string) => {
+				const nodeData = controller.dataManager?.graphData?.nodes?.find((n: any) => n.id === nodeId);
+				if (nodeData) {
+					handleNodeClick(nodeData);
+				}
+			};
+
+			if (controller.eventManager) {
+				const originalSelectNode = controller.eventManager.selectNode;
+				controller.eventManager.selectNode = function (nodeId: string) {
+					originalSelectNode.call(this, nodeId);
+					handleNodeClickInternal(nodeId);
+				};
+			}
+		} catch (error) {
+			console.error('Failed to initialize graph:', error);
+		}
+
+		return () => {
+			if (graphControllerRef.current) {
+				// Clear debug interval
+				if (graphControllerRef.current.debugInterval) {
+					clearInterval(graphControllerRef.current.debugInterval);
+				}
+				graphControllerRef.current.destroy?.();
+				graphControllerRef.current = null;
+			}
+		};
+	}, [data, scriptLoaded, theme]);
+
+	React.useEffect(() => {
+		if (!graphControllerRef.current || !activeNode?.id) return;
+
+		try {
+			const controller = graphControllerRef.current;
+			if (controller.eventManager && controller.eventManager.selectNode) {
+				controller.eventManager.selectNode(activeNode?.id);
+			}
+
+			// Set the active node color to highlight it differently
+			if (controller.graphObjectManager && controller.dataManager) {
+				controller.graphObjectManager.setActiveNode(activeNode.id);
+			}
+		} catch (error) {
+			console.error('Failed to select node:', error);
+		}
+	}, [activeNode?.id]);
 
 	const collectDebugStats = React.useCallback((controller: any) => {
 		if (!controller) return;
@@ -124,247 +463,16 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 		}
 	}, [showLabels]);
 
-	// Listen for fullscreen changes
-	React.useEffect(() => {
-		const handleFullscreenChange = () => {
-			setIsFullScreen(
-				Boolean(
-					document.fullscreenElement ||
-						(document as any).webkitFullscreenElement ||
-						(document as any).msFullscreenElement
-				)
-			);
-		};
-
-		document.addEventListener('fullscreenchange', handleFullscreenChange);
-		document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-		document.addEventListener('msfullscreenchange', handleFullscreenChange);
-
-		return () => {
-			document.removeEventListener('fullscreenchange', handleFullscreenChange);
-			document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-			document.removeEventListener('msfullscreenchange', handleFullscreenChange);
-		};
-	}, []);
-
-	// Update renderer size when fullscreen changes or data panel opens/closes
-	React.useEffect(() => {
-		if (graphControllerRef.current?.sceneManager) {
-			// Small delay to allow DOM to update
-			setTimeout(() => {
-				graphControllerRef.current.sceneManager.onWindowResize();
-			}, 100);
-		}
-	}, [isFullScreen, showLinkData, linkData]);
-
-	React.useEffect(() => {
-		(async function () {
-			if (props.path) {
-				try {
-					const cacheRes = await fetch(`${window.hyperbeamUrl}/${props.path}${HB_ENDPOINTS.cache}`);
-					if (cacheRes.status === 404 && props.onError) {
-						props.onError(true);
-						setRaw({});
-					} else {
-						if (props.onError) props.onError(false);
-						setRaw(await cacheRes.json());
-					}
-				} catch (e: any) {
-					console.error(e);
-					if (props.onError) props.onError(true);
-					setRaw({});
-				}
-			}
-		})();
-	}, [props.path]);
-
-	React.useEffect(() => {
-		if (data && data.nodes && data.nodes.length > 0 && !activeNode) {
-			setActiveNode(data.nodes[0]);
-		}
-	}, [data, activeNode]);
-
-	React.useEffect(() => {
-		(async function () {
-			if (activeNode) {
-				const hyperbuddyResponse = await hbFetch(
-					`/${activeNode.id.substring(activeNode.type === 'simple' ? 5 : 0)}/format~hyperbuddy@1.0`
-				);
-				setLinkData(hyperbuddyResponse);
-			}
-		})();
-	}, [activeNode]);
-
-	const containerRef = React.useRef<HTMLDivElement | null>(null);
-	const graphControllerRef = React.useRef<any>(null);
-	const scriptLoadedRef = React.useRef(false);
-
-	const theme = useTheme() as any;
-
-	const [scriptLoaded, setScriptLoaded] = React.useState(false);
-
-	const transformData = React.useCallback((data: any) => {
-		if (!data) {
-			return { nodes: [], links: [] };
-		}
-
-		// Check if data is already in the correct format (has nodes and links arrays)
-		if (data.nodes && data.links && Array.isArray(data.nodes) && Array.isArray(data.links)) {
-			const result = {
-				nodes: data.nodes.map((node: any) => ({
-					id: node.id,
-					label: formatAddress(node.label || node.id, false),
-					type: node.type || 'simple',
-				})),
-				links: data.links.map((link: any) => ({
-					source: link.source,
-					target: link.target,
-					label: link.label || '',
-				})),
-			};
-			return result;
-		}
-
-		return { nodes: [], links: [] };
-	}, []);
-
-	React.useEffect(() => {
-		const loadGraphScript = async () => {
-			if (scriptLoadedRef.current) {
-				return;
-			}
-
-			// Make libraries globally available
-			// Create an extended THREE object with OrbitControls
-			const ExtendedTHREE = { ...THREE, OrbitControls };
-			window.THREE = ExtendedTHREE;
-			window.SpriteText = SpriteText;
-			window.d3 = d3;
-
-			try {
-				const { default: initializeHyperBEAMGraph } = await import('./hyperbeam-graph');
-				initializeHyperBEAMGraph();
-
-				scriptLoadedRef.current = true;
-				setScriptLoaded(true);
-			} catch (error) {
-				console.error('Graph: Failed to load graph script:', error);
-			}
-		};
-
-		loadGraphScript();
-	}, []);
-
-	React.useEffect(() => {
-		if (!containerRef.current || !scriptLoadedRef.current || !window.GraphController) {
-			return;
-		}
-
-		if (graphControllerRef.current) {
-			graphControllerRef.current.destroy?.();
-			graphControllerRef.current = null;
-		}
-
-		const containerId = `graph-container-${Math.random().toString(36).substring(2, 9)}`;
-		containerRef.current.id = containerId;
-
-		const graphData = transformData(data);
-
-		if (graphData.nodes.length === 0) {
-			return;
-		}
-
-		try {
-			const controller = new window.GraphController(containerId, theme);
-			graphControllerRef.current = controller;
-
-			if (controller.dataManager) {
-				controller.dataManager.graphData = graphData;
-
-				graphData.nodes.forEach((node: any) => {
-					if (!controller.dataManager.graphObjects.nodes.has(node.id)) {
-						controller.graphObjectManager.createNodeObject(node);
-					}
-				});
-
-				graphData.links.forEach((link: any) => {
-					if (!controller.dataManager.graphObjects.links.has(`${link.source}-${link.target}`)) {
-						controller.graphObjectManager.createLinkObject(link);
-					}
-				});
-
-				// Use compact grid positioning instead of circular
-				controller.positionNodesCompact();
-
-				controller.simulationManager.updateSimulation(false);
-			}
-
-			const debugInterval = setInterval(() => {
-				if (controller) {
-					collectDebugStats(controller);
-				}
-			}, 50); // Update every 50ms for more responsive debug info (20fps)
-
-			controller.debugInterval = debugInterval;
-
-			const handleNodeClickInternal = (nodeId: string) => {
-				const nodeData = controller.dataManager?.graphData?.nodes?.find((n: any) => n.id === nodeId);
-				if (nodeData) {
-					handleNodeClick(nodeData);
-				}
-			};
-
-			if (controller.eventManager) {
-				const originalSelectNode = controller.eventManager.selectNode;
-				controller.eventManager.selectNode = function (nodeId: string) {
-					originalSelectNode.call(this, nodeId);
-					handleNodeClickInternal(nodeId);
-				};
-			}
-		} catch (error) {
-			console.error('Failed to initialize graph:', error);
-		}
-
-		return () => {
-			if (graphControllerRef.current) {
-				// Clear debug interval
-				if (graphControllerRef.current.debugInterval) {
-					clearInterval(graphControllerRef.current.debugInterval);
-				}
-				graphControllerRef.current.destroy?.();
-				graphControllerRef.current = null;
-			}
-		};
-	}, [data, transformData, handleNodeClick, scriptLoaded, theme]);
-
-	React.useEffect(() => {
-		if (!graphControllerRef.current || !activeNode?.id) return;
-
-		try {
-			const controller = graphControllerRef.current;
-			if (controller.eventManager && controller.eventManager.selectNode) {
-				controller.eventManager.selectNode(activeNode?.id);
-			}
-
-			// Set the active node color to highlight it differently
-			if (controller.graphObjectManager && controller.dataManager) {
-				controller.graphObjectManager.setActiveNode(activeNode.id);
-			}
-		} catch (error) {
-			console.error('Failed to select node:', error);
-		}
-	}, [activeNode?.id]);
-
 	return data ? (
 		<>
 			{Object.keys(data).length > 0 ? (
 				<S.Wrapper ref={wrapperRef} isFullScreen={isFullScreen}>
 					<S.InfoWrapper className={'border-wrapper-alt3 fade-in'}>
 						<S.InfoLine>
-							<S.InfoBlock>
+							<S.InfoBlockMaxWidth>
 								<p>Cache:</p>
 								<span>{props.path ?? '-'}</span>
-							</S.InfoBlock>
+							</S.InfoBlockMaxWidth>
 							<S.InfoBlockFlex>
 								<S.InfoBlockFlex>
 									<S.InfoBlock>
@@ -403,12 +511,55 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 								</S.InfoBlockFlex>
 							</S.InfoBlockFlex>
 						</S.InfoLine>
+						<S.InfoLine>
+							<S.InfoBlock>
+								<S.FilterForm
+									onSubmit={(e: any) => {
+										e.preventDefault();
+										if (currentFilter.trim()) {
+											setCurrentFilters((prev) => [...(prev ?? []), currentFilter.trim()]);
+											setCurrentFilter('');
+										}
+									}}
+								>
+									<ReactSVG src={ASSETS.search} />
+									<FormField
+										placeholder={'Search by Field'}
+										value={currentFilter}
+										onChange={(e: any) => setCurrentFilter(e.target.value)}
+										disabled={false}
+										invalid={{ status: false, message: null }}
+									/>
+								</S.FilterForm>
+							</S.InfoBlock>
+							<S.InfoBlockFlex>
+								{currentFilters?.length > 0 ? (
+									<>
+										{currentFilters.map((filter: string) => {
+											return (
+												<Button
+													type={'alt3'}
+													label={filter}
+													handlePress={() => setCurrentFilters((prev) => prev.filter((f) => f !== filter))}
+													active={true}
+													icon={ASSETS.close}
+												/>
+											);
+										})}
+									</>
+								) : (
+									<S.InfoBlock>
+										<span>No Filters Applied</span>
+									</S.InfoBlock>
+								)}
+							</S.InfoBlockFlex>
+						</S.InfoLine>
 						<S.InfoLineDivider />
 						<S.InfoLine>
 							<S.InfoBlock>
 								<p>Nodes</p>
 							</S.InfoBlock>
-							<S.InfoBlockFlex>
+							<S.InfoBlockKey>
 								<S.InfoBlock background={theme?.colors.editor.alt4}>
 									<p>Simple:</p>
 									<div className={'indicator'} />
@@ -425,7 +576,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 									<p>Connection:</p>
 									<div className={'indicator'} />
 								</S.InfoBlock>
-							</S.InfoBlockFlex>
+							</S.InfoBlockKey>
 						</S.InfoLine>
 						<S.InfoLineDivider />
 						<S.InfoLine>
@@ -485,31 +636,37 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 									</S.InfoBlock>
 									<S.InfoBlockFlex>
 										<Copyable value={activeNode.id.substring(activeNode.type === 'simple' ? 5 : 0)} />
-										<S.InfoBlockDivider />
-										<S.InfoBlock>
-											<p>Type:</p>
-											<span>{activeNode.type.toUpperCase()}</span>
-										</S.InfoBlock>
-										<S.InfoBlockDivider />
-										<Button
-											type={'alt3'}
-											label={showLinkData ? 'Close' : 'View Data'}
-											handlePress={() => setShowLinkData(true)}
-										/>
 									</S.InfoBlockFlex>
+								</S.InfoLine>
+								<S.InfoLine>
+									<S.InfoBlock>
+										<p>Field:</p>
+										<span>{activeNode.label ?? '-'}</span>
+									</S.InfoBlock>
+									<S.InfoBlockMaxWidth>
+										{isBinary(activeNode.data) ? (
+											<Button
+												type={'alt2'}
+												label={showActiveData ? 'Close' : 'View'}
+												handlePress={() => setShowActiveData((prev) => !prev)}
+											/>
+										) : (
+											<code onClick={() => setShowActiveData(true)}>{activeNode.data ?? '-'}</code>
+										)}
+									</S.InfoBlockMaxWidth>
 								</S.InfoLine>
 							</>
 						)}
 					</S.InfoWrapper>
 					<S.GraphWrapper>
-						<S.Graph isFullScreen={isFullScreen} hasActiveData={showLinkData && !!linkData}>
+						<S.Graph isFullScreen={isFullScreen} hasActiveData={showActiveData && !!activeData}>
 							<S.GraphCanvas ref={(el: HTMLDivElement) => (containerRef.current = el)} />
 						</S.Graph>
 						{/* Show data inline in fullscreen mode instead of modal */}
-						{isFullScreen && showLinkData && linkData && (
+						{isFullScreen && showActiveData && activeData && (
 							<S.FullScreenDataPanel>
 								<S.DataPanelContent>
-									<Editor initialData={linkData} loading={false} readOnly />
+									<Editor initialData={activeData} loading={false} readOnly />
 								</S.DataPanelContent>
 							</S.FullScreenDataPanel>
 						)}
@@ -517,14 +674,39 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 					{/* Only show modal panel in non-fullscreen mode */}
 					{!isFullScreen && (
 						<Panel
-							header={`Active Node Data (${activeNode?.label ?? '-'})`}
-							open={showLinkData}
-							handleClose={() => setShowLinkData(false)}
+							header={`Active Node`}
+							open={showActiveData}
+							handleClose={() => setShowActiveData(false)}
 							width={600}
 						>
-							<div className={'modal-wrapper'}>
-								{linkData && <Editor initialData={linkData} loading={false} readOnly noFullScreen />}
-							</div>
+							<S.PanelWrapper className={'modal-wrapper'}>
+								<S.PanelHeaderWrapper>
+									<S.InfoLine>
+										<S.InfoBlockMaxWidth>
+											<p>Cache:</p>
+											<span>{props.path ?? '-'}</span>
+										</S.InfoBlockMaxWidth>
+									</S.InfoLine>
+									<S.InfoLine>
+										<S.InfoBlockMaxWidth>
+											<p>Field:</p>
+											<span>{activeNode?.label ?? '-'}</span>
+										</S.InfoBlockMaxWidth>
+									</S.InfoLine>
+								</S.PanelHeaderWrapper>
+								<S.PanelBodyWrapper>
+									{activeData && <Editor initialData={activeData} loading={false} readOnly noFullScreen noWrapper />}
+								</S.PanelBodyWrapper>
+								<S.PanelActionWrapper>
+									<Button
+										type={'primary'}
+										label={'Close'}
+										handlePress={() => setShowActiveData(false)}
+										height={45}
+										fullWidth
+									/>
+								</S.PanelActionWrapper>
+							</S.PanelWrapper>
 						</Panel>
 					)}
 				</S.Wrapper>

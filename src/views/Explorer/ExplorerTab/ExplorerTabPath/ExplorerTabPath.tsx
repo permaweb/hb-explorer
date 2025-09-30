@@ -276,7 +276,7 @@ export default function ExplorerTabPath(props: {
 						</S.SignatureBody>
 					</S.InfoSection>
 					{buildInfoSection(
-						'Signed Headers',
+						'Signed Fields',
 						ASSETS.headers,
 						(() => {
 							// Combine headers with links and sort so links appear on top
@@ -306,6 +306,9 @@ export default function ExplorerTabPath(props: {
 				</S.InfoWrapper>
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
+						<S.Tab label={'Graph'}>
+							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
+						</S.Tab>
 						<S.Tab label={'Hyperbuddy'}>
 							{hyperbuddyData ? (
 								<Editor initialData={hyperbuddyData} loading={false} readOnly />
@@ -313,7 +316,7 @@ export default function ExplorerTabPath(props: {
 								<Loader sm relative />
 							)}
 						</S.Tab>
-						<S.Tab label={'Body'}>
+						<S.Tab label={'Content'}>
 							{responseBody ? (
 								<>
 									{bodyType === 'json' ? (
@@ -323,9 +326,6 @@ export default function ExplorerTabPath(props: {
 									)}
 								</>
 							) : null}
-						</S.Tab>
-						<S.Tab label={'Graph'}>
-							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
 						</S.Tab>
 					</Tabs>
 				</S.BodyWrapper>

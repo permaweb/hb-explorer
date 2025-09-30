@@ -16,6 +16,7 @@ export default function _Editor(props: {
 	language?: string;
 	readOnly?: boolean;
 	noFullScreen?: boolean;
+	noWrapper?: boolean;
 	setEditorData?: (data: string) => void;
 	header?: string;
 	height?: number;
@@ -59,7 +60,7 @@ export default function _Editor(props: {
 
 	function getColors(theme: DefaultTheme) {
 		return {
-			'editor.background': theme.colors.container.alt1.background,
+			'editor.background': props.noWrapper ? theme.colors.view.background : theme.colors.container.alt1.background,
 			'editorLineNumber.foreground': theme.colors.font.alt1,
 			'editorCursor.foreground': theme.colors.font.alt1,
 			'editorBracketHighlight.foreground1': theme.colors.editor.alt5,
@@ -170,9 +171,9 @@ export default function _Editor(props: {
 					overflow: 'hidden',
 				}}
 				useFixedHeight={props.useFixedHeight}
-				className={'border-wrapper-alt4 scroll-wrapper'}
+				className={`${props.noWrapper ? '' : 'border-wrapper-alt4'} scroll-wrapper`}
 			>
-				<S.Editor>
+				<S.Editor noWrapper={props.noWrapper}>
 					<LazyMonacoEditor
 						height={'100%'}
 						defaultLanguage={props.language}

@@ -128,7 +128,7 @@ export const Graphic = styled.div`
 		position: fixed;
 		opacity: 0.45;
 		z-index: 0;
-		top: -105px;
+		top: -72.5px;
 		left: 50%;
 		transform: translate(-50%, 0);
 	}

@@ -42,16 +42,22 @@ export const InfoBlockFlex = styled.div`
 	flex-wrap: wrap;
 `;
 
+export const InfoBlockKey = styled(InfoBlockFlex)`
+	gap: 17.5px;
+`;
+
 export const InfoBlock = styled.div<{ background?: string }>`
 	display: flex;
 	align-items: center;
-	gap: 7.5px;
+	gap: 5px;
+	max-width: 100%;
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
+		white-space: nowrap;
 		text-transform: uppercase;
 		display: block;
 		margin: 0.5px 0 0 0;
@@ -62,6 +68,31 @@ export const InfoBlock = styled.div<{ background?: string }>`
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	code {
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
+		font-family: ${(props) => props.theme.typography.family.alt2};
+		font-weight: ${(props) => props.theme.typography.weight.xBold};
+		color: ${(props) => props.theme.colors.font.primary};
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		background: ${(props) => props.theme.colors.button.primary.background};
+		border: 1px solid ${(props) => props.theme.colors.button.primary.border};
+		border-radius: ${STYLING.dimensions.radius.alt2};
+		padding: 1.5px 7.5px;
+		cursor: pointer;
+		transition: all 100ms;
+
+		&:hover {
+			color: ${(props) => props.theme.colors.button.primary.active.color};
+			background: ${(props) => props.theme.colors.button.primary.active.background};
+			border: 1px solid ${(props) => props.theme.colors.button.primary.active.border};
+		}
 	}
 
 	.indicator {
@@ -70,6 +101,34 @@ export const InfoBlock = styled.div<{ background?: string }>`
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
 		border-radius: ${STYLING.dimensions.radius.alt3};
 	}
+`;
+
+export const FilterForm = styled.form`
+	position: relative;
+	margin: 0 0 2.5px 0;
+
+	input {
+		height: 37.5px;
+		width: 375px;
+		max-width: 100%;
+		background: ${(props) => props.theme.colors.container.alt1.background} !important;
+		padding: 10px 10px 10px 36.5px !important;
+	}
+
+	svg {
+		height: 15px;
+		width: 15px;
+		color: ${(props) => props.theme.colors.font.alt1};
+		fill: ${(props) => props.theme.colors.font.alt1};
+		position: absolute;
+		z-index: 1;
+		top: 11.5px;
+		left: 11.5px;
+	}
+`;
+
+export const InfoBlockMaxWidth = styled(InfoBlock)`
+	max-width: 50%;
 `;
 
 export const InfoBlockDivider = styled.div`
@@ -161,4 +220,26 @@ export const WrapperEmpty = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
+`;
+
+export const PanelWrapper = styled.div`
+	height: 100%;
+`;
+
+export const PanelHeaderWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 7.5px;
+	margin: 0 0 7.5px 0;
+`;
+
+export const PanelBodyWrapper = styled.div`
+	height: calc(100% - 120px);
+	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
+	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+	padding: 15px 0;
+`;
+
+export const PanelActionWrapper = styled.div`
+	margin: 20px 0 0 0;
 `;

@@ -269,6 +269,8 @@ export const Alt2 = styled(Alt1)`
 		overflow: hidden;
 		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
 		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		text-decoration: underline;
+		text-decoration-thickness: 1.25px;
 		color: ${(props) =>
 			props.active ? props.theme.colors.button.alt2.active.color : props.theme.colors.button.alt2.color} !important;
 	}
