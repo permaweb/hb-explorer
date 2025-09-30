@@ -154,7 +154,7 @@ export const STYLING = {
 			max: '45px',
 		},
 		nav: {
-			height: '70px',
+			height: '72.5px',
 			width: '260px',
 		},
 		radius: {

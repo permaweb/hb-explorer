@@ -32,13 +32,13 @@ export const EditorWrapper = styled.div<{ useFixedHeight: boolean }>`
 	position: relative;
 `;
 
-export const Editor = styled.div`
+export const Editor = styled.div<{ noWrapper: boolean }>`
 	height: 100%;
 	width: 100%;
 	flex: 1;
 	position: relative;
-	padding: 18.5px 0 0 0;
-	background: ${(props) => props.theme.colors.container.alt1.background};
+	padding: ${(props) => (props.noWrapper ? '0' : '18.5px 0 0 0')};
+	background: ${(props) => (props.noWrapper ? 'transparent' : props.theme.colors.container.alt1.background)};
 
 	> div {
 		height: 100% !important;

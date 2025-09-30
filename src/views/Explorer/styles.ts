@@ -23,6 +23,7 @@ export const TabsWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	position: relative;
+	margin: 25px 0 0 0;
 `;
 
 export const BodyWrapper = styled.div`
@@ -277,7 +278,7 @@ export const Graphic = styled.div`
 		max-width: ${STYLING.cutoffs.max};
 		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9175 : 0)});
 		position: fixed;
-		opacity: 0.15;
+		opacity: 0.35;
 		z-index: -1;
 		top: 60px;
 		left: 50%;

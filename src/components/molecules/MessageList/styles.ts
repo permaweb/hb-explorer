@@ -473,9 +473,7 @@ export const OverlayLine = styled.div`
 
 	p,
 	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall} !important;
-		font-family: ${(props) => props.theme.typography.family.primary} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-size: ${(props) => props.theme.typography.size.xSmall};
 	}
 
 	p {
@@ -534,7 +532,7 @@ export const OverlayOutput = styled.div`
 	width: 100%;
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.small};
+		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};

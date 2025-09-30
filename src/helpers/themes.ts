@@ -72,7 +72,7 @@ export const darkTheme = {
 	neutral3: '#2E2E2E',
 	neutral4: '#383838',
 	neutral5: '#444444',
-	neutral6: '#515151',
+	neutral6: '#606060',
 	neutral7: '#5E5E5E',
 	neutral8: '#6C6C6C',
 	neutral9: '#7A7A7A',
@@ -246,7 +246,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 		font: {
 			primary: currentTheme.neutralA1,
 			alt1: currentTheme.neutralA5,
-			alt2: currentTheme.neutralA4,
+			alt2: currentTheme.neutralA3,
 			alt3: currentTheme.neutral8,
 			alt4: currentTheme.neutral1,
 			alt5: currentTheme.primary1,
