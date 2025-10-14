@@ -493,9 +493,6 @@ export default function Explorer() {
 							);
 						})}
 					</>
-					<S.Graphic>
-						<video src={ASSETS.graphic} autoPlay loop muted playsInline />
-					</S.Graphic>
 				</ViewWrapper>
 			</S.Wrapper>
 			{showClearConfirmation && (

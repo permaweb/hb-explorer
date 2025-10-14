@@ -189,7 +189,7 @@ export default function ExplorerTabPath(props: {
 				<S.InfoSection className={'border-wrapper-primary fade-in'}>
 					<S.InfoHeader>
 						<S.InfoTitle>
-							<ReactSVG src={icon} />
+							{icon && <ReactSVG src={icon} />}
 							<p>{label}</p>
 						</S.InfoTitle>
 						<span>{`(${Object.keys(data).length}) `}</span>
@@ -277,7 +277,7 @@ export default function ExplorerTabPath(props: {
 					</S.InfoSection>
 					{buildInfoSection(
 						'Signed Fields',
-						ASSETS.headers,
+						null,
 						(() => {
 							// Combine headers with links and sort so links appear on top
 							const allHeaders = { ...props.hyperBeamRequest.headers };

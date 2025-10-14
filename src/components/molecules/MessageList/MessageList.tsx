@@ -67,8 +67,11 @@ function Message(props: {
 				if (props.element.process && props.element.slot) {
 					try {
 						const response = await hbFetch(`/${props.element.process}/compute=${props.element.slot}`, { json: true });
-						if (response?.results?.json?.body) {
-							const parsedResult = JSON.parse(response.results.json.body);
+						if (response?.results?.json?.body || response?.results) {
+							let parsedResult: any;
+							if (response?.results?.json?.body) parsedResult = JSON.parse(response.results.json.body);
+							else parsedResult = response.results;
+
 							setResult(parsedResult);
 
 							const normalizedMessages = normalizeChildMessages(parsedResult);

@@ -16,7 +16,6 @@ import { ExplorerTabPath } from './ExplorerTabPath';
 import { ExplorerTabProcess } from './ExplorerTabProcess';
 import * as S from './styles';
 
-// TODO: Clicking on input is submitting process messages
 export default function ExplorerTab(props: {
 	tab: ExplorerTabObjectType;
 	active: boolean;
@@ -140,11 +139,6 @@ export default function ExplorerTab(props: {
 		}
 	};
 
-	const handleInputClick = (e: React.MouseEvent<HTMLInputElement>) => {
-		const target = e.target as HTMLInputElement;
-		setCursorPosition(target.selectionStart || 0);
-	};
-
 	function getTab() {
 		if (hyperBeamRequest?.error) {
 			return (
@@ -189,7 +183,6 @@ export default function ExplorerTab(props: {
 							onChange={handleInputChange}
 							onKeyPress={handleKeyPress}
 							onKeyDown={handleKeyDown}
-							onClick={handleInputClick}
 							placeholder={language.pathOrId}
 							invalid={{ status: false, message: null }}
 							disabled={hyperBeamRequest.loading}

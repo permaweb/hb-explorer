@@ -40,7 +40,7 @@ export const lightTheme = {
 		alt1: '#13ab8f',
 		alt2: '#5E66DB',
 		alt3: '#00a66b',
-		alt4: '#006dff',
+		alt4: '#3476E1',
 		alt5: '#8580d9',
 		alt6: '#FF5722',
 		alt7: '#FFC107',
