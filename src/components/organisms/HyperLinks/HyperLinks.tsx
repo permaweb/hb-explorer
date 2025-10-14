@@ -54,6 +54,30 @@ function gunzipToString(arr: Uint8Array): string {
 }
 
 /**
+ * Cleans up Erlang formatting patterns from data strings
+ * Removes {ok, ...} wrappers, ok ==> { ... } wrappers, and standalone ok: prefixes
+ */
+function cleanErlangFormatting(data: any): any {
+	if (typeof data !== 'string') return data;
+
+	let cleaned = data;
+
+	// Remove ok ==> \n ... { ... } wrapper (multiline support with newlines and whitespace)
+	cleaned = cleaned.replace(/^\s*ok\s*==>\s*[\r\n\s]*/, '');
+
+	// Remove outer { ... } if present
+	cleaned = cleaned.replace(/^\s*\{([\s\S]*)\}\s*$/, '$1');
+
+	// Remove {ok, ...} wrapper
+	cleaned = cleaned.replace(/^\s*ok\s*,\s*/, '');
+
+	// Remove standalone ok: prefix
+	cleaned = cleaned.replace(/^\s*ok\s*:\s*/, '');
+
+	return cleaned.trim();
+}
+
+/**
  * Returns true iff `dataStr` contains an Erlang-style numeric binary (<<...>>)
  * whose first three bytes match gzip: 0x1f, 0x8b, 0x08.
  *
@@ -99,6 +123,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 	const [data, setData] = React.useState<any>(null);
 	const [scriptLoaded, setScriptLoaded] = React.useState(false);
 	const [graphReady, setGraphReady] = React.useState<number>(0);
+	const [viewType, setViewType] = React.useState<'table' | 'graph'>('table');
 
 	const [activeNode, setActiveNode] = React.useState<any | null>(null);
 	const [showActiveData, setShowActiveData] = React.useState<boolean>(false);
@@ -255,7 +280,10 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 			const bytes = extractBytes(activeNode.data);
 			const text = gunzipToString(bytes);
 			setActiveData(text);
-		} else setActiveData(activeNode?.data ?? '-');
+		} else {
+			const data = cleanErlangFormatting(activeNode?.data ?? '-');
+			setActiveData(data);
+		}
 	}, [activeNode]);
 
 	React.useEffect(() => {
@@ -286,7 +314,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 	}, []);
 
 	React.useEffect(() => {
-		if (!containerRef.current || !scriptLoadedRef.current || !window.GraphController) {
+		if (!containerRef.current || !scriptLoadedRef.current || !window.GraphController || viewType !== 'graph') {
 			return;
 		}
 
@@ -366,7 +394,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 				graphControllerRef.current = null;
 			}
 		};
-	}, [data, scriptLoaded, theme]);
+	}, [data, scriptLoaded, theme, viewType]);
 
 	React.useEffect(() => {
 		if (!graphControllerRef.current || !activeNode?.id) return;
@@ -463,6 +491,157 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 		}
 	}, [showLabels]);
 
+	// Build tree structure from nodes and links
+	const buildTreeStructure = React.useCallback(() => {
+		if (!data?.nodes || !data?.links) return [];
+
+		// Find root nodes (composite type or nodes with no incoming links)
+		const targetIds = new Set(data.links.map((link: any) => link.target));
+		const roots = data.nodes.filter((node: any) => node.type === 'composite' || !targetIds.has(node.id));
+
+		// Build adjacency map for children
+		const childrenMap = new Map<string, any[]>();
+		data.links.forEach((link: any) => {
+			if (!childrenMap.has(link.source)) {
+				childrenMap.set(link.source, []);
+			}
+			const targetNode = data.nodes.find((n: any) => n.id === link.target);
+			if (targetNode) {
+				childrenMap.get(link.source)!.push({ ...targetNode, linkLabel: link.label });
+			}
+		});
+
+		// Recursively build tree with depth info
+		const buildNode = (node: any, depth: number, isLast: boolean, ancestorLines: boolean[]): any[] => {
+			const children = childrenMap.get(node.id) || [];
+			const hasChildren = children.length > 0;
+			const result = [{ ...node, depth, isLast, ancestorLines: [...ancestorLines], hasChildren }];
+
+			children.forEach((child: any, index: number) => {
+				const isLastChild = index === children.length - 1;
+				const newAncestorLines = [...ancestorLines, !isLast];
+				result.push(...buildNode(child, depth + 1, isLastChild, newAncestorLines));
+			});
+
+			return result;
+		};
+
+		// Build tree from all roots
+		return roots.flatMap((root: any) => buildNode(root, 0, true, []));
+	}, [data]);
+
+	const treeNodes = React.useMemo(() => buildTreeStructure(), [buildTreeStructure]);
+
+	const filteredTreeNodes = React.useMemo(() => {
+		if (currentFilters.length === 0) {
+			return treeNodes;
+		}
+
+		return treeNodes.filter((node: any) => {
+			return currentFilters.some((filter) => {
+				const filterLower = filter.toLowerCase();
+				const labelMatch = node.label?.toLowerCase().includes(filterLower);
+				const dataMatch = typeof node.data === 'string' && node.data.toLowerCase().includes(filterLower);
+				const idMatch = node.id?.toLowerCase().includes(filterLower);
+				return labelMatch || dataMatch || idMatch;
+			});
+		});
+	}, [treeNodes, currentFilters]);
+
+	// Build a map of connected nodes relative to active node
+	const connectedNodes = React.useMemo(() => {
+		if (!activeNode || !data?.links) return new Set<string>();
+
+		const connected = new Set<string>();
+		connected.add(activeNode.id);
+
+		// Find all nodes connected to active node (both directions)
+		data.links.forEach((link: any) => {
+			if (link.source === activeNode.id) {
+				connected.add(link.target);
+			}
+			if (link.target === activeNode.id) {
+				connected.add(link.source);
+			}
+		});
+
+		return connected;
+	}, [activeNode, data?.links]);
+
+	function getView() {
+		switch (viewType) {
+			case 'table':
+				return (
+					<S.TableWrapper>
+						<S.Table
+							className={'border-wrapper-alt3 scroll-wrapper-hidden fade-in'}
+							isFullScreen={isFullScreen}
+							hasActiveData={showActiveData && !!activeData}
+						>
+							{filteredTreeNodes.map((node: any, index: number) => {
+								const isActive = node?.id === activeNode?.id;
+								const isConnected = connectedNodes.has(node.id);
+
+								return (
+									<S.TableRow key={`${node.id}-${index}`} depth={node.depth} onClick={() => setActiveNode(node)}>
+										<S.ThreadLine>
+											{node.ancestorLines.map((_showLine: boolean, i: number) => (
+												<S.AncestorLine key={i} show={true} isConnected={isConnected} />
+											))}
+											{node.depth > 0 && (
+												<>
+													<S.HorizontalLine depth={node.depth} isConnected={isConnected} />
+												</>
+											)}
+										</S.ThreadLine>
+										<S.NodeContent depth={node.depth}>
+											<S.NodeContentHeader
+												background={isActive ? theme?.colors.editor.alt7 : theme.colors.container.alt8.background}
+												hasChildren={node.hasChildren}
+											>
+												<div className={'indicator'} />
+												<p>{node.label}</p>
+											</S.NodeContentHeader>
+											<S.NodeContentDetail
+												background={
+													node.type === 'composite' ? theme?.colors.editor.primary : theme?.colors.editor.alt4
+												}
+												hasChildren={node.hasChildren}
+											>
+												<div className={'indicator'} />
+											</S.NodeContentDetail>
+										</S.NodeContent>
+									</S.TableRow>
+								);
+							})}
+						</S.Table>
+						{isFullScreen && showActiveData && activeData && (
+							<S.FullScreenDataPanel>
+								<S.DataPanelContent>
+									<Editor initialData={activeData} loading={false} readOnly />
+								</S.DataPanelContent>
+							</S.FullScreenDataPanel>
+						)}
+					</S.TableWrapper>
+				);
+			case 'graph':
+				return (
+					<S.GraphWrapper>
+						<S.Graph isFullScreen={isFullScreen} hasActiveData={showActiveData && !!activeData}>
+							<S.GraphCanvas ref={(el: HTMLDivElement) => (containerRef.current = el)} />
+						</S.Graph>
+						{isFullScreen && showActiveData && activeData && (
+							<S.FullScreenDataPanel>
+								<S.DataPanelContent>
+									<Editor initialData={activeData} loading={false} readOnly />
+								</S.DataPanelContent>
+							</S.FullScreenDataPanel>
+						)}
+					</S.GraphWrapper>
+				);
+		}
+	}
+
 	return data ? (
 		<>
 			{Object.keys(data).length > 0 ? (
@@ -488,8 +667,36 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 								<S.InfoBlockFlex>
 									<IconButton
 										type={'alt1'}
+										src={ASSETS.table}
+										handlePress={() => setViewType('table')}
+										active={viewType === 'table'}
+										dimensions={{
+											wrapper: 25,
+											icon: 12.5,
+										}}
+										tooltip={'Table View'}
+										tooltipPosition={'top-right'}
+									/>
+									<IconButton
+										type={'alt1'}
+										src={ASSETS.graph}
+										handlePress={() => setViewType('graph')}
+										active={viewType === 'graph'}
+										dimensions={{
+											wrapper: 25,
+											icon: 12.5,
+										}}
+										tooltip={'Graph View'}
+										tooltipPosition={'top-right'}
+									/>
+								</S.InfoBlockFlex>
+								<S.InfoBlockDivider />
+								<S.InfoBlockFlex>
+									<IconButton
+										type={'alt1'}
 										src={ASSETS.label}
 										handlePress={handleToggleLabels}
+										disabled={viewType === 'table'}
 										dimensions={{
 											wrapper: 25,
 											icon: 12.5,
@@ -651,27 +858,16 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 												handlePress={() => setShowActiveData((prev) => !prev)}
 											/>
 										) : (
-											<code onClick={() => setShowActiveData(true)}>{activeNode.data ?? '-'}</code>
+											<code onClick={() => setShowActiveData(true)}>
+												{cleanErlangFormatting(activeNode.data) ?? '-'}
+											</code>
 										)}
 									</S.InfoBlockMaxWidth>
 								</S.InfoLine>
 							</>
 						)}
 					</S.InfoWrapper>
-					<S.GraphWrapper>
-						<S.Graph isFullScreen={isFullScreen} hasActiveData={showActiveData && !!activeData}>
-							<S.GraphCanvas ref={(el: HTMLDivElement) => (containerRef.current = el)} />
-						</S.Graph>
-						{/* Show data inline in fullscreen mode instead of modal */}
-						{isFullScreen && showActiveData && activeData && (
-							<S.FullScreenDataPanel>
-								<S.DataPanelContent>
-									<Editor initialData={activeData} loading={false} readOnly />
-								</S.DataPanelContent>
-							</S.FullScreenDataPanel>
-						)}
-					</S.GraphWrapper>
-					{/* Only show modal panel in non-fullscreen mode */}
+					{getView()}
 					{!isFullScreen && (
 						<Panel
 							header={`Active Node`}

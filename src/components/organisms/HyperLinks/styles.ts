@@ -137,6 +137,146 @@ export const InfoBlockDivider = styled.div`
 	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 `;
 
+export const TableWrapper = styled.div`
+	width: 100%;
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	gap: 20px;
+`;
+
+export const Table = styled.div<{ isFullScreen: boolean; hasActiveData: boolean }>`
+	min-height: 500px;
+	height: fit-content;
+	max-height: calc(100vh - ${(props) => (props.isFullScreen ? '410px' : '260px')});
+	width: ${(props) => (props.isFullScreen && props.hasActiveData ? '55%' : '100%')};
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 7.5px 0;
+`;
+
+export const TableRow = styled.div<{ depth?: number }>`
+	min-width: 100%;
+	width: fit-content;
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 7.5px 15px;
+	padding-left: ${(props) => 15 + (props.depth || 0) * 29.5}px;
+	transition: all 100ms;
+
+	&:hover {
+		background: ${(props) => props.theme.colors.container.primary.active};
+		cursor: pointer;
+	}
+
+	p {
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		color: ${(props) => props.theme.colors.font.primary};
+		line-height: 1.5;
+	}
+`;
+
+export const ThreadLine = styled.div`
+	position: absolute;
+	left: 15px;
+	top: 0;
+	height: 100%;
+	display: flex;
+	align-items: flex-start;
+`;
+
+export const AncestorLine = styled.div<{ show: boolean; isConnected?: boolean }>`
+	width: 29.5px;
+	height: 100%;
+	position: relative;
+	${(props) =>
+		props.show &&
+		`
+		&::before {
+			content: '';
+			position: absolute;
+			left: 6.25px;
+			top: 0;
+			height: 100%;
+			border-left: 1px solid ${
+				props.isConnected
+					? props.theme.colors.editor?.alt5 || props.theme.colors.border.primary
+					: props.theme.colors.border.primary
+			};
+		}
+	`}
+`;
+
+export const HorizontalLine = styled.div<{ depth?: number; isConnected?: boolean }>`
+	width: 15.5px;
+	height: calc(50% + 0.5px);
+	position: absolute;
+	left: ${({ depth = 0 }) => `calc(${depth - 1} * 29.5px + 7.5px)`};
+	border-bottom: 1px solid
+		${(props) =>
+			props.isConnected
+				? props.theme.colors.editor?.alt5 || props.theme.colors.border.primary
+				: props.theme.colors.border.primary};
+`;
+
+export const NodeContent = styled.div<{ depth?: number }>`
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-left: ${(props) => (props.depth <= 0 ? '1.5px' : '1.5px')};
+`;
+
+export const NodeContentHeader = styled.div<{ background: string; hasChildren?: boolean }>`
+	display: flex;
+	align-items: center;
+	gap: 8.5px;
+
+	p {
+		padding: 0 0 0.5px 1.5px;
+	}
+
+	.indicator {
+		height: 12.5px;
+		width: 12.5px;
+		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
+		border-radius: ${STYLING.dimensions.radius.alt3};
+		border: 1px solid ${(props) => props.theme.colors.border.primary};
+	}
+`;
+
+export const NodeContentDetail = styled.div<{ background: string; hasChildren?: boolean }>`
+	display: flex;
+	align-items: center;
+	gap: 7.5px;
+
+	p {
+		padding: 0 0 0.5px 1.5px;
+	}
+
+	.indicator {
+		height: 12.5px;
+		width: 12.5px;
+		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
+		border-radius: ${STYLING.dimensions.radius.alt3};
+		border: 1px solid ${(props) => props.theme.colors.border.primary};
+	}
+`;
+
+export const LinkLabel = styled.span`
+	font-size: ${(props) => props.theme.typography.size.xxSmall};
+	font-family: ${(props) => props.theme.typography.family.primary};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
+	color: ${(props) => props.theme.colors.font.alt2};
+	font-style: italic;
+`;
+
 export const GraphWrapper = styled.div`
 	min-height: 500px;
 	height: calc(100vh - 260px);

@@ -488,19 +488,30 @@ export default function initializeHyperBEAMGraph() {
 
 			const sphere = new THREE.Mesh(geometry, material);
 
-			// Use compact grid positioning for better initial layout
-			const nodeCount = this.dataManager.graphData.nodes.length;
-			const nodeIndex = this.dataManager.graphObjects.nodes.size;
-			const gridSize = Math.ceil(Math.sqrt(nodeCount));
-			const spacing = 3 * SPACING_MULTIPLIER; // Very tight spacing
+			// Check if this is the root node (first node in the graph)
+			const isRootNode = this.dataManager.graphObjects.nodes.size === 0;
 
-			// Calculate grid position
-			const row = Math.floor(nodeIndex / gridSize);
-			const col = nodeIndex % gridSize;
+			let x: number, y: number;
 
-			// Center the grid around origin with small randomization
-			const x = (col - gridSize / 2) * spacing + (Math.random() - 0.5) * spacing * 0.3;
-			const y = (row - gridSize / 2) * spacing + (Math.random() - 0.5) * spacing * 0.3;
+			if (isRootNode) {
+				// Position root node at the center
+				x = 0;
+				y = 0;
+			} else {
+				// Use compact grid positioning for other nodes
+				const nodeCount = this.dataManager.graphData.nodes.length;
+				const nodeIndex = this.dataManager.graphObjects.nodes.size;
+				const gridSize = Math.ceil(Math.sqrt(nodeCount));
+				const spacing = 3 * SPACING_MULTIPLIER; // Very tight spacing
+
+				// Calculate grid position
+				const row = Math.floor(nodeIndex / gridSize);
+				const col = nodeIndex % gridSize;
+
+				// Center the grid around origin with small randomization
+				x = (col - gridSize / 2) * spacing + (Math.random() - 0.5) * spacing * 0.3;
+				y = (row - gridSize / 2) * spacing + (Math.random() - 0.5) * spacing * 0.3;
+			}
 
 			sphere.position.set(x, y, this.themeManager.config.zPos.node);
 

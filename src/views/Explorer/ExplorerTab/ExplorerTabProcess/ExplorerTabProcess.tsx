@@ -75,7 +75,7 @@ export default function ExplorerTabProcess(props: {
 				refreshKey={props.refreshKey}
 			/>
 		),
-		[props.tab, props.hyperBeamRequest, props.refreshKey]
+		[props.tab, props.refreshKey]
 	);
 
 	const readView = React.useCallback(() => <ProcessEditor processId={props.tab.id} type={'read'} />, [props.tab.id]);
