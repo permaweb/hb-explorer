@@ -142,7 +142,7 @@ export const UpdateWrapper = styled.div`
 	border-radius: ${STYLING.dimensions.radius.alt2};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.light1};
 		text-align: center;

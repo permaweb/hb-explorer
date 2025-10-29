@@ -338,7 +338,7 @@ export const DNavWrapper = styled.div`
 export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		text-transform: uppercase;
@@ -401,7 +401,7 @@ export const DOperator = styled.div`
 
 	span {
 		color: ${(props) => props.theme.colors.font.alt1};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 	}
@@ -424,7 +424,7 @@ export const MSearchHeader = styled.div`
 	margin: 0 0 10px 0;
 	p {
 		color: ${(props) => props.theme.colors.font.alt1};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		text-transform: uppercase;

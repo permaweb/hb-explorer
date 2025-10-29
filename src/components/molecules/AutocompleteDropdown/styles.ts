@@ -16,7 +16,7 @@ export const Option = styled.div<{ isSelected: boolean }>`
 	padding: 10px 12.5px;
 	cursor: pointer;
 	font-size: ${(props) => props.theme.typography.size.xSmall};
-	font-family: ${(props) => props.theme.typography.family.alt1};
+	font-family: ${(props) => props.theme.typography.family.primary};
 	font-weight: ${(props) => props.theme.typography.weight.bold};
 	color: ${(props) => props.theme.colors.font.primary};
 	display: flex;

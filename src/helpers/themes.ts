@@ -7,7 +7,7 @@ export const lightTheme = {
 	caution1: '#EECA00',
 	negative1: '#F16A82',
 	negative2: '#EE4463',
-	neutral1: '#FAFAFA',
+	neutral1: '#f5f5f5',
 	neutral2: '#F0F0F0',
 	neutral3: '#E9E9E9',
 	neutral4: '#D9D9D9',
@@ -139,7 +139,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 			other: currentTheme.actions.other,
 		},
 		border: {
-			primary: currentTheme.neutral5,
+			primary: currentTheme.neutral4,
 			alt1: currentTheme.neutral6,
 			alt2: currentTheme.neutral7,
 			alt3: currentTheme.neutral8,
@@ -368,8 +368,8 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 	},
 	typography: {
 		family: {
-			primary: `'Open Sans', sans-serif`,
-			alt1: `'Titillium Web', serif`,
+			primary: `'DM Sans', sans-serif`,
+			alt1: `'Roboto Mono', monospace`,
 			alt2: `'Source Code Pro', serif`,
 		},
 		size: {

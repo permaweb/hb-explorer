@@ -15,7 +15,7 @@ export const HeaderContent = styled.div`
 	h4 {
 		line-height: 1;
 		font-size: ${(props) => props.theme.typography.size.h4};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.xBold};
 		color: ${(props) => props.theme.colors.font.primary};
 	}

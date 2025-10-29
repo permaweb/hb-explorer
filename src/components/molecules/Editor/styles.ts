@@ -17,7 +17,7 @@ export const Header = styled.div`
 	margin: 0 0 2.5px 0;
 	p {
 		color: ${(props) => props.theme.colors.font.primary};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		font-size: ${(props) => props.theme.typography.size.lg};
 	}

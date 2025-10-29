@@ -82,7 +82,7 @@ export const GlobalStyle = createGlobalStyle`
 	}
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: ${(props) => props.theme.typography.family.alt1};
+    font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
     color: ${(props) => props.theme.colors.font.primary};
 		overflow-wrap: anywhere;
@@ -222,7 +222,7 @@ export const GlobalStyle = createGlobalStyle`
 		border-radius: ${STYLING.dimensions.radius.alt1};
 		span {
 			font-size: ${(props) => props.theme.typography.size.xxSmall};
-			font-family: ${(props) => props.theme.typography.family.alt1};
+			font-family: ${(props) => props.theme.typography.family.primary};
 			font-weight: ${(props) => props.theme.typography.weight.bold};
 			color: ${(props) => props.theme.colors.font.light1};
 			text-align: center;
@@ -354,14 +354,14 @@ export const Footer = styled.footer<{ navigationOpen: boolean }>`
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
 
 	a {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
 		text-decoration: underline;

@@ -45,7 +45,7 @@ export const MetricsSection = styled.div`
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.small};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
 		text-align: center;
@@ -92,7 +92,7 @@ export const Subheader = styled.div`
 	border-radius: ${STYLING.dimensions.radius.alt2};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.light1};
 		text-align: center;

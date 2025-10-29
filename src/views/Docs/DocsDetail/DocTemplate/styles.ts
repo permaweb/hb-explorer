@@ -23,7 +23,7 @@ export const Wrapper = styled.div<{ isView: boolean }>`
 	h6 {
 		font-size: clamp(32px, 3.75vw, 44px) !important;
 		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
-		font-family: ${(props) => props.theme.typography.family.alt1} !important;
+		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		color: ${(props) => props.theme.colors.font.primary} !important;
 		margin: 0 0 5px 0;
 		padding: 0 0 2.5px 0;
