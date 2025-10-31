@@ -75,6 +75,7 @@ export default function Metrics(props: { metrics: any }) {
 	}, [groups, activeCategory]);
 
 	const activeCount = summary[activeCategory] ?? 0;
+	const visibleCategories = categoryKeys;
 
 	function getSubGroups(metric: any, metricRegex: RegExp, labelRegex: RegExp) {
 		const events: Record<string, any[]> = {};
@@ -179,12 +180,22 @@ export default function Metrics(props: { metrics: any }) {
 			<S.Sidebar>
 				<S.SidebarContent>
 					<S.SidebarHeader>
-						<S.SidebarTitle>Node Metrics.</S.SidebarTitle>
-						<S.SidebarMeta>Hyperbeam node details.</S.SidebarMeta>
+						<S.SidebarHeaderBody>
+							<S.SidebarTitle>Node Metrics.</S.SidebarTitle>
+							<S.SidebarMeta>Hyperbeam node details.</S.SidebarMeta>
+						</S.SidebarHeaderBody>
+						{categoryKeys.length > 0 && (
+							<S.SidebarHeaderLabel>
+								<S.SidebarHeaderLabelText>
+									<ReactSVG src={ASSETS.filter} />
+									<span>Filter by</span>
+								</S.SidebarHeaderLabelText>
+							</S.SidebarHeaderLabel>
+						)}
 					</S.SidebarHeader>
 					<S.SidebarList>
 						{categoryKeys.length === 0 && <S.SidebarEmpty>No categories available</S.SidebarEmpty>}
-						{categoryKeys.map((category) => {
+						{visibleCategories.map((category) => {
 							const count = summary[category] ?? 0;
 							return (
 								<S.SidebarItem
