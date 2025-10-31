@@ -1,9 +1,26 @@
 import styled, { createGlobalStyle } from 'styled-components';
 
 import { open, transition1, transition2 } from 'helpers/animations';
+import DMSansVariable from 'assets/DMSans-VariableFont_opsz,wght.ttf';
+import DMSansItalicVariable from 'assets/DMSans-Italic-VariableFont_opsz,wght.ttf';
 import { STYLING } from 'helpers/config';
 
 export const GlobalStyle = createGlobalStyle`
+	@font-face {
+		font-family: 'DM Sans';
+		src: url(${DMSansVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'DM Sans';
+		src: url(${DMSansItalicVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: italic;
+		font-display: swap;
+	}
 
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,

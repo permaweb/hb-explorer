@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Button } from 'components/atoms/Button';
 import { Loader } from 'components/atoms/Loader';
 import { ReactSVG } from 'react-svg';
 import { ASSETS, HB_METRIC_CATEGORIES } from 'helpers/config';
@@ -76,12 +75,6 @@ export default function Metrics(props: { metrics: any }) {
 	}, [groups, activeCategory]);
 
 	const activeCount = summary[activeCategory] ?? 0;
-
-	const handleOpenDashboard = React.useCallback(() => {
-		if (typeof window !== 'undefined' && window.hyperbeamUrl) {
-			window.open(window.hyperbeamUrl, '_blank', 'noopener');
-		}
-	}, []);
 
 	function getSubGroups(metric: any, metricRegex: RegExp, labelRegex: RegExp) {
 		const events: Record<string, any[]> = {};
@@ -178,11 +171,7 @@ export default function Metrics(props: { metrics: any }) {
 	}
 
 	if (!props.metrics || !groups || !activeCategory) {
-		return (
-			<div style={{ height: '100vh' }}>
-				<Loader sm relative />;
-			</div>
-		);
+		return <Loader sm relative />;
 	}
 
 	return (
