@@ -2,7 +2,8 @@ import React from 'react';
 
 import { Button } from 'components/atoms/Button';
 import { Loader } from 'components/atoms/Loader';
-import { HB_METRIC_CATEGORIES } from 'helpers/config';
+import { ReactSVG } from 'react-svg';
+import { ASSETS, HB_METRIC_CATEGORIES } from 'helpers/config';
 import { formatCount } from 'helpers/utils';
 
 import * as S from './styles';
@@ -11,6 +12,18 @@ export default function Metrics(props: { metrics: any }) {
 	const categoryKeys = React.useMemo(() => Object.keys(HB_METRIC_CATEGORIES), []);
 	const [activeCategory, setActiveCategory] = React.useState<string>(categoryKeys[0] || '');
 	const [groups, setGroups] = React.useState<any>(null);
+	const CATEGORY_ICONS = React.useMemo<Record<string, string | undefined>>(
+		() => ({
+			'AO Events': ASSETS.aoEvents,
+			'System Stats': ASSETS.systemStats,
+			'Network Stats': ASSETS.networkStats,
+			Telemetry: ASSETS.telemetry,
+			'VM Stats': ASSETS.vmStats,
+			Memory: ASSETS.memory,
+			'HTTP & Requests': ASSETS.http,
+		}),
+		[]
+	);
 
 	React.useEffect(() => {
 		if (props.metrics) {
@@ -165,7 +178,11 @@ export default function Metrics(props: { metrics: any }) {
 	}
 
 	if (!props.metrics || !groups || !activeCategory) {
-		return <Loader sm relative />;
+		return (
+			<div style={{ height: '100vh' }}>
+				<Loader sm relative />;
+			</div>
+		);
 	}
 
 	return (
@@ -173,11 +190,8 @@ export default function Metrics(props: { metrics: any }) {
 			<S.Sidebar>
 				<S.SidebarContent>
 					<S.SidebarHeader>
-						<S.SidebarTitle>Projects</S.SidebarTitle>
-						<S.SidebarMeta>All projects summary</S.SidebarMeta>
-						<S.SidebarFilter type={'button'} onClick={(event) => event.preventDefault()}>
-							Filter
-						</S.SidebarFilter>
+						<S.SidebarTitle>Node Metrics.</S.SidebarTitle>
+						<S.SidebarMeta>Hyperbeam node details.</S.SidebarMeta>
 					</S.SidebarHeader>
 					<S.SidebarList>
 						{categoryKeys.length === 0 && <S.SidebarEmpty>No categories available</S.SidebarEmpty>}
@@ -190,11 +204,17 @@ export default function Metrics(props: { metrics: any }) {
 									onClick={() => setActiveCategory(category)}
 									$active={category === activeCategory}
 								>
-									<S.SidebarInfo>
-										<S.SidebarLabel>{category}</S.SidebarLabel>
-										<S.SidebarDescription>{count ? `${count} metrics` : 'No metrics yet'}</S.SidebarDescription>
-									</S.SidebarInfo>
-									<S.SidebarIndicator $active={category === activeCategory} />
+									<S.SidebarItemInner $active={category === activeCategory}>
+										<S.SidebarInfo>
+											{CATEGORY_ICONS[category] && (
+												<S.SidebarIcon>
+													<ReactSVG src={CATEGORY_ICONS[category] as string} />
+												</S.SidebarIcon>
+											)}
+											<S.SidebarLabel>{category}</S.SidebarLabel>
+											<S.SidebarDescription>{count ? `${count} metrics` : 'No metrics yet'}</S.SidebarDescription>
+										</S.SidebarInfo>
+									</S.SidebarItemInner>
 								</S.SidebarItem>
 							);
 						})}
@@ -204,7 +224,14 @@ export default function Metrics(props: { metrics: any }) {
 			<S.Content>
 				<S.ContentHeader>
 					<S.ContentHeading>
-						<S.ContentTitle>{activeCategory}</S.ContentTitle>
+						<S.ContentTitleWrapper>
+							{CATEGORY_ICONS[activeCategory] && (
+								<S.ContentTitleIcon>
+									<ReactSVG src={CATEGORY_ICONS[activeCategory] as string} />
+								</S.ContentTitleIcon>
+							)}
+							<S.ContentTitle>{activeCategory}</S.ContentTitle>
+						</S.ContentTitleWrapper>
 						<S.ContentMeta>
 							{activeCount ? `${activeCount} tracked metrics` : 'No tracked metrics for this category yet'}
 						</S.ContentMeta>

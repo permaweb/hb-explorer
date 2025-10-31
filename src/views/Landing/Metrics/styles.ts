@@ -12,22 +12,23 @@ export const Wrapper = styled.div`
 `;
 
 export const Sidebar = styled.aside`
-	width: 260px;
+	width: 300px;
 	display: flex;
 	flex-direction: column;
 	position: relative;
 	padding: 0 0 24px 0;
-	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 
-	&::before {
+	//border pseudo element
+	&::after {
 		content: '';
 		position: absolute;
-		top: 0;
-		left: -25px;
+		top: -40px;
+		left: 0px;
 		bottom: 0;
 		right: 0;
-		background: ${(props) => props.theme.colors.container.alt1.background};
-		z-index: 0;
+		border-right: 1px solid ${(props) => props.theme.colors.border.primary};
+		z-index: 10;
+		pointer-events: none;	
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
@@ -44,14 +45,15 @@ export const SidebarContent = styled.div`
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
+	min-height: 70vh;
 `;
 
 export const SidebarHeader = styled.div`
-	padding: 24px 24px 18px 24px;
+	padding: 24px;
 	display: flex;
+	min-height: 106px;
 	flex-direction: column;
 	gap: 10px;
-	background: ${(props) => props.theme.colors.container.alt1.background};
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 `;
 
@@ -82,8 +84,6 @@ export const SidebarFilter = styled.button`
 	letter-spacing: 0.35px;
 	text-transform: uppercase;
 	cursor: pointer;
-	transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
-
 	&:hover {
 		background: ${(props) => props.theme.colors.container.alt2.background};
 	}
@@ -100,40 +100,32 @@ export const SidebarList = styled.div`
 	background: ${(props) => props.theme.colors.container.primary.background};
 `;
 
-export const SidebarIndicator = styled.div<{ $active: boolean }>`
-	height: 12px;
-	width: 12px;
-	border-radius: 50%;
-	border: 2px solid ${(props) => props.theme.colors.border.alt2};
-	background: ${(props) => (props.$active ? props.theme.colors.indicator.active : 'transparent')};
-	transition: background 0.18s ease, border-color 0.18s ease;
+
+
+export const SidebarItemInner = styled.div<{ $active: boolean }>`
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px;
+	background: ${(props) => (props.$active ? props.theme.colors.container.alt2.background : 'transparent')};
+	transition: background 0.2s ease;
 `;
 
 export const SidebarItem = styled.button<{ $active: boolean }>`
 	width: 100%;
-	padding: 18px 24px;
+	padding: 10px 24px 10px 24px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background: ${(props) =>
-		props.$active ? props.theme.colors.container.alt1.background : props.theme.colors.container.primary.background};
+	background: ${(props) => props.theme.colors.container.primary.background};
 	border: none;
-	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 	cursor: pointer;
 	text-align: left;
-	transition: background 0.18s ease, border-color 0.18s ease;
 
-	&:hover {
-		background: ${(props) => props.theme.colors.container.alt1.background};
-	}
-
-	&:focus {
-		outline: none;
-		box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.border.alt5};
-	}
-
-	&:hover ${SidebarIndicator} {
-		border-color: ${(props) => props.theme.colors.border.alt5};
+	&:hover ${SidebarItemInner} {
+		background: ${(props) => props.theme.colors.container.alt2.background};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
@@ -143,21 +135,35 @@ export const SidebarItem = styled.button<{ $active: boolean }>`
 
 export const SidebarInfo = styled.div`
 	display: flex;
-	flex-direction: column;
-	gap: 4px;
+	align-items: center;
+	gap: 12px;
+`;
+
+export const SidebarIcon = styled.div`
+	width: 16px;
+	height: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	div,
+	svg {
+		width: 16px;
+		height: 16px;
+	}
 `;
 
 export const SidebarLabel = styled.span`
 	font-size: ${(props) => props.theme.typography.size.small};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.primary};
 `;
 
 export const SidebarDescription = styled.span`
 	font-size: ${(props) => props.theme.typography.size.xxxSmall};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.medium};
+	font-weight: ${(props) => props.theme.typography.weight.light};
 	color: ${(props) => props.theme.colors.font.alt1};
 	text-transform: uppercase;
 	letter-spacing: 0.45px;
@@ -195,11 +201,31 @@ export const ContentHeading = styled.div`
 	gap: 6px;
 `;
 
+export const ContentTitleWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 10px;
+`;
+
 export const ContentTitle = styled.h2`
 	font-size: ${(props) => props.theme.typography.size.xLg};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-weight: ${(props) => props.theme.typography.weight.bold};
 	color: ${(props) => props.theme.colors.font.primary};
+`;
+
+export const ContentTitleIcon = styled.div`
+	width: 20px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	div,
+	svg {
+		width: 18px;
+		height: 18px;
+	}
 `;
 
 export const ContentMeta = styled.span`
@@ -225,7 +251,7 @@ export const ContentBody = styled.div`
 	overflow-y: auto;
 
 	> div:not(:last-child) {
-		border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+		border-bottom: 1px solid ${(props) => props.theme.colors.border.alt1};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
@@ -246,6 +272,9 @@ export const Group = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
+		> *:not(:last-child) {
+		border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+	}
 `;
 
 export const GroupHeader = styled.div`
@@ -263,16 +292,15 @@ export const GroupHeader = styled.div`
 `;
 
 export const GroupBody = styled.div`
-	padding: 0 24px 16px;
+	padding: 0 0px 16px;
 	background: ${(props) => props.theme.colors.container.primary.background};
-
-	> *:not(:last-child) {
-		border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
+		> *:not(:last-child) {
+		border-bottom: 1px solid ${(props) => props.theme.colors.border.alt1};
 	}
 `;
 
 export const GroupLine = styled.div`
-	padding: 14px 0;
+	padding: 14px 24px;
 	display: grid;
 	grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
 	align-items: center;
@@ -298,10 +326,12 @@ export const GroupLine = styled.div`
 export const SubGroup = styled(Group)``;
 
 export const SubGroupHeader = styled(GroupHeader)`
-	background: ${(props) => props.theme.colors.container.alt1.background};
+	background: none;
+	padding: 16px 24px;
 
 	p {
 		color: ${(props) => props.theme.colors.font.alt2};
+		font-weight: ${(props) => props.theme.typography.weight.light};
 	}
 `;
 

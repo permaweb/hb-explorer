@@ -2,7 +2,7 @@ import React from 'react';
 import { ReactSVG } from 'react-svg';
 import PropTypes from 'prop-types';
 
-import { ViewWrapper } from 'app/styles';
+import { MetricTabWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
 import { TabType } from 'helpers/types';
 
@@ -78,7 +78,7 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 		this.props.onTabClick(tab);
 	};
 
-	Wrapper = this.props.type === 'alt1' ? ViewWrapper : S.Wrapper;
+	Wrapper = this.props.type === 'alt1' ? MetricTabWrapper : S.Wrapper;
 
 	render() {
 		const Wrapper = this.Wrapper;
