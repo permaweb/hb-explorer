@@ -236,9 +236,6 @@ export default function Metrics(props: { metrics: any }) {
 							{activeCount ? `${activeCount} tracked metrics` : 'No tracked metrics for this category yet'}
 						</S.ContentMeta>
 					</S.ContentHeading>
-					<S.ContentActions>
-						<Button type={'alt4'} label={'Display'} handlePress={handleOpenDashboard} />
-					</S.ContentActions>
 				</S.ContentHeader>
 				<S.ContentBody className={'scroll-wrapper-hidden'}>
 					{Object.keys(activeGroups).length ? (
