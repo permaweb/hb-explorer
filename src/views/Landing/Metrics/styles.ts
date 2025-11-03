@@ -5,8 +5,8 @@ import { STYLING } from 'helpers/config';
 export const Wrapper = styled.div`
 	width: 100%;
 	display: flex;
-	align-items: flex-start;
-
+	align-items: stretch;
+	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		flex-direction: column;
 		gap: 0;
@@ -34,7 +34,7 @@ export const SidebarContent = styled.div`
 	z-index: 1;
 	display: flex;
 	flex-direction: column;
-	min-height: 70vh;
+	flex: 1;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		min-height: auto;
