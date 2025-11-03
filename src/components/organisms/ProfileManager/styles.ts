@@ -168,7 +168,7 @@ export const AInput = styled.button<{ hasAvatar: boolean }>`
 	width: 115px;
 	background: ${(props) => props.theme.colors.container.primary.background};
 	border: ${(props) => (props.hasAvatar ? `none` : `1px dashed ${props.theme.colors.border.primary}`)};
-	border-radius: 50%;
+
 	position: absolute;
 	bottom: -55px;
 	left: 20px;
@@ -189,7 +189,6 @@ export const AInput = styled.button<{ hasAvatar: boolean }>`
 	img {
 		height: 100%;
 		width: 100%;
-		border-radius: 50%;
 		object-fit: cover;
 	}
 	&:hover {

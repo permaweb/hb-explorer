@@ -154,7 +154,7 @@ export const Wrapper = styled.div<{ isView: boolean }>`
 			color: ${(props) => props.theme.colors.font.primary.alt1} !important;
 			font-weight: ${(props) => props.theme.typography.weight.regular} !important;
 			font-size: ${(props) => props.theme.typography.size.small} !important;
-			border-radius: 0 !important;
+			border-radius: ${STYLING.dimensions.radius.primary} !important;
 			line-height: 1.5 !important;
 		}
 	}
@@ -184,7 +184,7 @@ export const CodeBlock = styled.div`
 		color: ${(props) => props.theme.colors.font.primary.alt1} !important;
 		font-weight: ${(props) => props.theme.typography.weight.regular} !important;
 		font-size: ${(props) => props.theme.typography.size.small} !important;
-		border-radius: 0 !important;
+		border-radius: ${STYLING.dimensions.radius.primary} !important;
 		line-height: 1.5 !important;
 	}
 

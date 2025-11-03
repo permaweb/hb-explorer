@@ -6,6 +6,7 @@ export const Wrapper = styled.div`
 	width: 100%;
 	display: flex;
 	align-items: stretch;
+	margin: 20px 0 0 0;
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		flex-direction: column;
@@ -63,7 +64,7 @@ export const SidebarHeader = styled.div`
 export const SidebarHeaderBody = styled.div`
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 6px;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		gap: 6px;
@@ -87,7 +88,6 @@ export const SidebarMeta = styled.span`
 export const SidebarFilter = styled.button`
 	width: fit-content;
 	padding: 6px 14px 7px 14px;
-	border-radius: 18px;
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	background: ${(props) => props.theme.colors.container.primary.background};
 	font-size: ${(props) => props.theme.typography.size.xxxSmall};

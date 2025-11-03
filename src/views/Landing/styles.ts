@@ -89,7 +89,7 @@ export const Subheader = styled.div`
 	gap: 12.5px;
 	background: ${(props) => props.theme.colors.container.alt8.background};
 	border: 1px solid ${(props) => props.theme.colors.border.alt2};
-	border-radius: ${STYLING.dimensions.radius.alt2};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
@@ -103,7 +103,7 @@ export const Subheader = styled.div`
 export const Indicator = styled.div`
 	height: 10.5px;
 	width: 10.5px;
-	border-radius: 50%;
+	border-radius: ${STYLING.dimensions.radius.circle};
 
 	animation: pulse 1.075s infinite;
 

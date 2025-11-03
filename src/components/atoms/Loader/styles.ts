@@ -29,7 +29,6 @@ export const Blade = styled.div<{ noPosition?: boolean }>`
 	position: absolute;
 	left: 0.4629em;
 	bottom: 0;
-	border-radius: 12px;
 	transform-origin: center -0.2222em;
 	-webkit-animation: ${loaderKeyFrame} 0.75s linear infinite;
 	animation: ${loaderKeyFrame} 0.75s linear infinite;

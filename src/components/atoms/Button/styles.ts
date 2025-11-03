@@ -76,7 +76,6 @@ export const Primary = styled.button<{
 				: props.active
 				? props.theme.colors.button.primary.active.border
 				: props.theme.colors.button.primary.border};
-	border-radius: 36px;
 	&:hover {
 		background: ${(props) =>
 			props.warning ? props.theme.colors.warning.alt1 : props.theme.colors.button.primary.active.background};
@@ -229,7 +228,7 @@ export const Alt2 = styled(Alt1)`
 	padding: 0;
 	background: transparent !important;
 	border: none !important;
-	border-radius: 0;
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	&:hover {
 		span {
@@ -293,7 +292,6 @@ export const Alt3 = styled(Primary)`
 	height: 25px !important;
 	padding: 4.5px 20px !important;
 	border-radius: ${STYLING.dimensions.radius.primary};
-	border-radius: 20px;
 
 	background: ${(props) =>
 		props.warning
@@ -395,7 +393,7 @@ export const Alt4 = styled(Primary)`
 	min-height: 25px !important;
 	height: 25px !important;
 	padding: 0 10px !important;
-	border-radius: 20px;
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	background: ${(props) =>
 		props.warning

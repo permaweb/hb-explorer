@@ -29,9 +29,7 @@ export const Option = styled.div<{ isSelected: boolean }>`
 		background: ${(props) => props.theme.colors.container.alt2.background};
 	}
 
-	&:last-child {
-		border-radius: 0 0 5px 5px;
-	}
+
 `;
 
 export const TabHint = styled.span`
@@ -39,7 +37,6 @@ export const TabHint = styled.span`
 	color: ${(props) => props.theme.colors.font.alt1};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 	padding: 2px 6px;
-	border-radius: 4px;
 	font-size: 10px;
 	font-weight: bold;
 	text-transform: uppercase;

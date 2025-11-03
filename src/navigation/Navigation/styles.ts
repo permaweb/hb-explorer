@@ -417,7 +417,7 @@ export const MSearchContainer = styled.div`
 	top: 45px;
 	right: 0;
 	padding: 15px 15px 15px 15px;
-	border-radius: ${STYLING.dimensions.radius.alt2} !important;
+	border-radius: ${STYLING.dimensions.radius.primary} !important;
 `;
 
 export const MSearchHeader = styled.div`

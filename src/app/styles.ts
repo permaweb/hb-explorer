@@ -3,6 +3,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { open, transition1, transition2 } from 'helpers/animations';
 import DMSansVariable from 'assets/DMSans-VariableFont_opsz,wght.ttf';
 import DMSansItalicVariable from 'assets/DMSans-Italic-VariableFont_opsz,wght.ttf';
+import GeistMonoVariable from 'assets/GeistMono-VariableFont_wght.ttf';
 import { STYLING } from 'helpers/config';
 
 export const GlobalStyle = createGlobalStyle`
@@ -19,6 +20,14 @@ export const GlobalStyle = createGlobalStyle`
 		src: url(${DMSansItalicVariable}) format('truetype');
 		font-weight: 100 900;
 		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Geist Mono';
+		src: url(${GeistMonoVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: normal;
 		font-display: swap;
 	}
 
@@ -92,7 +101,6 @@ export const GlobalStyle = createGlobalStyle`
 			}
 			::-webkit-scrollbar-thumb {
 				background-color: ${(props) => props.theme.colors.scrollbar.thumb};
-				border-radius: 36px;
 				border: 3.5px solid transparent;
 				background-clip: padding-box;
 			}
@@ -175,25 +183,25 @@ export const GlobalStyle = createGlobalStyle`
   .border-wrapper-primary {
     background: ${(props) => props.theme.colors.container.primary.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
   .border-wrapper-alt1 {
     background: ${(props) => props.theme.colors.container.primary.background};
     box-shadow: 0 2.5px 7.5px 0 ${(props) => props.theme.colors.shadow.primary};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
 	.border-wrapper-alt2 {
     background: ${(props) => props.theme.colors.container.primary.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
 	.border-wrapper-alt3 {
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
 		background: ${(props) => `${props.theme.colors.container.alt1.background}95`} !important;
 		backdrop-filter: blur(7.5px);
   }
@@ -201,7 +209,7 @@ export const GlobalStyle = createGlobalStyle`
 	.border-wrapper-alt4 {
     background: ${(props) => props.theme.colors.container.alt1.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
   .max-view-wrapper {
@@ -218,7 +226,7 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0 5px 0.5px 5px !important;
     background: ${(props) => props.theme.colors.contrast.background} !important;
     border: 1px solid ${(props) => props.theme.colors.border.alt2} !important;
-    border-radius: ${STYLING.dimensions.radius.alt2} !important;
+    border-radius: ${STYLING.dimensions.radius.primary} !important;
     animation: ${open} ${transition2} !important;
     span {
       color: ${(props) => props.theme.colors.contrast.color} !important;
@@ -236,7 +244,7 @@ export const GlobalStyle = createGlobalStyle`
 		justify-content: center;
 		background: ${(props) => props.theme.colors.container.alt8.background};
 		border: 1px solid ${(props) => props.theme.colors.border.alt4};
-		border-radius: ${STYLING.dimensions.radius.alt1};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		span {
 			font-size: ${(props) => props.theme.typography.size.xxSmall};
 			font-family: ${(props) => props.theme.typography.family.primary};

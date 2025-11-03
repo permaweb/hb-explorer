@@ -5,7 +5,7 @@ import { STYLING } from 'helpers/config';
 export const Wrapper = styled.div`
 	width: 100%;
 	overflow: hidden;
-
+	margin: 40px 0 0 0;
 	> * {
 		&:not(:last-child) {
 			border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};

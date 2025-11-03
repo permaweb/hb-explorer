@@ -26,7 +26,7 @@ export const Options = styled.div`
 	padding: 1.5px 2.5px;
 	background: ${(props) => props.theme.colors.container.alt2.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-radius: 50px;
+
 
 	button {
 		flex: 1;

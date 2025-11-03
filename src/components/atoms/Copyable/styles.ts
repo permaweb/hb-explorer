@@ -13,7 +13,7 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 			: props.theme.colors.button.primary.background};
 	border: 1px solid
 		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.border)};
-	border-radius: ${STYLING.dimensions.radius.alt1};
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	p {
 		color: ${(props) =>

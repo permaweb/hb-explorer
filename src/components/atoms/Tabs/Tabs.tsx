@@ -127,7 +127,7 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 					{this.props.type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
 				</S.Header>
 				<Wrapper>
-					<S.Content top={this.props.type === 'alt1' ? 40 : 25}>
+					<S.Content top={this.props.type === 'alt1' ? 0 : 25}>
 						{children!.map((child: any) => {
 							if (child.props.label !== activeTab) return undefined;
 							return child.props.children;

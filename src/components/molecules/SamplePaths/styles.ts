@@ -53,7 +53,7 @@ export const PathCard = styled.div`
 	background: ${(props) => `${props.theme.colors.container.alt1.background}90`} !important;
 	backdrop-filter: blur(7.5px);
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-radius: 12px;
+
 	padding: 12px 16px;
 	cursor: pointer;
 	transition: all 100ms;
@@ -70,7 +70,7 @@ export const PathCard = styled.div`
 
 export const PathIcon = styled.div`
 	background: ${(props) => props.theme.colors.container.alt3.background};
-	border-radius: 8px;
+
 	padding: 8px;
 	flex-shrink: 0;
 	display: flex;
@@ -121,7 +121,7 @@ export const PathValue = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		font-size: 12px;
 		padding: 2px 6px;
-		border-radius: 4px;
+
 		border: 1px solid ${(props) => props.theme.colors.border.alt1};
 		word-wrap: break-word;
 	}

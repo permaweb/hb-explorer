@@ -181,8 +181,8 @@ export default function Metrics(props: { metrics: any }) {
 				<S.SidebarContent>
 					<S.SidebarHeader>
 						<S.SidebarHeaderBody>
-							<S.SidebarTitle>Node Metrics.</S.SidebarTitle>
-							<S.SidebarMeta>Hyperbeam node details.</S.SidebarMeta>
+							<S.SidebarTitle>Node Metrics</S.SidebarTitle>
+							<S.SidebarMeta>Hyperbeam node details</S.SidebarMeta>
 						</S.SidebarHeaderBody>
 						{categoryKeys.length > 0 && (
 							<S.SidebarHeaderLabel>

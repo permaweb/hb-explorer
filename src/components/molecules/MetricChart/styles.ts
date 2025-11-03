@@ -78,8 +78,8 @@ export const ChartWrapper = styled.div`
 	position: relative;
 	cursor: crosshair;
 	overflow: hidden;
-	border-bottom-left-radius: ${STYLING.dimensions.radius.alt1};
-	border-bottom-right-radius: ${STYLING.dimensions.radius.alt1};
+	border-bottom-left-radius: ${STYLING.dimensions.radius.primary};
+	border-bottom-right-radius: ${STYLING.dimensions.radius.primary};
 
 	canvas {
 		width: calc(100% + 16.5px) !important;

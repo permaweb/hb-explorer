@@ -83,7 +83,7 @@ export const InfoBlock = styled.div<{ background?: string }>`
 		text-overflow: ellipsis;
 		background: ${(props) => props.theme.colors.button.primary.background};
 		border: 1px solid ${(props) => props.theme.colors.button.primary.border};
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		padding: 1.5px 7.5px;
 		cursor: pointer;
 		transition: all 100ms;
@@ -99,7 +99,7 @@ export const InfoBlock = styled.div<{ background?: string }>`
 		height: 12.5px;
 		width: 12.5px;
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
+		border-radius: ${STYLING.dimensions.radius.primary};
 	}
 `;
 
@@ -246,7 +246,7 @@ export const NodeContentHeader = styled.div<{ background: string; hasChildren?: 
 		height: 12.5px;
 		width: 12.5px;
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		border: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
@@ -264,7 +264,7 @@ export const NodeContentDetail = styled.div<{ background: string; hasChildren?: 
 		height: 12.5px;
 		width: 12.5px;
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		border: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
@@ -331,7 +331,7 @@ export const DataPanelContent = styled.div`
 
 		> div {
 			height: 100% !important;
-			border-radius: 0 !important;
+			border-radius: ${STYLING.dimensions.radius.primary} !important;
 			border: none !important;
 		}
 	}
@@ -341,7 +341,7 @@ export const ActiveNodeSection = styled.div`
 	background: ${(props) =>
 		props.theme.colors.editor.alt1 ? `${props.theme.colors.editor.alt1}20` : 'rgba(255, 85, 0, 0.1)'};
 	border: 1px solid ${(props) => props.theme.colors.editor.alt1 || '#FF5500'};
-	border-radius: ${STYLING.dimensions.radius.alt1};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	padding: 12px 15px;
 	margin-top: 5px;
 

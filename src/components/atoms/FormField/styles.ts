@@ -53,7 +53,7 @@ export const Input = styled.input<{
 	background: ${(props) => props.theme.colors.form.background};
 	border: 1px solid
 		${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.border)};
-	border-radius: ${STYLING.dimensions.radius.alt2};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	&:focus {
 		outline: 0;
 		border: 1px solid

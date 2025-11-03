@@ -122,7 +122,7 @@ export const DBodyWrapper = styled.ul`
 		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		border: 1px solid transparent;
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		transition: all 100ms;
 		padding: 0 7.5px;
 
@@ -169,7 +169,7 @@ export const ThemeToggleHeader = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		border: 1px solid transparent;
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		transition: all 100ms;
 	}
 

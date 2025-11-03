@@ -167,10 +167,11 @@ export const STYLING = {
 			width: '260px',
 		},
 		radius: {
-			primary: '7.5px',
+			primary: '0',
 			alt1: '15px',
 			alt2: '5px',
 			alt3: '2.5px',
+			circle: '50%',
 		},
 	},
 };

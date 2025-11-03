@@ -18,8 +18,8 @@ export const Header = styled.div`
 	border-top: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-left: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-top-right-radius: ${STYLING.dimensions.radius.alt1};
-	border-top-left-radius: ${STYLING.dimensions.radius.alt1};
+	border-top-right-radius: ${STYLING.dimensions.radius.primary};
+	border-top-left-radius: ${STYLING.dimensions.radius.primary};
 `;
 
 export const HeaderMain = styled.div`
@@ -102,7 +102,7 @@ export const FilterDropdownActionSelect = styled.div`
 	gap: 15px;
 
 	button {
-		border-radius: ${STYLING.dimensions.radius.alt2} !important;
+		border-radius: ${STYLING.dimensions.radius.primary} !important;
 	}
 `;
 
@@ -288,7 +288,7 @@ export const SlotValue = styled.div`
 	p {
 		background: ${(props) => props.theme.colors.button.primary.background};
 		border: 1px solid ${(props) => props.theme.colors.button.primary.border};
-		border-radius: ${STYLING.dimensions.radius.alt1};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
@@ -331,7 +331,7 @@ export const ActionValue = styled(Action)<{ background?: string; useMaxWidth: bo
 		align-items: center;
 		padding: 2.15px 7.5px;
 		background: ${(props) => (props.background ? props.background : props.theme.colors.container.alt8.background)};
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 
 		&:hover {
 			${ActionTooltip} {
@@ -572,8 +572,8 @@ export const FooterWrapper = styled.div`
 	border-left: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-right: 1px solid ${(props) => props.theme.colors.border.primary};
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary} !important;
-	border-bottom-left-radius: ${STYLING.dimensions.radius.alt1};
-	border-bottom-right-radius: ${STYLING.dimensions.radius.alt1};
+	border-bottom-left-radius: ${STYLING.dimensions.radius.primary};
+	border-bottom-right-radius: ${STYLING.dimensions.radius.primary};
 `;
 
 export const PageCounter = styled.div`

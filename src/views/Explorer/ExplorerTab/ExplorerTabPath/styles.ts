@@ -257,7 +257,7 @@ export const PlaceholderIcon = styled.div`
 	align-items: center;
 	background: ${(props) => props.theme.colors.container.alt1.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-radius: 50%;
+	border-radius: ${STYLING.dimensions.radius.circle};
 
 	svg {
 		height: 85px;
