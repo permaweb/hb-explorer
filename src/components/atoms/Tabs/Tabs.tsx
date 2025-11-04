@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import { MetricTabWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
+import { STYLING } from 'helpers/config';
 import { TabType } from 'helpers/types';
 
 import * as S from './styles';
@@ -28,6 +29,7 @@ class Tab extends React.Component<any, any> {
 		} = this;
 
 		function getTab() {
+			const landingTabHeight = parseFloat(STYLING.dimensions.landingTab.height);
 			switch (type) {
 				case 'primary':
 					return (
@@ -40,6 +42,7 @@ class Tab extends React.Component<any, any> {
 								icon={icon}
 								iconLeftAlign
 								noFocus
+								height={landingTabHeight}
 							/>
 						</S.Tab>
 					);
@@ -63,7 +66,14 @@ class Tab extends React.Component<any, any> {
 	}
 }
 
-export default class Tabs extends React.Component<{ children: any; onTabClick: any; type: TabType }, any> {
+type TabsProps = {
+	children: any;
+	onTabClick: any;
+	type: TabType;
+	stickyTop?: string;
+};
+
+export default class Tabs extends React.Component<TabsProps, any> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
@@ -86,7 +96,7 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 
 		const {
 			onClickTabItem,
-			props: { children },
+			props: { children, stickyTop, type },
 			state: { activeTab },
 		} = this;
 
@@ -98,17 +108,17 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 						key={this.props.children!.props.label}
 						label={this.props.children!.props.label}
 						onClick={onClickTabItem}
-						type={this.props.type}
+						type={type}
 					/>
 				</S.List>
 				<S.Content>{this.props.children!.props.children}</S.Content>
 			</S.Container>
 		) : (
 			<S.Container>
-				<S.Header>
-					{this.props.type === 'alt1' && <S.PlaceholderFull id={'placeholder-start'} />}
+				<S.Header stickyTop={stickyTop}>
+					{type === 'alt1' && <S.PlaceholderFull id={'placeholder-start'} />}
 					<Wrapper>
-						<S.List useGap={this.props.type === 'primary'}>
+						<S.List useGap={type === 'primary'}>
 							{children!.map((child: any, index: number) => {
 								const { label, icon } = child.props;
 								return (
@@ -118,16 +128,16 @@ export default class Tabs extends React.Component<{ children: any; onTabClick: a
 										icon={icon}
 										label={label}
 										onClick={onClickTabItem}
-										type={this.props.type}
+										type={type}
 									/>
 								);
 							})}
 						</S.List>
 					</Wrapper>
-					{this.props.type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
+					{type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
 				</S.Header>
 				<Wrapper>
-					<S.Content top={this.props.type === 'alt1' ? 0 : 25}>
+					<S.Content top={type === 'alt1' ? 0 : 25}>
 						{children!.map((child: any) => {
 							if (child.props.label !== activeTab) return undefined;
 							return child.props.children;

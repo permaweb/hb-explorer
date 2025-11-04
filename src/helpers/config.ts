@@ -166,6 +166,18 @@ export const STYLING = {
 			height: '72.5px',
 			width: '260px',
 		},
+		landingTabNav: {
+			height: '52.5px',
+		},
+		landingTab: {
+			height: '52.5px'
+		},
+		landingHeader: {
+			padding: '24px'
+		},
+		footer: {
+			height: '60px'
+		},
 		radius: {
 			primary: '0',
 			alt1: '15px',

@@ -11,31 +11,36 @@ export const Container = styled.div`
 	position: relative;
 `;
 
-export const Header = styled.div`
+export const Header = styled.div<{ stickyTop?: string }>`
 	width: 100%;
 	display: flex;
-	position: relative;
+	height: ${STYLING.dimensions.landingTab.height};
+	position: ${(props) => (props.stickyTop ? 'sticky' : 'relative')};
+	top: ${(props) => (props.stickyTop ? props.stickyTop : 'auto')};
+	z-index: ${(props) => (props.stickyTop ? 10 : 'auto')};
+	background: ${(props) =>
+		props.stickyTop ? props.theme.colors.container.primary.background : 'transparent'};
 `;
 
 export const Placeholder = styled.div`
 	height: 1px;
 	flex: 1;
-	margin: auto 0 -1.5px 0;
+	margin: auto 0 0px 0;
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 `;
 
 export const PlaceholderFull = styled(Placeholder)`
-	margin: auto -26.5px -1.5px -26.5px;
+	margin: auto -26.5px 0px -26.5px;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		margin: auto -14.5px -1.5px -14.5px;
+		margin: auto -14.5px 0px -14.5px;
 
 		&[id='placeholder-start'] {
 			margin: auto -15.5px -1.5px 0;
 		}
 
 		&[id='placeholder-end'] {
-			margin: auto 0 -1.5px -15.5px;
+			margin: auto 0 0px -15.5px;
 		}
 	}
 `;
@@ -83,7 +88,8 @@ export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 	justify-content: center;
 	align-items: center;
 	gap: 12.5px;
-	padding: 17.5px 25.5px 12.5px 21.5px;
+	height: ${STYLING.dimensions.landingTab.height};
+	padding: 0 25.5px 0 21.5px;
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};

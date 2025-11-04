@@ -43,7 +43,7 @@ export const SidebarContent = styled.div`
 `;
 
 export const SidebarHeader = styled.div`
-	padding: 24px;
+	padding: ${STYLING.dimensions.landingHeader.padding};
 	display: flex;
 	min-height: 106px;
 	flex-direction: column;
@@ -53,7 +53,7 @@ export const SidebarHeader = styled.div`
 	align-items: flex-start;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		padding: 20px 24px 16px 24px;
+		padding: 20px ${STYLING.dimensions.landingHeader.padding} 16px ${STYLING.dimensions.landingHeader.padding};
 		min-height: auto;
 		flex-direction: row;
 		align-items: center;
@@ -168,7 +168,6 @@ export const SidebarItemInner = styled.div<{ $active: boolean }>`
 	justify-content: space-between;
 	gap: 12px;
 	padding: 8px;
-	background: ${(props) => (props.$active ? props.theme.colors.container.alt2.background : 'transparent')};
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		padding: 7px 14px 7px 14px;
@@ -181,11 +180,12 @@ export const SidebarItemInner = styled.div<{ $active: boolean }>`
 export const SidebarItem = styled.button<{ $active: boolean }>`
 	width: 100%;
 	height: 100%;
+	max-height: 52.5px;
 	padding: 10px 16px 10px 24px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background: ${(props) => props.theme.colors.container.primary.background};
+	background: ${(props) => (props.$active ? props.theme.colors.container.alt2.background : 'transparent')};
 	border: none;
 	cursor: pointer;
 	text-align: left;
@@ -260,7 +260,7 @@ export const Content = styled.section`
 `;
 
 export const ContentHeader = styled.div`
-	padding: 24px;
+	padding: ${STYLING.dimensions.landingHeader.padding};
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -352,7 +352,7 @@ export const Group = styled.div`
 `;
 
 export const GroupHeader = styled.div`
-	background: ${(props) => props.theme.colors.container.alt2.background};
+	background: ${(props) => props.theme.colors.container.alt1.background};
 	padding: 16px 24px;
 
 	p {

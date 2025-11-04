@@ -100,14 +100,14 @@ export default function _JSONTree(props: {
 		base00:
 			props.noWrapper && !fullScreenMode
 				? currentTheme.colors.view.background
-				: currentTheme.colors.container.alt1.background,
-		base01: currentTheme.colors.container.alt7.background,
-		base02: currentTheme.colors.container.alt7.background,
-		base03: currentTheme.colors.container.alt7.background,
-		base04: currentTheme.colors.container.alt7.background,
-		base05: currentTheme.colors.container.alt7.background,
-		base06: currentTheme.colors.container.alt7.background,
-		base07: currentTheme.colors.container.alt7.background,
+				: currentTheme.colors.container.primary.background,
+		base01: currentTheme.colors.container.primary.background,
+		base02: currentTheme.colors.container.primary.background,
+		base03: currentTheme.colors.container.primary.background,
+		base04: currentTheme.colors.container.primary.background,
+		base05: currentTheme.colors.container.primary.background,
+		base06: currentTheme.colors.container.primary.background,
+		base07: currentTheme.colors.container.primary.background,
 		base08: currentTheme.colors.editor.primary,
 		base09: currentTheme.colors.editor.alt2,
 		base0A: currentTheme.colors.editor.alt2,

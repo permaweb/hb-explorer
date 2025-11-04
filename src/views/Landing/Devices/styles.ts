@@ -15,7 +15,7 @@ export const Header = styled.div`
 	align-items: center;
 	gap: 16px;
 	flex-wrap: wrap;
-	padding: 24px 0px 24px 0px;
+	padding: ${STYLING.dimensions.landingHeader.padding} 0px ${STYLING.dimensions.landingHeader.padding} 0px;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		flex-direction: column;

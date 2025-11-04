@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	gap: 25px;
+
 `;
 
 export const MetricsWrapper = styled.div`
@@ -71,7 +71,7 @@ export const MetricsSection = styled.div`
 export const TabsWrapper = styled.div`
 	width: 100%;
 	position: relative;
-	z-index: 1;
+	z-index: 3;
 	margin: 25px 0 0 0;
 	background: ${(props) => props.theme.colors.container.primary.background};
 `;
@@ -126,7 +126,7 @@ export const Graphic = styled.div`
 		max-width: ${STYLING.cutoffs.max};
 		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.9175 : 0)});
 		position: fixed;
-		opacity: 0.45;
+		opacity: 0.1;
 		z-index: 0;
 		top: -72.5px;
 		left: 50%;

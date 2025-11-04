@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 import { ViewWrapper } from 'app/styles';
 import { Tabs } from 'components/atoms/Tabs';
 import { ViewHeader } from 'components/atoms/ViewHeader';
-import { ASSETS, HB_ENDPOINTS } from 'helpers/config';
+import { ASSETS, HB_ENDPOINTS, STYLING } from 'helpers/config';
 import { formatCount, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -212,7 +212,7 @@ export default function Landing() {
 				</ViewWrapper>
 			</S.MetricsWrapper>
 			<S.TabsWrapper>
-				<Tabs onTabClick={() => {}} type={'alt1'}>
+				<Tabs onTabClick={() => {}} type={'alt1'} stickyTop={`calc(${STYLING.dimensions.nav.height} - 1px)`}>
 					<S.Tab label={'Metrics'}>
 						<Metrics metrics={metrics} />
 					</S.Tab>
