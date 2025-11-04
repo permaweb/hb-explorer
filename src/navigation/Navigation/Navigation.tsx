@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ReactSVG } from 'react-svg';
 import { debounce } from 'lodash';
 
 import { Copyable } from 'components/atoms/Copyable';
-import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
-import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
+import { SearchInput } from 'components/atoms/SearchInput';
 import { ASSETS, HB_ENDPOINTS, STYLING, URLS } from 'helpers/config';
 import { checkValidAddress, hbFetch } from 'helpers/utils';
 import { checkWindowCutoff } from 'helpers/window';
@@ -36,23 +34,29 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
 	// Use shared autocomplete hook
-	const { showAutocomplete, autocompleteOptions, selectedOptionIndex, handleKeyDown, acceptAutocomplete } =
-		useDeviceAutocomplete({
-			inputValue: inputPath,
-			cursorPosition,
-			inputRef,
-			onValueChange: (value, newCursorPosition) => {
-				setInputPath(value);
-				setCursorPosition(newCursorPosition);
-			},
-			onAutoSubmit: (completedPath) => {
-				const pathToUse = completedPath || inputPath;
-				if (pathToUse) {
-					navigate(`${URLS.explorer}${pathToUse}`);
-					setInputPath('');
-				}
-			},
-		});
+	const {
+		showAutocomplete,
+		autocompleteOptions,
+		selectedOptionIndex,
+		handleKeyDown,
+		acceptAutocomplete,
+		setShowAutocomplete,
+	} = useDeviceAutocomplete({
+		inputValue: inputPath,
+		cursorPosition,
+		inputRef,
+		onValueChange: (value, newCursorPosition) => {
+			setInputPath(value);
+			setCursorPosition(newCursorPosition);
+		},
+		onAutoSubmit: (completedPath) => {
+			const pathToUse = completedPath || inputPath;
+			if (pathToUse) {
+				navigate(`${URLS.explorer}${pathToUse}`);
+				setInputPath('');
+			}
+		},
+	});
 
 	const paths = React.useMemo(() => {
 		return [
@@ -130,46 +134,34 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	function getSearch() {
 		return (
 			<S.SearchWrapper>
-				<S.SearchInputWrapper cacheStatus={'default'}>
-					<ReactSVG src={ASSETS.search} />
-					<FormField
-						ref={inputRef}
-						value={inputPath}
-						onChange={handleInputChange}
-						onKeyDown={handleKeyDown}
-						onKeyPress={handleKeyPress}
-						onFocus={() => setTxOutputOpen(true)}
-						placeholder={language.pathOrId}
-						invalid={{ status: false, message: null }}
-						disabled={loadingPath}
-						hideErrorMessage
-						sm
-					/>
-					<AutocompleteDropdown
-						options={autocompleteOptions}
-						selectedIndex={selectedOptionIndex}
-						onSelect={acceptAutocomplete}
-						visible={showAutocomplete}
-						showTabHint={true}
-						inputRef={inputRef}
-					/>
-				</S.SearchInputWrapper>
-				<S.SubmitWrapper>
-					<IconButton
-						type={'primary'}
-						src={ASSETS.go}
-						handlePress={() => {
-							navigate(`${URLS.explorer}${inputPath}`);
-							setInputPath('');
-						}}
-						disabled={loadingPath || !inputPath}
-						dimensions={{
-							wrapper: 32.5,
-							icon: 17.5,
-						}}
-						tooltip={loadingPath ? `${language.loading}...` : language.run}
-					/>
-				</S.SubmitWrapper>
+				<SearchInput
+					ref={inputRef}
+					value={inputPath}
+					onChange={handleInputChange}
+					onKeyPress={handleKeyPress}
+					onFocus={() => setTxOutputOpen(true)}
+					placeholder={language.pathOrId}
+					invalid={{ status: false, message: null }}
+					disabled={loadingPath}
+					hideErrorMessage
+					sm
+					autocomplete={{
+						showAutocomplete,
+						autocompleteOptions,
+						selectedOptionIndex,
+						handleKeyDown,
+						acceptAutocomplete,
+						setShowAutocomplete,
+					}}
+					showSubmitButton={true}
+					onSubmit={() => {
+						navigate(`${URLS.explorer}${inputPath}`);
+						setInputPath('');
+					}}
+					submitDisabled={loadingPath || !inputPath}
+					submitTooltip={loadingPath ? `${language.loading}...` : language.run}
+					cacheStatus={'default'}
+				/>
 			</S.SearchWrapper>
 		);
 	}
