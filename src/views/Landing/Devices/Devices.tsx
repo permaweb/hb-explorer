@@ -69,7 +69,7 @@ export default function Devices() {
 				</S.HeaderContent>
 				<S.SearchWrapper>
 					<SearchInput
-						placeholder={'Search devices...'}
+						placeholder={'Filter devices...'}
 						value={searchTerm}
 						onChange={(e: any) => setSearchTerm(e.target.value)}
 						disabled={false}

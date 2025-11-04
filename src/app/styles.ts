@@ -347,7 +347,6 @@ export const ViewWrapper = styled.div`
 	max-width: ${STYLING.cutoffs.max};
 	padding: 0 25px;
 	margin: 0 auto;
-
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		padding: 0 15px;
 	}

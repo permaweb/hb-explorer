@@ -126,7 +126,7 @@ export const CubeSpinWrapper = styled.div`
 	left: 100%;
 	top: 50%;
 	transform: translateY(0%) scale(0);
-	display: flex;
+	display: none;
 	align-items: center;
 	justify-content: center;
 	width: 32px;
@@ -136,6 +136,7 @@ export const CubeSpinWrapper = styled.div`
 	transition: opacity 100ms ease-out, transform 100ms ease-out;
 
 	${DeviceWrapper}:hover & {
+		display: flex;
 		opacity: 1;
 		transform: translateY(-50%) scale(1);
 	}
