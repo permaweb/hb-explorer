@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { loaderKeyFrame } from 'helpers/animations';
+import { STYLING } from 'helpers/config';
 
 export const Wrapper = styled.div`
 	height: 100%;
@@ -13,7 +14,7 @@ export const Wrapper = styled.div`
 `;
 
 export const Container = styled.div<{ relative: boolean; noPosition?: boolean }>`
-	height: 100vh;
+	min-height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
 	width: ${(props) => (props.noPosition ? 'auto' : '50px')};
 	position: ${(props) => (props.noPosition ? 'static' : props.relative ? 'relative' : 'fixed')};
 	top: ${(props) => (props.noPosition ? 'auto' : props.relative ? 'auto' : '50%')};

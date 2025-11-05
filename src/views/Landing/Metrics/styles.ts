@@ -12,6 +12,7 @@ export const Wrapper = styled.div`
 		flex-direction: column;
 		gap: 0;
 	}
+	height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
 `;
 
 export const Sidebar = styled.aside`
@@ -321,15 +322,10 @@ export const ContentBody = styled.div`
 	display: flex;
 	flex-direction: column;
 	background: ${(props) => props.theme.colors.container.primary.background};
-	max-height: 77.5vh;
 	overflow-y: auto;
 
 	> div:not(:last-child) {
 		border-bottom: 1px solid ${(props) => props.theme.colors.border.alt1};
-	}
-
-	@media (max-width: ${STYLING.cutoffs.initial}) {
-		max-height: none;
 	}
 `;
 
