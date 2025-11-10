@@ -120,7 +120,7 @@ export default function _JSONTree(props: {
 
 	return (
 		<S.Wrapper
-			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-alt4 '}scroll-wrapper`}
+			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-primary '}scroll-wrapper`}
 			maxHeight={props.maxHeight}
 			noWrapper={props.noWrapper && !fullScreenMode}
 			ref={readerRef}

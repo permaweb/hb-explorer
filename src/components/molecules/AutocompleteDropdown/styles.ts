@@ -4,8 +4,7 @@ import { STYLING } from 'helpers/config';
 
 export const Dropdown = styled.div`
 	background: ${(props) => props.theme.colors.container.primary.background};
-	border: 1px solid ${(props) => props.theme.colors.form.default.outline};
-	outline: 0.5px solid ${(props) => props.theme.colors.form.default.outline};
+	border: 0.5px solid ${(props) => props.theme.colors.form.border};
 	border-radius: ${STYLING.dimensions.radius.primary};
 	z-index: 999999;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -17,7 +16,6 @@ export const Option = styled.div<{ isSelected: boolean }>`
 	cursor: pointer;
 	font-size: ${(props) => props.theme.typography.size.xSmall};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
 	color: ${(props) => props.theme.colors.font.primary};
 	display: flex;
 	justify-content: space-between;

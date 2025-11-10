@@ -83,9 +83,9 @@ export const PanelContent = styled.div<{ open: boolean }>`
 		align-items: center;
 		cursor: pointer;
 		color: ${(props) => props.theme.colors.font.primary};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		border: 1px solid transparent;
 		border-radius: ${STYLING.dimensions.radius.primary};
 		transition: all 100ms;
@@ -340,16 +340,15 @@ export const DNavLink = styled.div<{ active: boolean }>`
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.small};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		text-transform: uppercase;
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
-		border-bottom: 2.5px solid ${(props) => (props.active ? props.theme.colors.border.alt5 : 'transparent')};
+		border-bottom: 1.5px solid ${(props) => (props.active ? props.theme.colors.border.alt5 : 'transparent')};
 
 		&:hover {
 			color: ${(props) => props.theme.colors.font.primary};
-			border-bottom: 2.5px solid ${(props) => props.theme.colors.border.alt5};
+			font-weight: ${(props) => props.theme.typography.weight.medium};
+			border-bottom: 2.0px solid ${(props) => props.theme.colors.border.alt5};
 		}
 	}
 `;

@@ -13,7 +13,7 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
         height: 37.5px !important;
-		border: 1px solid
+		border: 0.5px solid
 			${(props) => {
 				switch (props.cacheStatus) {
 					case 'success':
@@ -26,44 +26,7 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 			}} !important;
         }
 
-		&:focus {
-			outline: 0;
-			border: 1px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.outline;
-						case 'error':
-							return props.theme.colors.form.invalid.outline;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
-
-			outline: 0.5px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.outline;
-						case 'error':
-							return props.theme.colors.form.invalid.outline;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
-
-			box-shadow: 0 0 0.5px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.shadow;
-						case 'error':
-							return props.theme.colors.form.invalid.shadow;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
-		}
+		
 	}
 
 	svg {

@@ -37,13 +37,11 @@ export default React.forwardRef<HTMLInputElement, ISearchInput>(function SearchI
 	const inputRef = React.useRef<HTMLInputElement>(null);
 	const combinedRef = (ref || inputRef) as React.RefObject<HTMLInputElement>;
 
-	// Use autocomplete if provided
 	const showAutocomplete = autocomplete?.showAutocomplete ?? false;
 	const autocompleteOptions = autocomplete?.autocompleteOptions ?? [];
 	const selectedOptionIndex = autocomplete?.selectedOptionIndex ?? -1;
 	const acceptAutocomplete = autocomplete?.acceptAutocomplete;
 
-	// Use autocomplete's handleKeyDown if available, otherwise use the provided onKeyDown
 	const handleKeyDown = autocomplete?.handleKeyDown ?? onKeyDown;
 
 	return (

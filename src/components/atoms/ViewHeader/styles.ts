@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const HeaderWrapper = styled.div`
 	width: 100%;
-	margin: 10px 0 22.5px 0;
+	margin: 48px 0 16px 0;
 `;
 
 export const HeaderContent = styled.div`
@@ -16,8 +16,8 @@ export const HeaderContent = styled.div`
 		line-height: 1;
 		font-size: ${(props) => props.theme.typography.size.h4};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.xBold};
 		color: ${(props) => props.theme.colors.font.primary};
+		font-weight: ${(props) => props.theme.typography.weight.light};
 	}
 `;
 

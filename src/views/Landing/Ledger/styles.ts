@@ -7,6 +7,7 @@ export const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
+	background: ${(props) => props.theme.colors.container.primary.background};
 `;
 
 export const Header = styled.div`

@@ -195,8 +195,6 @@ export default function Landing() {
 								<p className={'metric-value'}>{systemLoad}</p>
 								<span>CPU Average</span>
 							</S.MetricsSection>
-						</S.MetricsRow>
-						<S.MetricsRow>
 							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>Read Requests Handled</p>
 								<p className={'metric-value'}>{reads}</p>

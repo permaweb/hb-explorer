@@ -80,7 +80,7 @@ export const darkTheme = {
 	neutralA2: '#E0E0E0',
 	neutralA3: '#CECECE',
 	neutralA4: '#BCBCBC',
-	neutralA5: '#AAAAAA',
+	neutralA5: "#D9D9D9",
 	neutralA6: '#979797',
 	neutralA7: '#7F7F7F',
 	overlay1: 'rgba(0, 0, 0, 0.45)',

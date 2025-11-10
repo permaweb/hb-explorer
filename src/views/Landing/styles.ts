@@ -12,59 +12,75 @@ export const Wrapper = styled.div`
 export const MetricsWrapper = styled.div`
 	position: relative;
 	z-index: 1;
-`;
+	`;
 
 export const MetricsBody = styled.div`
 	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: 25px;
-	margin: 32.5px 0 0 0;
+	margin: 0px 0 0 0;
 `;
 
 export const MetricsRow = styled.div`
 	width: 100%;
-	display: flex;
-	gap: 25px;
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(180px, 1fr);
+	grid-template-rows: 1fr;
+	gap: 20px;
+	align-items: stretch;
+	padding: 0px 0 64px 0;
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		flex-direction: column;
+		grid-auto-flow: row;
+		grid-auto-columns: unset;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-rows: auto;
+		gap: 15px;
+	}
+
+	@media (max-width: ${STYLING.cutoffs.secondary}) {
+		grid-template-columns: 1fr;
 	}
 `;
 
 export const MetricsSection = styled.div`
 	width: 100%;
+	height: 100%;
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	justify-content: flex-start;
-	align-items: flex-start;
-	gap: 5px;
+	gap: 4px;
 	padding: 20px;
 	background: ${(props) => `${props.theme.colors.container.alt1.background}90`} !important;
-	backdrop-filter: blur(7.5px);
+
+	@media (max-width: ${STYLING.cutoffs.tabletSecondary}) {
+		padding: 16px;
+		gap: 6px;
+	}
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.small};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		width: 100%;
+		font-size: clamp(0.75rem, 0.6rem + 0.5vw, ${(props) => props.theme.typography.size.xxxSmall});
+		font-family: ${(props) => props.theme.typography.family.primary};	
 		color: ${(props) => props.theme.colors.font.primary};
-		text-align: center;
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+white-space: nowrap;
 	}
 
 	span {
-		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-size: clamp(0.65rem, 0.5rem + 0.05vw, ${(props) => props.theme.typography.size.xxSmall});
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.light};
 		color: ${(props) => props.theme.colors.font.alt1};
-		text-align: center;
+		letter-spacing: 0.08em;
 		text-transform: uppercase;
 	}
 
 	.metric-value {
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.xLg};
+		font-size: clamp(1.3rem, 1rem + 1vw, ${(props) => props.theme.typography.size.xLg});
 		font-weight: ${(props) => props.theme.typography.weight.xBold};
-		margin: 17.5px 0 0 0;
+		color: ${(props) => props.theme.colors.font.primary};
+		opacity: 1.0;
 	}
 `;
 
@@ -82,21 +98,16 @@ export const HeaderWrapper = styled.div``;
 
 export const Subheader = styled.div`
 	width: fit-content;
-	padding: 4.5px 15px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 12.5px;
-	background: ${(props) => props.theme.colors.container.alt8.background};
-	border: 1px solid ${(props) => props.theme.colors.border.alt2};
+	gap: 12.5px;};
 	border-radius: ${STYLING.dimensions.radius.primary};
 	span {
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-size: ${(props) => props.theme.typography.size.xxLg};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.light1};
-		text-align: center;
-		text-transform: uppercase;
+		font-weight: ${(props) => props.theme.typography.weight.light};
+		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;
 
