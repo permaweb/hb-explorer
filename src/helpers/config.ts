@@ -159,7 +159,7 @@ export const STYLING = {
 			width: 'fit-content',
 		},
 		form: {
-			small: '37.5px',
+			small: '32px',
 			max: '45px',
 		},
 		nav: {

@@ -25,7 +25,7 @@ export const Option = styled.div<{ isSelected: boolean }>`
 	background: ${(props) => (props.isSelected ? props.theme.colors.container.alt2.background : 'transparent')};
 
 	&:hover {
-		background: ${(props) => props.theme.colors.container.alt2.background};
+		background: ${(props) => props.theme.colors.container.alt1.background};
 	}
 
 

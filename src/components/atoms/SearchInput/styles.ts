@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import { STYLING } from 'helpers/config';
+
 export const Wrapper = styled.div`
 	width: 100%;
 	position: relative;
@@ -12,7 +14,7 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
-        height: 32px !important;
+        height: ${STYLING.dimensions.form.small} !important;
 		border: 1px solid
 			${(props) => {
 				switch (props.cacheStatus) {

@@ -66,19 +66,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 			}} !important;
 
 		&:focus {
-			outline: 0;
-			border: 1px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.outline;
-						case 'error':
-							return props.theme.colors.form.invalid.outline;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
-
+	
 			outline: 0.5px solid
 				${(props) => {
 					switch (props.cacheStatus) {
@@ -91,19 +79,9 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 					}
 				}} !important;
 
-			box-shadow: 0 0 0.5px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.shadow;
-						case 'error':
-							return props.theme.colors.form.invalid.shadow;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
+		
 
-			transition: box-shadow, border, outline 225ms ease-in-out;
+			transition: border, outline 225ms ease-in-out;
 		}
 	}
 
@@ -114,7 +92,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 11.5px;
+		top: 8px;
 		left: 14.5px;
 	}
 `;

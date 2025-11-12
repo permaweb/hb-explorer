@@ -179,7 +179,6 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 			}} !important;
 
 		&:focus {
-			outline: 0;
 			border: 1px solid
 				${(props) => {
 					switch (props.cacheStatus) {
@@ -204,19 +203,8 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 					}
 				}} !important;
 
-			box-shadow: 0 0 0.5px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.shadow;
-						case 'error':
-							return props.theme.colors.form.invalid.shadow;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
 
-			transition: box-shadow, border, outline 225ms ease-in-out;
+			transition: border, outline 225ms ease-in-out;
 		}
 	}
 
