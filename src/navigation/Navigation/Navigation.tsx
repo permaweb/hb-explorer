@@ -212,7 +212,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						<S.MSearchWrapper>
 							<CloseHandler active={searchOpen} disabled={!searchOpen} callback={() => setSearchOpen(false)}>
 								<IconButton
-									type={'alt1'}
+									type={'primary'}
 									src={ASSETS.search}
 									handlePress={() => setSearchOpen((prev) => !prev)}
 									dimensions={{
@@ -232,7 +232,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						</S.MSearchWrapper>
 						<S.MMenuWrapper>
 							<IconButton
-								type={'alt1'}
+								type={'primary'}
 								src={ASSETS.menu}
 								handlePress={() => setPanelOpen(true)}
 								dimensions={{

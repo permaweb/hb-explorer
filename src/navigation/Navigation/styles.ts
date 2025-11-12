@@ -343,12 +343,12 @@ export const DNavLink = styled.div<{ active: boolean }>`
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
-		border-bottom: 1.5px solid ${(props) => (props.active ? props.theme.colors.border.alt5 : 'transparent')};
+		border-bottom: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt4 : 'transparent')};
 
 		&:hover {
 			color: ${(props) => props.theme.colors.font.primary};
 			font-weight: ${(props) => props.theme.typography.weight.medium};
-			border-bottom: 2.0px solid ${(props) => props.theme.colors.border.alt5};
+			border-bottom: 2px solid ${(props) => props.theme.colors.border.primary};
 		}
 	}
 `;
@@ -397,12 +397,13 @@ export const MMenuWrapper = styled.div`
 export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
-
+	height: 32px;
+	
 	span {
-		color: ${(props) => props.theme.colors.font.alt1};
+		color: ${(props) => props.theme.colors.font.primary};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {

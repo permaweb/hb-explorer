@@ -59,8 +59,6 @@ export const Input = styled.input<{
 			${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.default.outline)};
 		outline: 0.5px solid
 			${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.default.outline)};
-		box-shadow: 0 0 0.5px
-			${(props) => (props.invalid ? props.theme.colors.form.invalid.shadow : props.theme.colors.form.default.shadow)};
 		transition: box-shadow, border, outline 225ms ease-in-out;
 	}
 	&:disabled {

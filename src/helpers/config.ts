@@ -163,7 +163,7 @@ export const STYLING = {
 			max: '45px',
 		},
 		nav: {
-			height: '72.5px',
+			height: '68px',
 			width: '260px',
 		},
 		landingTabNav: {

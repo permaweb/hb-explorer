@@ -12,16 +12,16 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
-        height: 37.5px !important;
-		border: 0.5px solid
+        height: 32px !important;
+		border: 1px solid
 			${(props) => {
 				switch (props.cacheStatus) {
 					case 'success':
-						return props.theme.colors.form.valid.outline;
+						return props.theme.colors.border.primary;
 					case 'error':
 						return props.theme.colors.form.invalid.outline;
 					default:
-						return props.theme.colors.form.border;
+						return props.theme.colors.border.primary;
 				}
 			}} !important;
         }
@@ -36,14 +36,14 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 11.5px;
+		top: 8px;
 		left: 14.5px;
 	}
 `;
 
 export const SubmitWrapper = styled.div`
 	position: absolute;
-	top: 2.5px;
+	top: -2px;
 	right: 4.5px;
 `;
 

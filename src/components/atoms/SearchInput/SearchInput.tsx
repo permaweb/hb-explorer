@@ -75,7 +75,7 @@ export default React.forwardRef<HTMLInputElement, ISearchInput>(function SearchI
 			{showSubmitButton && (
 				<S.SubmitWrapper>
 					<IconButton
-						type={'primary'}
+						type={'ghost'}
 						src={ASSETS.go}
 						handlePress={onSubmit || (() => {})}
 						disabled={submitDisabled}

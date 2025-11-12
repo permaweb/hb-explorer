@@ -139,7 +139,7 @@ export const Graphic = styled.div`
 		position: fixed;
 		opacity: 0.1;
 		z-index: 0;
-		top: -72.5px;
+		top: -${STYLING.dimensions.nav.height};
 		left: 50%;
 		transform: translate(-50%, 0);
 	}

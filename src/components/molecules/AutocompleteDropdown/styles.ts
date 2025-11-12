@@ -4,12 +4,13 @@ import { STYLING } from 'helpers/config';
 
 export const Dropdown = styled.div`
 	background: ${(props) => props.theme.colors.container.primary.background};
-	border: 0.5px solid ${(props) => props.theme.colors.form.border};
 	border-radius: ${STYLING.dimensions.radius.primary};
 	z-index: 999999;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	overflow: hidden;
-`;
+	outline: 0;
+	outline: 0.5px solid
+	${(props) => (props.theme.colors.form.default.outline)};
+	`;
 
 export const Option = styled.div<{ isSelected: boolean }>`
 	padding: 10px 12.5px;
