@@ -191,8 +191,8 @@ export const SidebarItem = styled.button<{ $active: boolean }>`
 	cursor: pointer;
 	text-align: left;
 
-	&:hover ${SidebarItemInner} {
-		background: ${(props) => props.theme.colors.container.alt2.background};
+	&:hover {
+		background: ${(props) => props.theme.colors.container.alt1.background};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {

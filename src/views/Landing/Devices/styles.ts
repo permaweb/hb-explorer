@@ -93,7 +93,7 @@ export const DeviceWrapper = styled.button`
 	justify-content: space-between;
 	gap: 25px;
 	padding: 20px;
-	background: ${(props) => props.theme.colors.container.alt1.background};
+	background: ${(props) => props.theme.colors.container.primary.background};
 	cursor: pointer;
 
 	&:hover {
@@ -134,12 +134,27 @@ export const CubeSpinWrapper = styled.div`
 	height: 32px;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 100ms ease-out, transform 100ms ease-out;
 
 	${DeviceWrapper}:hover & {
 		display: flex;
 		opacity: 1;
 		transform: translateY(-50%) scale(1);
+		animation: fadeInScale 175ms ease-out forwards;
+	}
+
+	@keyframes fadeInScale {
+		0% {
+			opacity: 0;
+			transform: translateY(0%) scale(0);
+		}
+		1% {
+			opacity: 0;
+			transform: translateY(0%) scale(0);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(-50%) scale(1);
+		}
 	}
 `;
 
