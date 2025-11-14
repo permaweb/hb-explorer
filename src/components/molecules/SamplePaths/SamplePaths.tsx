@@ -48,7 +48,7 @@ export default function SamplePaths({ onPathSelect }: SamplePathsProps) {
 			<S.Header>
 				<S.HeaderTitle>
 					<h3>Useful Paths</h3>
-					<ReactSVG src={ASSETS.newTab} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+					<ReactSVG src={ASSETS.newTab} style={{ transform: 'translateY(5px)' }} />
 				</S.HeaderTitle>
 				<S.HeaderDescription>Explore helpful HyperBEAM paths on this node</S.HeaderDescription>
 			</S.Header>

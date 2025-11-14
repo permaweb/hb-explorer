@@ -15,28 +15,29 @@ export const HeaderTitle = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 12px;
-	margin-bottom: 12px;
+	gap: 4px;
+	margin-bottom: 8px;
+	color: ${(props) => props.theme.colors.font.primary};
 
 	svg {
-		height: 24px;
-		width: 24px;
-		fill: ${(props) => props.theme.colors.font.light1};
+		height: 20px;
+		width: 20px;
+		fill: ${(props) => props.theme.colors.font.primary};
 	}
 
 	h3 {
 		color: ${(props) => props.theme.colors.font.primary};
-		font-size: 24px;
-		font-weight: 600;
+		font-size: 20px;
+		font-weight: 500;
 		margin: 0;
 	}
 `;
 
 export const HeaderDescription = styled.p`
-	color: ${(props) => props.theme.colors.font.alt1};
-	font-size: 16px;
+	color: ${(props) => props.theme.colors.font.primary};
+	font-size: 14px;
 	margin: 0;
-	line-height: 1.5;
+	font-weight: 300;
 `;
 
 export const PathList = styled.div`
@@ -56,7 +57,6 @@ export const PathCard = styled.div`
 
 	padding: 12px 16px;
 	cursor: pointer;
-	transition: all 100ms;
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
@@ -69,9 +69,9 @@ export const PathCard = styled.div`
 `;
 
 export const PathIcon = styled.div`
-	background: ${(props) => props.theme.colors.container.alt3.background};
+	background: transparent;
 
-	padding: 8px;
+	padding: 2px 8px;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
@@ -101,28 +101,29 @@ export const PathContent = styled.div`
 export const PathLabel = styled.h4`
 	color: ${(props) => props.theme.colors.font.primary};
 	font-size: 15px;
-	font-weight: 600;
+	font-weight: 500;
 	margin: 0 0 4px 0;
 	line-height: 1.2;
 `;
 
 export const PathDescription = styled.p`
-	color: ${(props) => props.theme.colors.font.alt1};
+	color: ${(props) => props.theme.colors.font.primary};
+	font-weight: 300;
 	font-size: 13px;
-	margin: 0 0 8px 0;
+	margin: 0 0 20px 0;
 	line-height: 1.3;
 `;
 
 export const PathValue = styled.div`
 	code {
-		background: ${(props) => props.theme.colors.container.alt8.background};
-		color: ${(props) => props.theme.colors.font.light1};
+		background: ${(props) => props.theme.colors.container.primary.background};
+		color: ${(props) => props.theme.colors.font.primary};
 		font-family: ${(props) => props.theme.typography.family.alt2};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		font-size: 12px;
 		padding: 2px 6px;
 
-		border: 1px solid ${(props) => props.theme.colors.border.alt1};
+		border: 1px solid ${(props) => props.theme.colors.border.primary};
 		word-wrap: break-word;
 	}
 `;
@@ -135,7 +136,6 @@ export const PathAction = styled.div`
 		height: 14px;
 		width: 14px;
 		fill: ${(props) => props.theme.colors.font.alt1};
-		transition: all 100ms;
 	}
 
 	${PathCard}:hover & svg {
