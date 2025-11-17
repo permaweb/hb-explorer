@@ -1,13 +1,10 @@
 import React from 'react';
 import { ReactSVG } from 'react-svg';
 
-import { FormField } from 'components/atoms/FormField';
-import { IconButton } from 'components/atoms/IconButton';
-import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { SamplePaths } from 'components/molecules/SamplePaths';
 import { ASSETS, DEFAULT_TABS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
+import { checkValidAddress } from 'helpers/utils';
 import { useDeviceAutocomplete } from 'hooks/useDeviceAutocomplete';
 import { useHyperBeamRequest } from 'hooks/useHyperBeamRequest';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -34,17 +31,28 @@ export default function ExplorerTab(props: {
 
 	const hyperBeamRequest = useHyperBeamRequest();
 
-	const { showAutocomplete, handleKeyDown, autocompleteOptions, selectedOptionIndex, acceptAutocomplete } =
-		useDeviceAutocomplete({
-			inputValue: inputPath,
-			cursorPosition,
-			inputRef,
-			onValueChange: (value, newCursorPosition) => {
-				setInputPath(value);
-				setCursorPosition(newCursorPosition);
-			},
-			onAutoSubmit: (completedPath) => handleSubmit(completedPath),
-		});
+	const {
+		showAutocomplete,
+		handleKeyDown,
+		autocompleteOptions,
+		selectedOptionIndex,
+		acceptAutocomplete,
+	}: {
+		showAutocomplete: boolean;
+		handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+		autocompleteOptions: string[];
+		selectedOptionIndex: number;
+		acceptAutocomplete: (deviceName: string) => void;
+	} = useDeviceAutocomplete({
+		inputValue: inputPath,
+		cursorPosition,
+		inputRef,
+		onValueChange: (value, newCursorPosition) => {
+			setInputPath(value);
+			setCursorPosition(newCursorPosition);
+		},
+		onAutoSubmit: (completedPath) => handleSubmit(completedPath),
+	});
 
 	const handleSubmit = React.useCallback(
 		async (pathToSubmit?: string) => {
@@ -167,88 +175,34 @@ export default function ExplorerTab(props: {
 			case 'process':
 				return <ExplorerTabProcess tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
 			case 'path':
-				return <ExplorerTabPath tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
+				return (
+					<ExplorerTabPath
+						tab={props.tab}
+						hyperBeamRequest={hyperBeamRequest}
+						refreshKey={refreshKey}
+						inputPath={inputPath}
+						inputRef={inputRef}
+						handleInputChange={handleInputChange}
+						handleKeyPress={handleKeyPress}
+						handleKeyDown={handleKeyDown}
+						showAutocomplete={showAutocomplete}
+						autocompleteOptions={autocompleteOptions}
+						selectedOptionIndex={selectedOptionIndex}
+						acceptAutocomplete={acceptAutocomplete}
+						autoSubmitTimerId={autoSubmitTimerId}
+						setAutoSubmitTimerId={setAutoSubmitTimerId}
+						setRefreshKey={setRefreshKey}
+						handleSubmit={handleSubmit}
+						copyInput={copyInput}
+						copied={copied}
+						language={language}
+					/>
+				);
 		}
 	}
 
 	return (
 		<S.Wrapper>
-			<S.HeaderWrapper>
-				<S.SearchWrapper>
-					<S.SearchInputWrapper cacheStatus={'default'}>
-						<ReactSVG src={ASSETS.search} />
-						<FormField
-							ref={inputRef}
-							value={inputPath}
-							onChange={handleInputChange}
-							onKeyPress={handleKeyPress}
-							onKeyDown={handleKeyDown}
-							placeholder={language.pathOrId}
-							invalid={{ status: false, message: null }}
-							disabled={hyperBeamRequest.loading}
-							autoFocus
-							hideErrorMessage
-							sm
-						/>
-						<AutocompleteDropdown
-							options={autocompleteOptions}
-							selectedIndex={selectedOptionIndex}
-							onSelect={acceptAutocomplete}
-							visible={showAutocomplete}
-							showTabHint={true}
-							inputRef={inputRef}
-						/>
-					</S.SearchInputWrapper>
-					<IconButton
-						type={'alt1'}
-						src={ASSETS.refresh}
-						handlePress={() => {
-							if (autoSubmitTimerId) {
-								clearTimeout(autoSubmitTimerId);
-								setAutoSubmitTimerId(null);
-							}
-							setRefreshKey((prev) => prev + 1);
-							handleSubmit();
-						}}
-						disabled={hyperBeamRequest.loading || !inputPath}
-						dimensions={{
-							wrapper: 32.5,
-							icon: 17.5,
-						}}
-						tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.refresh}
-					/>
-
-					<IconButton
-						type={'alt1'}
-						src={ASSETS.copy}
-						handlePress={() => copyInput(inputPath)}
-						disabled={!inputPath}
-						dimensions={{
-							wrapper: 32.5,
-							icon: 17.5,
-						}}
-						tooltip={copied ? `${language.copied}!` : language.copyPath}
-					/>
-				</S.SearchWrapper>
-				<S.HeaderActionsWrapper>
-					<S.PathInfoWrapper>
-						<S.UpdateWrapper>
-							<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
-							<S.Indicator />
-						</S.UpdateWrapper>
-						{props.tab?.type && (
-							<S.UpdateWrapper>
-								<span>{props.tab.type}</span>
-							</S.UpdateWrapper>
-						)}
-						{props.tab?.variant && (
-							<S.UpdateWrapper>
-								<span>{props.tab.variant}</span>
-							</S.UpdateWrapper>
-						)}
-					</S.PathInfoWrapper>
-				</S.HeaderActionsWrapper>
-			</S.HeaderWrapper>
 			<S.BodyWrapper>{props.active ? getTab() : null}</S.BodyWrapper>
 		</S.Wrapper>
 	);

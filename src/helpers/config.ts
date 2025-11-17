@@ -18,6 +18,7 @@ export const ASSETS = {
 	close: getTxEndpoint('BASlMnOWcLCcLUSrO2wUybQL_06231dLONeVkdTWs3o'),
 	code: getTxEndpoint('Nv6GexQXf2PpTv8zYoLzysv0DzOiUK_aguqjnNraqDg'),
 	console: getTxEndpoint('Ap7QY41qgc7v5cTjQOOnFgJRO3gC7wgIZx2uSVTS3RM'),
+	content: getTxEndpoint('oBB9uPPEHK5yjfmn4rz7F53lDb__z6ilVQIazImT9Z0'),
 	copy: getTxEndpoint('-Qc2PsDF3sVDiT56iaYMfGWttrjI8eRg-1U3WeQmKu0'),
 	dark: getTxEndpoint('frDBQmgmo9MLraz4dcGqknHOeUVj9Yx8XNfSozJd4Uo'),
 	delete: getTxEndpoint('aKjWuVXkSeYOKzGP0MnnhHwoYUXqTHFMJfVCbqzYEo0'),
@@ -33,6 +34,7 @@ export const ASSETS = {
 	fullscreen: getTxEndpoint('eW1yhAoA__WirNKXh6uykdz0DmU033qkUS2fqiZjsok'),
 	go: getTxEndpoint('uPGHtrtkOiGXWvpn77GGh76CxFuQDIEMRStynGz7mAs'),
 	graph: getTxEndpoint('JGm5ct2gNCn0ae0xQcnpf9IlaQwvbHmxRMNglqOQntg'),
+	graphMinimal: getTxEndpoint('26IIkg_WNypc3_5PtYIi4Ok8PGpKJtxrMG3Pc8k3mEU'),
 	graphic: getTxEndpoint('tJd9JJa8ap5dHHvRAAPOE4Gh6VAY4h8KpBY1gzrtVWo'),
 	header1: getTxEndpoint('Me8rAW3kmQxPclDnl7lupTXyWg2t3vV3yfFdCzyXbNA'),
 	header2: getTxEndpoint('6U8907x3L_phk9loiiBCHIXqDBWaV5IfK19IJnH8Q4A'),
@@ -43,6 +45,7 @@ export const ASSETS = {
 	headers: getTxEndpoint('6Qtxyz8eXZxoZnvOy3htjOPPx1T7QFiI5e6VH13dhOY'),
 	help: getTxEndpoint('827_dxZR1WAnw_hqxfwwb4jgP5m2fpkSrTMtdjRUWw4'),
 	http: getTxEndpoint('UoTzGV21mCNrFjRvb0-hB_mZpJniOex9fFnbO237McU'),
+	hyperbuddy: getTxEndpoint('eH269APQRzeT3At3TW3YjTGQ27ehcjb02kt8UvQWCio'),
 	image: getTxEndpoint('357HeJjvG10nK28juQ8YMp6DlvHhGbmU7pOvZphEhUk'),
 	info: getTxEndpoint('QQ4EJ_wH2EY1_ElfSNKffixnzVcbnvd2547lmluvT-0'),
 	keyboard: getTxEndpoint('rMjFgHIRcEmy9P68Prpbgw9jvzWKL18m3vrJXIBwmao'),
@@ -155,22 +158,29 @@ export const STYLING = {
 	},
 	dimensions: {
 		button: {
-			height: '33.5px',
+			height: '32px',
 			width: 'fit-content',
+		},
+		action: {
+			height: '32px',
 		},
 		form: {
 			small: '32px',
 			max: '45px',
+		},
+		indicator: {
+			height: '10px',
+			width: '10px',
 		},
 		nav: {
 			height: '68px',
 			width: '260px',
 		},
 		landingTabNav: {
-			height: '52.5px',
+			height: '52px',
 		},
 		landingTab: {
-			height: '52.5px'
+			height: '52px'
 		},
 		landingHeader: {
 			padding: '24px'

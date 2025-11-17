@@ -385,7 +385,7 @@ export const MMenuWrapper = styled.div`
 export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
-	height: 32px;
+	height: ${STYLING.dimensions.action.height};
 	
 	span {
 		color: ${(props) => props.theme.colors.font.primary};

@@ -29,7 +29,7 @@ class Tab extends React.Component<any, any> {
 		} = this;
 
 		function getTab() {
-			const landingTabHeight = parseFloat(STYLING.dimensions.landingTab.height);
+			const landingTabHeight = parseFloat(STYLING.dimensions.button.height);
 			switch (type) {
 				case 'primary':
 					return (
@@ -71,6 +71,7 @@ type TabsProps = {
 	onTabClick: any;
 	type: TabType;
 	stickyTop?: string;
+	endComponent?: React.ReactNode;
 };
 
 export default class Tabs extends React.Component<TabsProps, any> {
@@ -94,11 +95,9 @@ export default class Tabs extends React.Component<TabsProps, any> {
 		const Wrapper = this.Wrapper;
 		const singleChild = !Array.isArray(this.props.children);
 
-		const {
-			onClickTabItem,
-			props: { children, stickyTop, type },
-			state: { activeTab },
-		} = this;
+		const { onClickTabItem, props, state } = this;
+		const { children, stickyTop, type, endComponent } = props;
+		const { activeTab } = state;
 
 		return singleChild ? (
 			<S.Container>
@@ -134,6 +133,7 @@ export default class Tabs extends React.Component<TabsProps, any> {
 							})}
 						</S.List>
 					</Wrapper>
+					{endComponent && <S.HeaderEnd>{endComponent}</S.HeaderEnd>}
 					{type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
 				</S.Header>
 				<Wrapper>

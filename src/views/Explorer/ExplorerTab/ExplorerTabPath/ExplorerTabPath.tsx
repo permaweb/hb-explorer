@@ -3,16 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
 
 import { Copyable } from 'components/atoms/Copyable';
+import { FormField } from 'components/atoms/FormField';
 import { IconButton } from 'components/atoms/IconButton';
 import { Loader } from 'components/atoms/Loader';
 import { Tabs } from 'components/atoms/Tabs';
+import { AutocompleteDropdown } from 'components/molecules/AutocompleteDropdown';
 import { Editor } from 'components/molecules/Editor';
 import { JSONReader } from 'components/molecules/JSONReader';
 import { SamplePaths } from 'components/molecules/SamplePaths';
 import { HyperLinks } from 'components/organisms/HyperLinks';
 import { ASSETS, URLS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { checkValidAddress } from 'helpers/utils';
+import { checkValidAddress, stripUrlProtocol } from 'helpers/utils';
 import { UseHyperBeamRequestReturn } from 'hooks/useHyperBeamRequest';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
@@ -100,9 +102,26 @@ export default function ExplorerTabPath(props: {
 	tab: ExplorerTabObjectType;
 	hyperBeamRequest: UseHyperBeamRequestReturn;
 	refreshKey?: number;
+	inputPath: string;
+	inputRef: React.RefObject<HTMLInputElement>;
+	handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+	handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+	showAutocomplete: boolean;
+	autocompleteOptions: string[];
+	selectedOptionIndex: number;
+	acceptAutocomplete: (deviceName: string) => void;
+	autoSubmitTimerId: NodeJS.Timeout | null;
+	setAutoSubmitTimerId: (id: NodeJS.Timeout | null) => void;
+	setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+	handleSubmit: (pathToSubmit?: string) => Promise<void>;
+	copyInput: (value: string) => Promise<void>;
+	copied: boolean;
+	language: any;
 }) {
 	const languageProvider = useLanguageProvider();
-	const language = languageProvider.object[languageProvider.current];
+	const languageFromProvider = languageProvider.object[languageProvider.current];
+	const language = props.language || languageFromProvider;
 
 	const [responseBody, setResponseBody] = React.useState<any>(null);
 	const [hyperbuddyData, setHyperbuddyData] = React.useState<any>(null);
@@ -243,6 +262,62 @@ export default function ExplorerTabPath(props: {
 		return (
 			<>
 				<S.InfoWrapper>
+					<S.SearchWrapper>
+						<S.SearchInputWrapper cacheStatus={'default'}>
+							<ReactSVG src={ASSETS.search} />
+							<FormField
+								ref={props.inputRef}
+								value={props.inputPath}
+								onChange={props.handleInputChange}
+								onKeyPress={props.handleKeyPress}
+								onKeyDown={props.handleKeyDown}
+								placeholder={language.pathOrId}
+								invalid={{ status: false, message: null }}
+								disabled={props.hyperBeamRequest.loading}
+								autoFocus
+								hideErrorMessage
+								sm
+							/>
+							<AutocompleteDropdown
+								options={props.autocompleteOptions}
+								selectedIndex={props.selectedOptionIndex}
+								onSelect={props.acceptAutocomplete}
+								visible={props.showAutocomplete}
+								showTabHint={true}
+								inputRef={props.inputRef}
+							/>
+						</S.SearchInputWrapper>
+						<IconButton
+							type={'alt1'}
+							src={ASSETS.refresh}
+							handlePress={() => {
+								if (props.autoSubmitTimerId) {
+									clearTimeout(props.autoSubmitTimerId);
+									props.setAutoSubmitTimerId(null);
+								}
+								props.setRefreshKey((prev) => prev + 1);
+								props.handleSubmit();
+							}}
+							disabled={props.hyperBeamRequest.loading || !props.inputPath}
+							dimensions={{
+								wrapper: 32.5,
+								icon: 17.5,
+							}}
+							tooltip={props.hyperBeamRequest.loading ? `${language.loading}...` : language.refresh}
+						/>
+
+						<IconButton
+							type={'alt1'}
+							src={ASSETS.copy}
+							handlePress={() => props.copyInput(props.inputPath)}
+							disabled={!props.inputPath}
+							dimensions={{
+								wrapper: 32.5,
+								icon: 17.5,
+							}}
+							tooltip={props.copied ? `${language.copied}!` : language.copyPath}
+						/>
+					</S.SearchWrapper>
 					<S.InfoSection className={'border-wrapper-alt3 fade-in'}>
 						<S.SignatureHeader>
 							<p>Signature</p>
@@ -305,18 +380,39 @@ export default function ExplorerTabPath(props: {
 					)}
 				</S.InfoWrapper>
 				<S.BodyWrapper>
-					<Tabs onTabClick={() => {}} type={'primary'}>
-						<S.Tab label={'Graph'}>
+					<Tabs
+						onTabClick={() => {}}
+						type={'primary'}
+						endComponent={
+							<S.PathInfoWrapper>
+								<S.UpdateWrapper>
+									<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
+									<S.Indicator />
+								</S.UpdateWrapper>
+								{props.tab?.type && (
+									<S.UpdateWrapper>
+										<span>{props.tab.type}</span>
+									</S.UpdateWrapper>
+								)}
+								{props.tab?.variant && (
+									<S.UpdateWrapper>
+										<span>{props.tab.variant}</span>
+									</S.UpdateWrapper>
+								)}
+							</S.PathInfoWrapper>
+						}
+					>
+						<S.Tab label={'Graph'} icon={ASSETS.graphMinimal}>
 							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
 						</S.Tab>
-						<S.Tab label={'Hyperbuddy'}>
+						<S.Tab label={'Hyperbuddy'} icon={ASSETS.hyperbuddy}>
 							{hyperbuddyData ? (
-								<Editor initialData={hyperbuddyData} loading={false} readOnly />
+								<Editor initialData={hyperbuddyData} language={'lua'} loading={false} readOnly />
 							) : (
 								<Loader sm relative />
 							)}
 						</S.Tab>
-						<S.Tab label={'Content'}>
+						<S.Tab label={'Content'} icon={ASSETS.content}>
 							{responseBody ? (
 								<>
 									{bodyType === 'json' ? (

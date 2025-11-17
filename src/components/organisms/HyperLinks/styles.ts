@@ -55,10 +55,9 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		white-space: nowrap;
-		text-transform: uppercase;
 		display: block;
 		margin: 0.5px 0 0 0;
 	}
@@ -66,7 +65,7 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.regular};
 		color: ${(props) => props.theme.colors.font.alt2};
 		white-space: nowrap;
 		overflow: hidden;
@@ -75,8 +74,8 @@ export const InfoBlock = styled.div<{ background?: string }>`
 
 	code {
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
-		font-family: ${(props) => props.theme.typography.family.alt2};
-		font-weight: ${(props) => props.theme.typography.weight.xBold};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		white-space: nowrap;
 		overflow: hidden;
@@ -96,8 +95,8 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
 		border-radius: ${STYLING.dimensions.radius.primary};
 	}
@@ -173,9 +172,9 @@ export const TableRow = styled.div<{ depth?: number }>`
 	}
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		line-height: 1.5;
 	}
@@ -243,11 +242,10 @@ export const NodeContentHeader = styled.div<{ background: string; hasChildren?: 
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
 		border-radius: ${STYLING.dimensions.radius.primary};
-		border: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
 
@@ -261,11 +259,10 @@ export const NodeContentDetail = styled.div<{ background: string; hasChildren?: 
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
 		border-radius: ${STYLING.dimensions.radius.primary};
-		border: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
 
@@ -357,8 +354,8 @@ export const WrapperEmpty = styled.div`
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.alt2};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;
 

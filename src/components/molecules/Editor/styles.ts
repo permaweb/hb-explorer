@@ -48,6 +48,16 @@ export const Editor = styled.div<{ noWrapper: boolean }>`
 	> * {
 		font-family: ${(props) => props.theme.typography.family.alt2} !important;
 	}
+
+	.monaco-editor .mtk1 {
+		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
+		font-weight: ${(props) => props.theme.typography.weight.regular} !important;
+	}
+
+	.mtk1 {
+		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
+		font-weight: ${(props) => props.theme.typography.weight.regular} !important;
+	}
 `;
 
 export const ActionsWrapper = styled.div`

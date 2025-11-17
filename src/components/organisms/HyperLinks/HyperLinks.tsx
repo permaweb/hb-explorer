@@ -596,7 +596,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 										</S.ThreadLine>
 										<S.NodeContent depth={node.depth}>
 											<S.NodeContentHeader
-												background={isActive ? theme?.colors.editor.alt7 : theme.colors.container.alt8.background}
+												background={isActive ? theme?.colors.editor.alt7 : theme.colors.container.alt3.background}
 												hasChildren={node.hasChildren}
 											>
 												<div className={'indicator'} />

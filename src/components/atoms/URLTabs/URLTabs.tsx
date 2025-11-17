@@ -25,7 +25,7 @@ function Tab(props: ITProps) {
 				active={props.active}
 				icon={props.icon}
 				iconLeftAlign
-				height={35}
+				height={32}
 			/>
 		</S.Tab>
 	);

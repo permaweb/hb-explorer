@@ -36,14 +36,14 @@ export const lightTheme = {
 	link1: '#0074E4',
 	link2: '#009AF7',
 	editor: {
-		primary: '#ec3063',
+		primary: '#DA615D',  // Composite - changed from '#ec3063'
 		alt1: '#13ab8f',
-		alt2: '#5E66DB',
+		alt2: '#6AB586',  // Active (for graph links) - changed from '#5E66DB'
 		alt3: '#00a66b',
-		alt4: '#3476E1',
-		alt5: '#8580d9',
+		alt4: '#616ACC',  // Simple - changed from '#3476E1'
+		alt5: '#6EB9CB',  // Connection - changed from '#8580d9'
 		alt6: '#FF5722',
-		alt7: '#FFC107',
+		alt7: '#6AB586',  // Active (for UI) - changed from '#FFC107'
 		alt8: '#00BCD4',
 		alt9: '#8BC34A',
 		alt10: '#3a3a3a',
@@ -96,14 +96,14 @@ export const darkTheme = {
 	link1: '#009AF7',
 	link2: '#0074E4',
 	editor: {
-		primary: '#d975e6',
+		primary: '#DA615D',  // Composite - changed from '#d975e6'
 		alt1: '#62c1b1',
-		alt2: '#45c6ae',
+		alt2: '#6AB586',  // Active (for graph links) - changed from '#45c6ae'
 		alt3: '#5bdcbf',
-		alt4: '#67cac0',
-		alt5: '#8580d9',
+		alt4: '#616ACC',  // Simple - changed from '#67cac0'
+		alt5: '#6EB9CB',  // Connection - changed from '#8580d9'
 		alt6: '#FF5722',
-		alt7: '#FFC107',
+		alt7: '#6AB586',  // Active (for UI) - changed from '#FFC107'
 		alt8: '#00BCD4',
 		alt9: '#8BC34A',
 		alt10: '#bcbcbc',
@@ -149,7 +149,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 		},
 		button: {
 			primary: {
-				background: currentTheme.neutral3,
+				background: currentTheme.neutral1,
 				border: currentTheme.neutral5,
 				color: currentTheme.neutralA1,
 				active: {

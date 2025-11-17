@@ -130,8 +130,8 @@ export const CubeSpinWrapper = styled.div`
 	display: none;
 	align-items: center;
 	justify-content: center;
-	width: 32px;
-	height: 32px;
+	width: ${STYLING.dimensions.action.height};
+	height: ${STYLING.dimensions.action.height};
 	opacity: 0;
 	pointer-events: none;
 
