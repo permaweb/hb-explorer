@@ -33,7 +33,7 @@ export const RouterWrapper = styled.div`
 export const RouterBody = styled.div`
 	width: 100%;
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-radius: ${STYLING.dimensions.radius.alt1};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	overflow: hidden;
 
 	> * {
@@ -129,7 +129,7 @@ export const Indicator = styled.div<{ status: 'healthy' | 'unhealthy' }>`
 	height: 11.5px;
 	width: 11.5px;
 	margin: 1.5px 0 0 0;
-	border-radius: 50%;
+	border-radius: ${STYLING.dimensions.radius.circle};
 	background: ${(props) =>
 		props.status === 'healthy' ? props.theme.colors.indicator.active : props.theme.colors.warning.primary};
 
@@ -192,10 +192,10 @@ export const Subheader = styled.div`
 	align-items: center;
 	justify-content: center;
 	background: ${(props) => props.theme.colors.container.alt8.background};
-	border-radius: ${STYLING.dimensions.radius.alt2};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.light1};
 		text-align: center;

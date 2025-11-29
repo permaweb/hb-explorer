@@ -203,7 +203,7 @@ export default function initializeHyperBEAMGraph() {
 
 			// Apply border-wrapper-primary styling to canvas
 			const canvas = this.renderer.domElement;
-			canvas.style.borderRadius = STYLING.dimensions.radius.alt1;
+			canvas.style.borderRadius = STYLING.dimensions.radius.primary;
 			canvas.style.border = this.themeManager.themeObj?.colors?.border?.primary
 				? `1px solid ${this.themeManager.themeObj.colors.border.primary}`
 				: '1px solid #e8e8e8';

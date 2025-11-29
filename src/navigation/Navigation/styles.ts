@@ -83,9 +83,9 @@ export const PanelContent = styled.div<{ open: boolean }>`
 		align-items: center;
 		cursor: pointer;
 		color: ${(props) => props.theme.colors.font.primary};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		border: 1px solid transparent;
 		border-radius: ${STYLING.dimensions.radius.primary};
 		transition: all 100ms;
@@ -179,7 +179,6 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 			}} !important;
 
 		&:focus {
-			outline: 0;
 			border: 1px solid
 				${(props) => {
 					switch (props.cacheStatus) {
@@ -204,19 +203,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 					}
 				}} !important;
 
-			box-shadow: 0 0 0.5px solid
-				${(props) => {
-					switch (props.cacheStatus) {
-						case 'success':
-							return props.theme.colors.form.valid.shadow;
-						case 'error':
-							return props.theme.colors.form.invalid.shadow;
-						default:
-							return props.theme.colors.form.default.outline;
-					}
-				}} !important;
-
-			transition: box-shadow, border, outline 225ms ease-in-out;
+			transition: border, outline 225ms ease-in-out;
 		}
 	}
 
@@ -338,18 +325,18 @@ export const DNavWrapper = styled.div`
 export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.small};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		text-transform: uppercase;
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
-		border-bottom: 2.5px solid ${(props) => (props.active ? props.theme.colors.border.alt5 : 'transparent')};
+		border-bottom: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt4 : 'transparent')};
 
 		&:hover {
 			color: ${(props) => props.theme.colors.font.primary};
-			border-bottom: 2.5px solid ${(props) => props.theme.colors.border.alt5};
+			font-weight: ${(props) => props.theme.typography.weight.medium};
+			border-bottom: 2px solid
+				${(props) => (props.active ? props.theme.colors.border.alt4 : props.theme.colors.border.alt2)};
 		}
 	}
 `;
@@ -398,12 +385,13 @@ export const MMenuWrapper = styled.div`
 export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
+	height: ${STYLING.dimensions.action.height};
 
 	span {
-		color: ${(props) => props.theme.colors.font.alt1};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		color: ${(props) => props.theme.colors.font.primary};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
@@ -417,14 +405,14 @@ export const MSearchContainer = styled.div`
 	top: 45px;
 	right: 0;
 	padding: 15px 15px 15px 15px;
-	border-radius: ${STYLING.dimensions.radius.alt2} !important;
+	border-radius: ${STYLING.dimensions.radius.primary} !important;
 `;
 
 export const MSearchHeader = styled.div`
 	margin: 0 0 10px 0;
 	p {
 		color: ${(props) => props.theme.colors.font.alt1};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		text-transform: uppercase;

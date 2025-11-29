@@ -6,14 +6,15 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	height: 100%;
 	padding: 0 7.5px 0 8.5px;
 	background: ${(props) =>
 		props.disabled
 			? props.theme.colors.button.primary.disabled.background
-			: props.theme.colors.button.primary.background};
+			: props.theme.colors.button.primary.alt1};
 	border: 1px solid
-		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.border)};
-	border-radius: ${STYLING.dimensions.radius.alt1};
+		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.border.primary)};
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	p {
 		color: ${(props) =>
@@ -21,8 +22,7 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 				? props.theme.colors.button.primary.disabled.color
 				: props.theme.colors.button.primary.color} !important;
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-		font-family: ${(props) => props.theme.typography.family.alt2} !important;
-		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
+		font-family: ${(props) => props.theme.typography.family.alt1} !important;
 		max-width: 100% !important;
 		white-space: nowrap;
 		letter-spacing: -0.15px;
@@ -34,8 +34,6 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 				? props.theme.colors.button.primary.disabled.color
 				: props.theme.colors.button.primary.color} !important;
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-		font-family: ${(props) => props.theme.typography.family.primary} !important;
-		font-weight: ${(props) => props.theme.typography.weight.xBold} !important;
 		display: block;
 		white-space: nowrap;
 	}

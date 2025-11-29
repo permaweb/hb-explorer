@@ -1,9 +1,35 @@
 import styled, { createGlobalStyle } from 'styled-components';
 
 import { open, transition1, transition2 } from 'helpers/animations';
+import DMSansVariable from 'assets/DMSans-VariableFont_opsz,wght.ttf';
+import DMSansItalicVariable from 'assets/DMSans-Italic-VariableFont_opsz,wght.ttf';
+import GeistMonoVariable from 'assets/GeistMono-VariableFont_wght.ttf';
 import { STYLING } from 'helpers/config';
 
 export const GlobalStyle = createGlobalStyle`
+	@font-face {
+		font-family: 'DM Sans';
+		src: url(${DMSansVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: normal;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'DM Sans';
+		src: url(${DMSansItalicVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: italic;
+		font-display: swap;
+	}
+
+	@font-face {
+		font-family: 'Geist Mono';
+		src: url(${GeistMonoVariable}) format('truetype');
+		font-weight: 100 900;
+		font-style: normal;
+		font-display: swap;
+	}
 
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -75,14 +101,13 @@ export const GlobalStyle = createGlobalStyle`
 			}
 			::-webkit-scrollbar-thumb {
 				background-color: ${(props) => props.theme.colors.scrollbar.thumb};
-				border-radius: 36px;
 				border: 3.5px solid transparent;
 				background-clip: padding-box;
 			}
 	}
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: ${(props) => props.theme.typography.family.alt1};
+    font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
     color: ${(props) => props.theme.colors.font.primary};
 		overflow-wrap: anywhere;
@@ -99,10 +124,6 @@ export const GlobalStyle = createGlobalStyle`
 
   h4 {
     font-size: ${(props) => props.theme.typography.size.h4};
-  }
-
-  a, button {
-    transition: all 100ms;
   }
   
   button {
@@ -158,25 +179,25 @@ export const GlobalStyle = createGlobalStyle`
   .border-wrapper-primary {
     background: ${(props) => props.theme.colors.container.primary.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
   .border-wrapper-alt1 {
     background: ${(props) => props.theme.colors.container.primary.background};
     box-shadow: 0 2.5px 7.5px 0 ${(props) => props.theme.colors.shadow.primary};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
 	.border-wrapper-alt2 {
     background: ${(props) => props.theme.colors.container.primary.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
 	.border-wrapper-alt3 {
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
 		background: ${(props) => `${props.theme.colors.container.alt1.background}95`} !important;
 		backdrop-filter: blur(7.5px);
   }
@@ -184,7 +205,7 @@ export const GlobalStyle = createGlobalStyle`
 	.border-wrapper-alt4 {
     background: ${(props) => props.theme.colors.container.alt1.background};
     border: 1px solid ${(props) => props.theme.colors.border.primary};
-    border-radius: ${STYLING.dimensions.radius.alt1};
+    border-radius: ${STYLING.dimensions.radius.primary};
   }
 
   .max-view-wrapper {
@@ -201,7 +222,7 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0 5px 0.5px 5px !important;
     background: ${(props) => props.theme.colors.contrast.background} !important;
     border: 1px solid ${(props) => props.theme.colors.border.alt2} !important;
-    border-radius: ${STYLING.dimensions.radius.alt2} !important;
+    border-radius: ${STYLING.dimensions.radius.primary} !important;
     animation: ${open} ${transition2} !important;
     span {
       color: ${(props) => props.theme.colors.contrast.color} !important;
@@ -219,10 +240,10 @@ export const GlobalStyle = createGlobalStyle`
 		justify-content: center;
 		background: ${(props) => props.theme.colors.container.alt8.background};
 		border: 1px solid ${(props) => props.theme.colors.border.alt4};
-		border-radius: ${STYLING.dimensions.radius.alt1};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		span {
 			font-size: ${(props) => props.theme.typography.size.xxSmall};
-			font-family: ${(props) => props.theme.typography.family.alt1};
+			font-family: ${(props) => props.theme.typography.family.primary};
 			font-weight: ${(props) => props.theme.typography.weight.bold};
 			color: ${(props) => props.theme.colors.font.light1};
 			text-align: center;
@@ -304,7 +325,7 @@ export const View = styled.main<{ navigationOpen: boolean }>`
 	min-height: calc(100vh - ${STYLING.dimensions.nav.height});
 	width: 100%;
 	position: relative;
-	padding: 0 0 20px 0;
+	padding: 0px 0 20px 0;
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
@@ -322,7 +343,16 @@ export const ViewWrapper = styled.div`
 	max-width: ${STYLING.cutoffs.max};
 	padding: 0 25px;
 	margin: 0 auto;
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		padding: 0 15px;
+	}
+`;
 
+export const MetricTabWrapper = styled.div`
+	width: 100%;
+	max-width: ${STYLING.cutoffs.max};
+	padding: 0 25px;
+	margin: 0 auto;
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		padding: 0 15px;
 	}
@@ -350,18 +380,19 @@ export const Footer = styled.footer<{ navigationOpen: boolean }>`
 	gap: 15px;
 	align-items: center;
 	justify-content: space-between;
+	height: ${STYLING.dimensions.footer.height};
 	padding: 0 0 20px 0;
 
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
 
 	a {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
 		text-decoration: underline;

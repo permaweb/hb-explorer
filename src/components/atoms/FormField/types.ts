@@ -24,4 +24,6 @@ export interface IProps {
 	autoFocus?: boolean;
 	hideErrorMessage?: boolean;
 	required?: boolean;
+	id?: string;
+	name?: string;
 }

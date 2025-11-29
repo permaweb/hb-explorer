@@ -27,7 +27,6 @@ export const Icon = styled.div`
 	align-items: center;
 	background: ${(props) => props.theme.colors.container.alt1.background};
 	border: 1px solid ${(props) => props.theme.colors.border.alt1};
-	border-radius: 50%;
 	margin: 0 0 20px 0;
 	svg {
 		height: 75px;

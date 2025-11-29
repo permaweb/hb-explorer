@@ -48,20 +48,17 @@ export const Input = styled.input<{
 		props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.primary};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-size: ${(props) => props.theme.typography.size.small};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
 	letter-spacing: 0.15px;
 	background: ${(props) => props.theme.colors.form.background};
 	border: 1px solid
 		${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.border)};
-	border-radius: ${STYLING.dimensions.radius.alt2};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	&:focus {
 		outline: 0;
 		border: 1px solid
 			${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.default.outline)};
 		outline: 0.5px solid
 			${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.default.outline)};
-		box-shadow: 0 0 0.5px
-			${(props) => (props.invalid ? props.theme.colors.form.invalid.shadow : props.theme.colors.form.default.shadow)};
 		transition: box-shadow, border, outline 225ms ease-in-out;
 	}
 	&:disabled {

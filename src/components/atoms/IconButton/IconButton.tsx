@@ -23,6 +23,11 @@ export default function IconButton(props: IProps) {
 					wrapper: S.Alt1,
 				};
 				break;
+			case 'ghost':
+				buttonObj = {
+					wrapper: S.Ghost,
+				};
+				break;
 			default:
 				buttonObj = {
 					wrapper: S.Primary,

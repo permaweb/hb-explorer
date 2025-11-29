@@ -306,17 +306,17 @@ export default function ExplorerTabPath(props: {
 				</S.InfoWrapper>
 				<S.BodyWrapper>
 					<Tabs onTabClick={() => {}} type={'primary'}>
-						<S.Tab label={'Graph'}>
+						<S.Tab label={'Graph'} icon={ASSETS.graphMinimal}>
 							<HyperLinks path={props.hyperBeamRequest.submittedPath} id={props.hyperBeamRequest.id} />
 						</S.Tab>
-						<S.Tab label={'Hyperbuddy'}>
+						<S.Tab label={'Hyperbuddy'} icon={ASSETS.hyperbuddy}>
 							{hyperbuddyData ? (
-								<Editor initialData={hyperbuddyData} loading={false} readOnly />
+								<Editor initialData={hyperbuddyData} language={'lua'} loading={false} readOnly />
 							) : (
 								<Loader sm relative />
 							)}
 						</S.Tab>
-						<S.Tab label={'Content'}>
+						<S.Tab label={'Content'} icon={ASSETS.content}>
 							{responseBody ? (
 								<>
 									{bodyType === 'json' ? (

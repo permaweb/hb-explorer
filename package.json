@@ -18,6 +18,7 @@
 		"@othent/kms": "^1.0.7",
 		"@permaweb/aoconnect": "https://arweave.net/5PSv2WQC8LIj6r8DgBGWLlHqLg-eDokcqzNmiTvVegg",
 		"@permaweb/libs": "0.0.58",
+		"@phosphor-icons/react": "^2.1.10",
 		"@types/d3": "^7.4.3",
 		"@types/three": "^0.180.0",
 		"arweave": "^1.15.5",

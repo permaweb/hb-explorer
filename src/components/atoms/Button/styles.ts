@@ -76,7 +76,6 @@ export const Primary = styled.button<{
 				: props.active
 				? props.theme.colors.button.primary.active.border
 				: props.theme.colors.button.primary.border};
-	border-radius: 36px;
 	&:hover {
 		background: ${(props) =>
 			props.warning ? props.theme.colors.warning.alt1 : props.theme.colors.button.primary.active.background};
@@ -148,8 +147,16 @@ export const IconPrimary = styled.div<{
 		height: 15.5px;
 		width: 15.5px;
 		padding: 2px 0 0 0;
-		margin: ${(props) => (props.leftAlign ? '2.5px 9.5px 0 0' : '2.5px 0 0 9.5px')};
+		margin: ${(props) => (props.leftAlign ? '1px 8px 0 0' : '2.5px 0 0 9.5px')};
 		color: ${(props) =>
+			props.warning
+				? props.theme.colors.font.light1
+				: props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.active
+				? props.theme.colors.button.primary.active.color
+				: props.theme.colors.button.primary.color};
+		fill: ${(props) =>
 			props.warning
 				? props.theme.colors.font.light1
 				: props.disabled
@@ -229,7 +236,7 @@ export const Alt2 = styled(Alt1)`
 	padding: 0;
 	background: transparent !important;
 	border: none !important;
-	border-radius: 0;
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	&:hover {
 		span {
@@ -293,7 +300,6 @@ export const Alt3 = styled(Primary)`
 	height: 25px !important;
 	padding: 4.5px 20px !important;
 	border-radius: ${STYLING.dimensions.radius.primary};
-	border-radius: 20px;
 
 	background: ${(props) =>
 		props.warning
@@ -318,7 +324,7 @@ export const Alt3 = styled(Primary)`
 			props.warning
 				? props.theme.colors.font.light1
 				: props.active
-				? props.theme.colors.font.light1
+				? props.theme.colors.button.primary.active.color
 				: props.theme.colors.button.primary.color} !important;
 	}
 
@@ -378,7 +384,7 @@ export const IconAlt3 = styled(IconPrimary)`
 				: props.warning
 				? props.theme.colors.font.light1
 				: props.active
-				? props.theme.colors.font.light1
+				? props.theme.colors.button.primary.active.color
 				: props.theme.colors.button.primary.color};
 		fill: ${(props) =>
 			props.disabled
@@ -386,7 +392,7 @@ export const IconAlt3 = styled(IconPrimary)`
 				: props.warning
 				? props.theme.colors.font.light1
 				: props.active
-				? props.theme.colors.font.light1
+				? props.theme.colors.button.primary.active.color
 				: props.theme.colors.button.primary.color};
 	}
 `;
@@ -395,7 +401,7 @@ export const Alt4 = styled(Primary)`
 	min-height: 25px !important;
 	height: 25px !important;
 	padding: 0 10px !important;
-	border-radius: 20px;
+	border-radius: ${STYLING.dimensions.radius.primary};
 
 	background: ${(props) =>
 		props.warning

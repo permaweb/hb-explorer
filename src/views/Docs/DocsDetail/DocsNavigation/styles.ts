@@ -43,7 +43,7 @@ export const NTitle = styled.div`
 	align-items: center;
 	margin: 0 0 20px 0;
 	p {
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: 22px !important;
 		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
 		color: ${(props) => props.theme.colors.font.primary} !important;

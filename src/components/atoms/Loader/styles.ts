@@ -13,7 +13,6 @@ export const Wrapper = styled.div`
 `;
 
 export const Container = styled.div<{ relative: boolean; noPosition?: boolean }>`
-	height: ${(props) => (props.noPosition ? 'auto' : '50px')};
 	width: ${(props) => (props.noPosition ? 'auto' : '50px')};
 	position: ${(props) => (props.noPosition ? 'static' : props.relative ? 'relative' : 'fixed')};
 	top: ${(props) => (props.noPosition ? 'auto' : props.relative ? 'auto' : '50%')};
@@ -29,7 +28,6 @@ export const Blade = styled.div<{ noPosition?: boolean }>`
 	position: absolute;
 	left: 0.4629em;
 	bottom: 0;
-	border-radius: 12px;
 	transform-origin: center -0.2222em;
 	-webkit-animation: ${loaderKeyFrame} 0.75s linear infinite;
 	animation: ${loaderKeyFrame} 0.75s linear infinite;

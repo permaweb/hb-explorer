@@ -24,8 +24,14 @@ export default function Ledger() {
 	}, []);
 
 	return ledger ? (
-		<S.Wrapper>
-			<>
+		<S.Container>
+			<S.Header>
+				<S.HeaderContent>
+					<S.Title>Ledger</S.Title>
+					<S.Subtitle>Account balances and token information for this node</S.Subtitle>
+				</S.HeaderContent>
+			</S.Header>
+			<S.Wrapper>
 				{ledger === 'Error' ? (
 					<S.ErrorWrapper className={'border-wrapper-alt3'}>
 						<p>No ledger found on this node</p>
@@ -33,8 +39,8 @@ export default function Ledger() {
 				) : (
 					<JSONReader data={ledger} header={'Balances'} />
 				)}
-			</>
-		</S.Wrapper>
+			</S.Wrapper>
+		</S.Container>
 	) : (
 		<Loader sm relative />
 	);

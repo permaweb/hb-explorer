@@ -53,7 +53,7 @@ export const HeaderSection = styled.div`
 export const HeaderLabel = styled.div`
 	span {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
@@ -62,7 +62,7 @@ export const HeaderLabel = styled.div`
 export const HeaderValue = styled.div`
 	p {
 		font-size: clamp(18px, 1.5vw, 22px);
-		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
 		font-weight: ${(props) => props.theme.typography.weight.xBold};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
@@ -78,8 +78,8 @@ export const ChartWrapper = styled.div`
 	position: relative;
 	cursor: crosshair;
 	overflow: hidden;
-	border-bottom-left-radius: ${STYLING.dimensions.radius.alt1};
-	border-bottom-right-radius: ${STYLING.dimensions.radius.alt1};
+	border-bottom-left-radius: ${STYLING.dimensions.radius.primary};
+	border-bottom-right-radius: ${STYLING.dimensions.radius.primary};
 
 	canvas {
 		width: calc(100% + 16.5px) !important;

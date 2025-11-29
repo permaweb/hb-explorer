@@ -11,39 +11,49 @@ export const Container = styled.div`
 	position: relative;
 `;
 
-export const Header = styled.div`
-	width: 100%;
+export const Header = styled.div<{ stickyTop?: string }>`
 	display: flex;
-	position: relative;
+	height: ${STYLING.dimensions.button.height};
+	position: ${(props) => (props.stickyTop ? 'sticky' : 'relative')};
+	top: ${(props) => (props.stickyTop ? props.stickyTop : 'auto')};
+	z-index: ${(props) => (props.stickyTop ? 10 : 'auto')};
+	background: ${(props) => (props.stickyTop ? props.theme.colors.container.primary.background : 'transparent')};
 `;
 
-export const Placeholder = styled.div`
+export const Placeholder = styled.div<{ hasStickyTop: boolean }>`
 	height: 1px;
 	flex: 1;
-	margin: auto 0 -1.5px 0;
+	margin: auto 0 0px 0;
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 `;
 
 export const PlaceholderFull = styled(Placeholder)`
-	margin: auto -26.5px -1.5px -26.5px;
+	margin: ${(props) => (props.hasStickyTop ? 'auto -26.5px -20px -26.5px' : 'auto -26.5px 0px -26.5px')};
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		margin: auto -14.5px -1.5px -14.5px;
+		margin: auto -14.5px 0px -14.5px;
 
 		&[id='placeholder-start'] {
 			margin: auto -15.5px -1.5px 0;
 		}
 
 		&[id='placeholder-end'] {
-			margin: auto 0 -1.5px -15.5px;
+			margin: auto 0 0px -15.5px;
 		}
 	}
+`;
+
+export const HeaderEnd = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-left: auto;
 `;
 
 export const List = styled.div<{ useGap: boolean }>`
 	width: 100%;
 	display: flex;
-	gap: ${(props) => (props.useGap ? '20px' : '0')};
+	gap: ${(props) => (props.useGap ? '15px' : '0')};
 `;
 
 export const Content = styled.div<{ top?: number }>`
@@ -55,11 +65,20 @@ export const Content = styled.div<{ top?: number }>`
 `;
 
 export const Tab = styled.div`
-	flex: 1;
+	width: fit-content;
 	display: flex;
+	height: ${STYLING.dimensions.button.height};
 
+	flex: 1;
 	button {
 		flex: 1;
+		height: ${STYLING.dimensions.button.height} !important;
+
+		path,
+		rect {
+			color: ${(props) => props.theme.colors.button.primary.color};
+			fill: ${(props) => props.theme.colors.button.primary.color};
+		}
 	}
 `;
 
@@ -72,7 +91,7 @@ export const AltTab = styled.div`
 
 export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 	font-size: ${(props) => props.theme.typography.size.xSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => (props.active ? props.theme.typography.weight.bold : props.theme.typography.weight.medium)};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt3)};
 	cursor: pointer;
@@ -83,7 +102,8 @@ export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 	justify-content: center;
 	align-items: center;
 	gap: 12.5px;
-	padding: 17.5px 25.5px 12.5px 21.5px;
+	height: ${STYLING.dimensions.landingTab.height};
+	padding: 0 25.5px 0 21.5px;
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};

@@ -37,7 +37,7 @@ export const WalletLogo = styled.div`
 	justify-content: center;
 	img {
 		width: 30px;
-		border-radius: 50%;
+
 		margin: 0 0 10px 0;
 	}
 `;

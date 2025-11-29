@@ -97,7 +97,6 @@ export const RangeBar = styled.input.attrs({ type: 'range' })<{
 		background: ${(props) =>
 			props.disabled ? props.theme.colors.container.alt2.background : getRangeColor(props.theme, props.invalid)};
 		border: 1px solid ${(props) => props.theme.colors.border.primary};
-		border-radius: 2.5px;
 		cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
 		margin-top: -6.5px;
 	}
@@ -110,7 +109,7 @@ export const RangeBar = styled.input.attrs({ type: 'range' })<{
 		background: ${(props) =>
 			props.disabled ? props.theme.colors.container.alt2.background : getRangeColor(props.theme, props.invalid)};
 		border: 1px solid ${(props) => props.theme.colors.border.primary};
-		border-radius: 2.5px;
+
 		cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
 		margin-top: -7.5px;
 	}
@@ -123,7 +122,7 @@ export const RangeBar = styled.input.attrs({ type: 'range' })<{
 		background: ${(props) =>
 			props.disabled ? props.theme.colors.container.alt2.background : getRangeColor(props.theme, props.invalid)};
 		border: 1px solid ${(props) => props.theme.colors.border.primary};
-		border-radius: 2.5px;
+
 		cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
 		margin-top: -4.5px;
 	}

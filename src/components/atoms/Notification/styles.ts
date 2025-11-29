@@ -43,7 +43,6 @@ export const Icon = styled.div<{ warning: boolean | undefined }>`
 	align-items: center;
 	justify-content: center;
 	background: ${(props) => (props.warning ? props.theme.colors.warning.alt1 : props.theme.colors.indicator.active)};
-	border-radius: 50%;
 
 	svg {
 		height: 11.5px;

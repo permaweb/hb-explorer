@@ -11,6 +11,9 @@ import { IProps } from './types';
 
 export default React.forwardRef<HTMLInputElement, IProps>(function FormField(props, ref) {
 	const [showTooltip, setShowTooltip] = React.useState<boolean>(false);
+	const generatedId = React.useId();
+	const inputId = props.id || generatedId;
+	const inputName = props.name || props.id || generatedId;
 
 	function getValue() {
 		if (props.type === 'number') {
@@ -32,7 +35,9 @@ export default React.forwardRef<HTMLInputElement, IProps>(function FormField(pro
 			<S.Wrapper sm={props.sm}>
 				{props.label && (
 					<S.TWrapper>
-						{props.label && <S.Label>{props.required ? formatRequiredField(props.label) : props.label}</S.Label>}
+						{props.label && (
+							<S.Label htmlFor={inputId}>{props.required ? formatRequiredField(props.label) : props.label}</S.Label>
+						)}
 						{props.tooltip && (
 							<IconButton
 								type={'primary'}
@@ -60,6 +65,8 @@ export default React.forwardRef<HTMLInputElement, IProps>(function FormField(pro
 					placeholder={props.placeholder ? props.placeholder : ''}
 					sm={props.sm}
 					autoFocus={props.autoFocus ? props.autoFocus : false}
+					id={inputId}
+					name={inputName}
 					data-testid={props.testingCtx}
 				/>
 				{props.endText && (

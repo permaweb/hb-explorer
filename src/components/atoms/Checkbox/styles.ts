@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import { STYLING } from 'helpers/config';
+
 export const Wrapper = styled.div<{ disabled: boolean }>`
 	position: relative;
 	svg {
@@ -26,7 +28,7 @@ export const Input = styled.input`
 		props.checked ? props.theme.colors.checkbox.active.background : props.theme.colors.checkbox.background};
 	border: 1px solid
 		${(props) => (props.checked ? props.theme.colors.checkbox.active.background : props.theme.colors.border.alt4)};
-	border-radius: 1.5px;
+	border-radius: ${STYLING.dimensions.radius.primary};
 	height: 12.5px;
 	width: 12.5px;
 	position: relative;

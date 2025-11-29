@@ -55,10 +55,9 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		white-space: nowrap;
-		text-transform: uppercase;
 		display: block;
 		margin: 0.5px 0 0 0;
 	}
@@ -66,7 +65,7 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.regular};
 		color: ${(props) => props.theme.colors.font.alt2};
 		white-space: nowrap;
 		overflow: hidden;
@@ -75,15 +74,15 @@ export const InfoBlock = styled.div<{ background?: string }>`
 
 	code {
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
-		font-family: ${(props) => props.theme.typography.family.alt2};
-		font-weight: ${(props) => props.theme.typography.weight.xBold};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		background: ${(props) => props.theme.colors.button.primary.background};
 		border: 1px solid ${(props) => props.theme.colors.button.primary.border};
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		padding: 1.5px 7.5px;
 		cursor: pointer;
 		transition: all 100ms;
@@ -96,10 +95,10 @@ export const InfoBlock = styled.div<{ background?: string }>`
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
+		border-radius: ${STYLING.dimensions.radius.primary};
 	}
 `;
 
@@ -122,7 +121,7 @@ export const FilterForm = styled.form`
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 11.5px;
+		top: 10.5px;
 		left: 11.5px;
 	}
 `;
@@ -173,9 +172,9 @@ export const TableRow = styled.div<{ depth?: number }>`
 	}
 
 	p {
-		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		line-height: 1.5;
 	}
@@ -243,11 +242,10 @@ export const NodeContentHeader = styled.div<{ background: string; hasChildren?: 
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
-		border: 1px solid ${(props) => props.theme.colors.border.primary};
+		border-radius: ${STYLING.dimensions.radius.primary};
 	}
 `;
 
@@ -261,11 +259,10 @@ export const NodeContentDetail = styled.div<{ background: string; hasChildren?: 
 	}
 
 	.indicator {
-		height: 12.5px;
-		width: 12.5px;
+		height: ${STYLING.dimensions.indicator.height};
+		width: ${STYLING.dimensions.indicator.width};
 		background: ${(props) => props.background ?? props.theme.colors.container.primary.active};
-		border-radius: ${STYLING.dimensions.radius.alt3};
-		border: 1px solid ${(props) => props.theme.colors.border.primary};
+		border-radius: ${STYLING.dimensions.radius.primary};
 	}
 `;
 
@@ -331,7 +328,7 @@ export const DataPanelContent = styled.div`
 
 		> div {
 			height: 100% !important;
-			border-radius: 0 !important;
+			border-radius: ${STYLING.dimensions.radius.primary} !important;
 			border: none !important;
 		}
 	}
@@ -341,7 +338,7 @@ export const ActiveNodeSection = styled.div`
 	background: ${(props) =>
 		props.theme.colors.editor.alt1 ? `${props.theme.colors.editor.alt1}20` : 'rgba(255, 85, 0, 0.1)'};
 	border: 1px solid ${(props) => props.theme.colors.editor.alt1 || '#FF5500'};
-	border-radius: ${STYLING.dimensions.radius.alt1};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	padding: 12px 15px;
 	margin-top: 5px;
 
@@ -357,9 +354,13 @@ export const WrapperEmpty = styled.div`
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		color: ${(props) => props.theme.colors.font.alt2};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+		color: ${(props) => props.theme.colors.font.primary};
 	}
+`;
+
+export const LoadingWrapper = styled.div`
+	margin: 20px auto 0 auto;
 `;
 
 export const PanelWrapper = styled.div`

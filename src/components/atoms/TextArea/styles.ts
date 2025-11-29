@@ -33,7 +33,7 @@ export const TextArea = styled.textarea<{
 	background: ${(props) => props.theme.colors.form.background};
 	border: 1px solid
 		${(props) => (props.invalid ? props.theme.colors.form.invalid.outline : props.theme.colors.form.border)};
-	border-radius: ${STYLING.dimensions.radius.alt2};
+	border-radius: ${STYLING.dimensions.radius.primary};
 	&:focus {
 		outline: 0;
 		border: 1px solid
@@ -65,7 +65,7 @@ export const TextArea = styled.textarea<{
 
 	::-webkit-scrollbar-thumb {
 		background-color: ${(props) => props.theme.colors.scrollbar.thumb};
-		border-radius: 36px;
+
 		border: 3.5px solid transparent;
 		background-clip: padding-box;
 	}

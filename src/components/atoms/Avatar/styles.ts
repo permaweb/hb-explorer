@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+import { STYLING } from 'helpers/config';
+
 export const Wrapper = styled.div<{
 	dimensions: { wrapper: number; icon: number };
 	hasCallback: boolean;
@@ -14,7 +16,7 @@ export const Wrapper = styled.div<{
 		props.hasOwner ? props.theme.colors.container.primary.background : props.theme.colors.icon.alt1.fill};
 	background: transparent;
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
-	border-radius: 50%;
+	border-radius: ${STYLING.dimensions.radius.circle};
 	overflow: hidden;
 	display: flex;
 	justify-content: center;

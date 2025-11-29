@@ -101,7 +101,6 @@ export const Primary = styled.button<{
 	align-items: center;
 	padding: 4.5px 0 0 0 !important;
 	pointer-events: ${(props) => (props.disabled ? 'none' : 'all')};
-	border-radius: 50%;
 
 	svg {
 		height: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
@@ -143,6 +142,51 @@ export const Alt1 = styled(Primary)`
 		width: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
 		color: ${(props) =>
 			props.active
+				? props.theme.colors.button.primary.active.color
+				: props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color};
+		fill: ${(props) =>
+			props.active
+				? props.theme.colors.button.primary.active.color
+				: props.disabled
+				? props.theme.colors.button.primary.disabled.color
+				: props.theme.colors.button.primary.color};
+	}
+
+	&:hover {
+		background: ${(props) =>
+			props.disabled
+				? props.theme.colors.button.primary.disabled.background
+				: props.theme.colors.button.primary.active.background};
+
+		svg {
+			color: ${(props) =>
+				props.active
+					? props.theme.colors.button.primary.active.color
+					: props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color};
+			fill: ${(props) =>
+				props.active
+					? props.theme.colors.button.primary.active.color
+					: props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color};
+		}
+	}
+`;
+
+export const Ghost = styled(Primary)`
+	background: transparent;
+	border: none;
+	border-bottom: none;
+
+	svg {
+		height: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
+		width: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
+		color: ${(props) =>
+			props.active
 				? props.theme.colors.font.light1
 				: props.disabled
 				? props.theme.colors.button.primary.disabled.color
@@ -156,10 +200,9 @@ export const Alt1 = styled(Primary)`
 	}
 
 	&:hover {
-		background: ${(props) =>
-			props.disabled
-				? props.theme.colors.button.primary.disabled.background
-				: props.theme.colors.button.primary.active.background};
+		background: transparent;
+		border: none;
+		border-bottom: none;
 
 		svg {
 			color: ${(props) =>
