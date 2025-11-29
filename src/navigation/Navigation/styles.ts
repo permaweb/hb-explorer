@@ -203,7 +203,6 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 					}
 				}} !important;
 
-
 			transition: border, outline 225ms ease-in-out;
 		}
 	}
@@ -336,7 +335,8 @@ export const DNavLink = styled.div<{ active: boolean }>`
 		&:hover {
 			color: ${(props) => props.theme.colors.font.primary};
 			font-weight: ${(props) => props.theme.typography.weight.medium};
-			border-bottom: 2px solid ${(props) => props.theme.colors.border.primary};
+			border-bottom: 2px solid
+				${(props) => (props.active ? props.theme.colors.border.alt4 : props.theme.colors.border.alt2)};
 		}
 	}
 `;
@@ -386,7 +386,7 @@ export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
 	height: ${STYLING.dimensions.action.height};
-	
+
 	span {
 		color: ${(props) => props.theme.colors.font.primary};
 		font-family: ${(props) => props.theme.typography.family.primary};

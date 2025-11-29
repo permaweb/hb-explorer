@@ -6,7 +6,6 @@ import { ProcessEditor } from 'components/organisms/ProcessEditor';
 import { ProcessSource } from 'components/organisms/ProcessSource';
 import { ASSETS, URLS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
-import { stripUrlProtocol } from 'helpers/utils';
 import { UseHyperBeamRequestReturn } from 'hooks/useHyperBeamRequest';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
@@ -156,41 +155,11 @@ export default function ExplorerTabProcess(props: {
 		consoleView,
 	]);
 
-	const headerActions = React.useMemo(
-		() => (
-			<S.PathInfoWrapper>
-				<S.UpdateWrapper>
-					<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
-					<S.Indicator />
-				</S.UpdateWrapper>
-				{props.tab?.type && (
-					<S.UpdateWrapper>
-						<span>{props.tab.type}</span>
-					</S.UpdateWrapper>
-				)}
-				{props.tab?.variant && (
-					<S.UpdateWrapper>
-						<span>{props.tab.variant}</span>
-					</S.UpdateWrapper>
-				)}
-			</S.PathInfoWrapper>
-		),
-		[props.tab?.type, props.tab?.variant]
-	);
-
 	const processTabs = React.useMemo(() => {
 		const matchingTab = tabs.find((tab) => tab.url === currentHash);
 		const activeUrl = matchingTab ? matchingTab.url : tabs[0].url;
-		return (
-			<URLTabs
-				tabs={tabs}
-				activeUrl={activeUrl}
-				disableAutoNavigation={true}
-				useHashNavigation={true}
-				endComponent={headerActions}
-			/>
-		);
-	}, [tabs, currentHash, headerActions]);
+		return <URLTabs tabs={tabs} activeUrl={activeUrl} disableAutoNavigation={true} useHashNavigation={true} />;
+	}, [tabs, currentHash]);
 
 	return <S.Wrapper>{processTabs}</S.Wrapper>;
 }

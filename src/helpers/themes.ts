@@ -26,8 +26,8 @@ export const lightTheme = {
 	overlay1: 'rgb(0, 0, 0, .45)',
 	overlay2: 'rgb(0, 0, 0, .5)',
 	shadow1: 'rgb(220, 220, 220, .5)',
-	primary1: '#000',
-	primary2: '#E77D20',
+	primary1: '#000000',
+	primary2: '#333333',
 	light1: '#FFFFFF',
 	light2: '#F2F2F2',
 	light3: '#B0B0B0',
@@ -36,14 +36,14 @@ export const lightTheme = {
 	link1: '#0074E4',
 	link2: '#009AF7',
 	editor: {
-		primary: '#DA615D',  // Composite - changed from '#ec3063'
+		primary: '#DA615D',
 		alt1: '#13ab8f',
-		alt2: '#6AB586',  // Active (for graph links) - changed from '#5E66DB'
+		alt2: '#6AB586',
 		alt3: '#00a66b',
-		alt4: '#616ACC',  // Simple - changed from '#3476E1'
-		alt5: '#6EB9CB',  // Connection - changed from '#8580d9'
+		alt4: '#616ACC',
+		alt5: '#6EB9CB',
 		alt6: '#FF5722',
-		alt7: '#6AB586',  // Active (for UI) - changed from '#FFC107'
+		alt7: '#6AB586',
 		alt8: '#00BCD4',
 		alt9: '#8BC34A',
 		alt10: '#3a3a3a',
@@ -80,14 +80,14 @@ export const darkTheme = {
 	neutralA2: '#E0E0E0',
 	neutralA3: '#CECECE',
 	neutralA4: '#BCBCBC',
-	neutralA5: "#D9D9D9",
+	neutralA5: '#D9D9D9',
 	neutralA6: '#979797',
 	neutralA7: '#7F7F7F',
 	overlay1: 'rgba(0, 0, 0, 0.45)',
 	overlay2: 'rgba(0, 0, 0, 0.65)',
 	shadow1: 'rgba(0, 0, 0, 0.4)',
-	primary1: '#444444',
-	primary2: '#E77D20',
+	primary1: '#666666',
+	primary2: '#888888',
 	light1: '#FFFFFF',
 	light2: '#EAEAEA',
 	light3: '#C2C2C2',
@@ -96,14 +96,14 @@ export const darkTheme = {
 	link1: '#009AF7',
 	link2: '#0074E4',
 	editor: {
-		primary: '#DA615D',  // Composite - changed from '#d975e6'
+		primary: '#DA615D',
 		alt1: '#62c1b1',
-		alt2: '#6AB586',  // Active (for graph links) - changed from '#45c6ae'
+		alt2: '#6AB586',
 		alt3: '#5bdcbf',
-		alt4: '#616ACC',  // Simple - changed from '#67cac0'
-		alt5: '#6EB9CB',  // Connection - changed from '#8580d9'
+		alt4: '#616ACC',
+		alt5: '#6EB9CB',
 		alt6: '#FF5722',
-		alt7: '#6AB586',  // Active (for UI) - changed from '#FFC107'
+		alt7: '#6AB586',
 		alt8: '#00BCD4',
 		alt9: '#8BC34A',
 		alt10: '#bcbcbc',
@@ -155,7 +155,7 @@ export const theme = (currentTheme: any): DefaultTheme => ({
 				active: {
 					background: currentTheme.neutral4,
 					border: currentTheme.neutralA6,
-					color: currentTheme.dark1,
+					color: currentTheme.neutralA1,
 				},
 				disabled: {
 					background: currentTheme.neutral3,

@@ -14,7 +14,7 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 	input {
 		background: transparent;
 		padding: 10px 10px 10px 43.5px !important;
-        height: ${STYLING.dimensions.form.small} !important;
+		height: ${STYLING.dimensions.form.small} !important;
 		border: 1px solid
 			${(props) => {
 				switch (props.cacheStatus) {
@@ -26,9 +26,6 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 						return props.theme.colors.border.primary;
 				}
 			}} !important;
-        }
-
-		
 	}
 
 	svg {
@@ -38,14 +35,13 @@ export const InputWrapper = styled.div<{ cacheStatus?: 'default' | 'success' | '
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 8px;
+		top: 11.5px;
 		left: 14.5px;
 	}
 `;
 
 export const SubmitWrapper = styled.div`
 	position: absolute;
-	top: -2px;
+	top: 2.5px;
 	right: 4.5px;
 `;
-

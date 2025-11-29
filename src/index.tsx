@@ -12,11 +12,10 @@ import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
-const HYPERBEAM_BASE_URL_1 = 'https://dev-compute-1.forward.computer';
-const HYPERBEAM_BASE_URL_2 = 'https://hb.portalinto.com';
 const HYPERBEAM_RUN_NODE_URL =
 	process.env.NODE_ENV === 'development' ? 'http://localhost:8734' : window.location.origin;
-window.hyperbeamUrl = HYPERBEAM_BASE_URL_2;
+
+window.hyperbeamUrl = HYPERBEAM_RUN_NODE_URL;
 document.title = stripUrlProtocol(window.hyperbeamUrl);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

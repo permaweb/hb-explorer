@@ -913,6 +913,8 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 			)}
 		</>
 	) : (
-		<Loader sm relative />
+		<S.LoadingWrapper>
+			<Loader sm relative />
+		</S.LoadingWrapper>
 	);
 }

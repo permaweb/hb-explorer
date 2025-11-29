@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import { MetricTabWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
-import { STYLING } from 'helpers/config';
 import { TabType } from 'helpers/types';
 
 import * as S from './styles';
@@ -29,7 +28,6 @@ class Tab extends React.Component<any, any> {
 		} = this;
 
 		function getTab() {
-			const landingTabHeight = parseFloat(STYLING.dimensions.button.height);
 			switch (type) {
 				case 'primary':
 					return (
@@ -42,7 +40,6 @@ class Tab extends React.Component<any, any> {
 								icon={icon}
 								iconLeftAlign
 								noFocus
-								height={landingTabHeight}
 							/>
 						</S.Tab>
 					);
@@ -115,7 +112,7 @@ export default class Tabs extends React.Component<TabsProps, any> {
 		) : (
 			<S.Container>
 				<S.Header stickyTop={stickyTop}>
-					{type === 'alt1' && <S.PlaceholderFull id={'placeholder-start'} />}
+					{type === 'alt1' && <S.PlaceholderFull hasStickyTop={!!props.stickyTop} id={'placeholder-start'} />}
 					<Wrapper>
 						<S.List useGap={type === 'primary'}>
 							{children!.map((child: any, index: number) => {
@@ -134,7 +131,7 @@ export default class Tabs extends React.Component<TabsProps, any> {
 						</S.List>
 					</Wrapper>
 					{endComponent && <S.HeaderEnd>{endComponent}</S.HeaderEnd>}
-					{type === 'alt1' && <S.PlaceholderFull id={'placeholder-end'} />}
+					{type === 'alt1' && <S.PlaceholderFull hasStickyTop={!!props.stickyTop} id={'placeholder-end'} />}
 				</S.Header>
 				<Wrapper>
 					<S.Content top={type === 'alt1' ? 0 : 25}>

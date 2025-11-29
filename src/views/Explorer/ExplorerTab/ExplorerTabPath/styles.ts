@@ -79,7 +79,7 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 8px;
+		top: 11.5px;
 		left: 14.5px;
 	}
 `;

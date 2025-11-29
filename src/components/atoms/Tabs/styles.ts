@@ -3,26 +3,24 @@ import styled from 'styled-components';
 import { STYLING } from 'helpers/config';
 
 export const Wrapper = styled.div`
-
+	width: 100%;
 `;
 
 export const Container = styled.div`
-
+	width: 100%;
 	position: relative;
 `;
 
 export const Header = styled.div<{ stickyTop?: string }>`
-
 	display: flex;
 	height: ${STYLING.dimensions.button.height};
 	position: ${(props) => (props.stickyTop ? 'sticky' : 'relative')};
 	top: ${(props) => (props.stickyTop ? props.stickyTop : 'auto')};
 	z-index: ${(props) => (props.stickyTop ? 10 : 'auto')};
-	background: ${(props) =>
-		props.stickyTop ? props.theme.colors.container.primary.background : 'transparent'};
+	background: ${(props) => (props.stickyTop ? props.theme.colors.container.primary.background : 'transparent')};
 `;
 
-export const Placeholder = styled.div`
+export const Placeholder = styled.div<{ hasStickyTop: boolean }>`
 	height: 1px;
 	flex: 1;
 	margin: auto 0 0px 0;
@@ -30,7 +28,7 @@ export const Placeholder = styled.div`
 `;
 
 export const PlaceholderFull = styled(Placeholder)`
-	margin: auto -26.5px 0px -26.5px;
+	margin: ${(props) => (props.hasStickyTop ? 'auto -26.5px -20px -26.5px' : 'auto -26.5px 0px -26.5px')};
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		margin: auto -14.5px 0px -14.5px;
@@ -53,8 +51,9 @@ export const HeaderEnd = styled.div`
 `;
 
 export const List = styled.div<{ useGap: boolean }>`
+	width: 100%;
 	display: flex;
-	gap: ${(props) => (props.useGap ? '8px' : '0')};
+	gap: ${(props) => (props.useGap ? '15px' : '0')};
 `;
 
 export const Content = styled.div<{ top?: number }>`
@@ -70,8 +69,16 @@ export const Tab = styled.div`
 	display: flex;
 	height: ${STYLING.dimensions.button.height};
 
+	flex: 1;
 	button {
+		flex: 1;
 		height: ${STYLING.dimensions.button.height} !important;
+
+		path,
+		rect {
+			color: ${(props) => props.theme.colors.button.primary.color};
+			fill: ${(props) => props.theme.colors.button.primary.color};
+		}
 	}
 `;
 

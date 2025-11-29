@@ -12,7 +12,10 @@ export const Wrapper = styled.div`
 		flex-direction: column;
 		gap: 0;
 	}
-	height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
+	height: calc(
+		100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} -
+			${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding}
+	);
 `;
 
 export const Sidebar = styled.aside`
@@ -159,8 +162,6 @@ export const SidebarHeaderLabelText = styled.span`
 	}
 `;
 
-
-
 export const SidebarItemInner = styled.div<{ $active: boolean }>`
 	width: 100%;
 	height: 100%;
@@ -172,7 +173,7 @@ export const SidebarItemInner = styled.div<{ $active: boolean }>`
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		padding: 7px 14px 7px 14px;
-		border: 1px solid ${(props) =>(props.theme.colors.border.primary)};
+		border: 1px solid ${(props) => props.theme.colors.border.primary};
 		background: ${(props) =>
 			props.$active ? props.theme.colors.container.alt2.background : props.theme.colors.container.primary.background};
 	}
@@ -192,7 +193,8 @@ export const SidebarItem = styled.button<{ $active: boolean }>`
 	text-align: left;
 
 	&:hover {
-		background: ${(props) => props.theme.colors.container.alt1.background};
+		background: ${(props) =>
+			props.$active ? props.theme.colors.container.alt2.background : props.theme.colors.container.alt1.background};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
@@ -342,7 +344,7 @@ export const Group = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-		> *:not(:last-child) {
+	> *:not(:last-child) {
 		border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
 	}
 `;
@@ -362,9 +364,8 @@ export const GroupHeader = styled.div`
 `;
 
 export const GroupBody = styled.div`
-	padding: 0 0px 16px;
 	background: ${(props) => props.theme.colors.container.primary.background};
-		> *:not(:last-child) {
+	> *:not(:last-child) {
 		border-bottom: 1px solid ${(props) => props.theme.colors.border.alt1};
 	}
 `;

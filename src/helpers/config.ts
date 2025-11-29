@@ -158,14 +158,14 @@ export const STYLING = {
 	},
 	dimensions: {
 		button: {
-			height: '32px',
+			height: '32.5px',
 			width: 'fit-content',
 		},
 		action: {
-			height: '32px',
+			height: '32.5px',
 		},
 		form: {
-			small: '32px',
+			small: '37.5px',
 			max: '45px',
 		},
 		indicator: {
@@ -180,13 +180,13 @@ export const STYLING = {
 			height: '52px',
 		},
 		landingTab: {
-			height: '52px'
+			height: '52px',
 		},
 		landingHeader: {
-			padding: '24px'
+			padding: '24px',
 		},
 		footer: {
-			height: '60px'
+			height: '60px',
 		},
 		radius: {
 			primary: '0',

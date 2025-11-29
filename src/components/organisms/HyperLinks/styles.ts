@@ -121,7 +121,7 @@ export const FilterForm = styled.form`
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 11.5px;
+		top: 10.5px;
 		left: 11.5px;
 	}
 `;
@@ -357,6 +357,10 @@ export const WrapperEmpty = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
+`;
+
+export const LoadingWrapper = styled.div`
+	margin: 20px auto 0 auto;
 `;
 
 export const PanelWrapper = styled.div`

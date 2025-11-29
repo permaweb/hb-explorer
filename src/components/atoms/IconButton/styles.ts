@@ -142,13 +142,13 @@ export const Alt1 = styled(Primary)`
 		width: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
 		color: ${(props) =>
 			props.active
-				? props.theme.colors.font.light1
+				? props.theme.colors.button.primary.active.color
 				: props.disabled
 				? props.theme.colors.button.primary.disabled.color
 				: props.theme.colors.button.primary.color};
 		fill: ${(props) =>
 			props.active
-				? props.theme.colors.font.light1
+				? props.theme.colors.button.primary.active.color
 				: props.disabled
 				? props.theme.colors.button.primary.disabled.color
 				: props.theme.colors.button.primary.color};
@@ -163,20 +163,19 @@ export const Alt1 = styled(Primary)`
 		svg {
 			color: ${(props) =>
 				props.active
-					? props.theme.colors.font.light1
+					? props.theme.colors.button.primary.active.color
 					: props.disabled
 					? props.theme.colors.button.primary.disabled.color
 					: props.theme.colors.button.primary.active.color};
 			fill: ${(props) =>
 				props.active
-					? props.theme.colors.font.light1
+					? props.theme.colors.button.primary.active.color
 					: props.disabled
 					? props.theme.colors.button.primary.disabled.color
 					: props.theme.colors.button.primary.active.color};
 		}
 	}
 `;
-
 
 export const Ghost = styled(Primary)`
 	background: transparent;

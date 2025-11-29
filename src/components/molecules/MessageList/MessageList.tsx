@@ -594,11 +594,10 @@ export default function MessageList(props: {
 								{language.messages}
 								{totalMessages ? <span>({formatCount(totalMessages.toString())})</span> : null}
 							</p>
-							{loadingMessages && (
-								<div className={'loader'}>
-									<Loader xSm relative />
-								</div>
-							)}
+
+							<div className={'loader'}>
+								<Loader xSm relative />
+							</div>
 						</S.HeaderMain>
 						<S.HeaderActions>
 							{/* {props.type === 'process' && (

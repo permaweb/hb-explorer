@@ -6,13 +6,12 @@ export const Wrapper = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-
 `;
 
 export const MetricsWrapper = styled.div`
 	position: relative;
 	z-index: 1;
-	`;
+`;
 
 export const MetricsBody = styled.div`
 	width: 100%;
@@ -60,10 +59,10 @@ export const MetricsSection = styled.div`
 	p {
 		width: 100%;
 		font-size: clamp(0.75rem, 0.6rem + 0.5vw, ${(props) => props.theme.typography.size.xxxSmall});
-		font-family: ${(props) => props.theme.typography.family.primary};	
+		font-family: ${(props) => props.theme.typography.family.primary};
 		color: ${(props) => props.theme.colors.font.primary};
 		font-weight: ${(props) => props.theme.typography.weight.medium};
-white-space: nowrap;
+		white-space: nowrap;
 	}
 
 	span {
@@ -80,7 +79,7 @@ white-space: nowrap;
 		font-size: clamp(1.3rem, 1rem + 1vw, ${(props) => props.theme.typography.size.xLg});
 		font-weight: ${(props) => props.theme.typography.weight.xBold};
 		color: ${(props) => props.theme.colors.font.primary};
-		opacity: 1.0;
+		opacity: 1;
 	}
 `;
 
@@ -101,7 +100,7 @@ export const Subheader = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 12.5px;};
+	gap: 12.5px;
 	border-radius: ${STYLING.dimensions.radius.primary};
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxLg};

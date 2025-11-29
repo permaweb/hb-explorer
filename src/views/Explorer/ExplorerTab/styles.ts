@@ -1,9 +1,38 @@
 import styled from 'styled-components';
 
+import { STYLING } from 'helpers/config';
+
 export const Wrapper = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 25px;
+`;
+
+export const HeaderWrapper = styled.form`
+	width: 100%;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	position: relative;
+	z-index: 1;
+	overflow: visible;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+`;
+
+export const HeaderActionsWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 20px;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		width: 100%;
+	}
 `;
 
 export const SearchWrapper = styled.div`
@@ -37,7 +66,19 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 			}} !important;
 
 		&:focus {
-	
+			outline: 0;
+			border: 1px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.outline;
+						case 'error':
+							return props.theme.colors.form.invalid.outline;
+						default:
+							return props.theme.colors.form.default.outline;
+					}
+				}} !important;
+
 			outline: 0.5px solid
 				${(props) => {
 					switch (props.cacheStatus) {
@@ -50,9 +91,19 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 					}
 				}} !important;
 
-		
+			box-shadow: 0 0 0.5px solid
+				${(props) => {
+					switch (props.cacheStatus) {
+						case 'success':
+							return props.theme.colors.form.valid.shadow;
+						case 'error':
+							return props.theme.colors.form.invalid.shadow;
+						default:
+							return props.theme.colors.form.default.outline;
+					}
+				}} !important;
 
-			transition: border, outline 225ms ease-in-out;
+			transition: box-shadow, border, outline 225ms ease-in-out;
 		}
 	}
 
@@ -63,8 +114,66 @@ export const SearchInputWrapper = styled.div<{ cacheStatus?: 'default' | 'succes
 		fill: ${(props) => props.theme.colors.font.alt1};
 		position: absolute;
 		z-index: 1;
-		top: 8px;
+		top: 11.5px;
 		left: 14.5px;
+	}
+`;
+
+export const PathInfoWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	flex-wrap: wrap;
+	flex-shrink: 0;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		width: 100%;
+	}
+`;
+
+export const UpdateWrapper = styled.div`
+	width: fit-content;
+	padding: 4.5px 15px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12.5px;
+	height: ${STYLING.dimensions.action.height};
+	background: ${(props) => props.theme.colors.container.alt1.background};
+	border: 1px solid ${(props) => props.theme.colors.border.primary};
+	border-radius: ${STYLING.dimensions.radius.primary};
+	span {
+		font-size: ${(props) => props.theme.typography.size.xxxSmall};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+		color: ${(props) => props.theme.colors.font.primary};
+		text-align: center;
+		text-transform: uppercase;
+	}
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		width: 100%;
+		padding: 7.5px 15px;
+	}
+`;
+
+export const Indicator = styled.div`
+	height: 10.5px;
+	width: 10.5px;
+	border-radius: ${STYLING.dimensions.radius.circle};
+
+	animation: pulse 1.075s infinite;
+
+	@keyframes pulse {
+		0%,
+		100% {
+			background: ${(props) => props.theme.colors.indicator.active};
+			transform: scale(1);
+		}
+		50% {
+			background: ${(props) => props.theme.colors.indicator.primary};
+			transform: scale(1.15);
+		}
 	}
 `;
 
@@ -90,6 +199,7 @@ export const PlaceholderIcon = styled.div`
 	align-items: center;
 	background: ${(props) => props.theme.colors.container.alt1.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
+	border-radius: 50%;
 
 	svg {
 		height: 85px;
