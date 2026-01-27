@@ -15,30 +15,15 @@ export const MetricsWrapper = styled.div`
 
 export const MetricsBody = styled.div`
 	width: 100%;
-	margin: 0px 0 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 25px;
 `;
 
 export const MetricsRow = styled.div`
 	width: 100%;
-	display: grid;
-	grid-auto-flow: column;
-	grid-auto-columns: minmax(180px, 1fr);
-	grid-template-rows: 1fr;
-	gap: 20px;
-	align-items: stretch;
-	padding: 0px 0 64px 0;
-
-	@media (max-width: ${STYLING.cutoffs.initial}) {
-		grid-auto-flow: row;
-		grid-auto-columns: unset;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		grid-template-rows: auto;
-		gap: 15px;
-	}
-
-	@media (max-width: ${STYLING.cutoffs.secondary}) {
-		grid-template-columns: 1fr;
-	}
+	display: flex;
+	gap: 25px;
 `;
 
 export const MetricsSection = styled.div`
@@ -47,14 +32,9 @@ export const MetricsSection = styled.div`
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 10px;
 	padding: 20px;
 	background: ${(props) => `${props.theme.colors.container.alt1.background}90`} !important;
-
-	@media (max-width: ${STYLING.cutoffs.tabletSecondary}) {
-		padding: 16px;
-		gap: 6px;
-	}
 
 	p {
 		width: 100%;

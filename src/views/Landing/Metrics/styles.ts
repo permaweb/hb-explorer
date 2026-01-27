@@ -409,3 +409,7 @@ export const SubGroupHeader = styled(GroupHeader)`
 export const SubGroupBody = styled(GroupBody)``;
 
 export const SubGroupLine = styled(GroupLine)``;
+
+export const LoadingWrapper = styled.div`
+	margin: 40px auto;
+`;

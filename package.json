@@ -10,13 +10,13 @@
 		"clean:install": "rm -rf node_modules package-lock.json || true && npm cache clean --force && npm install",
 		"start:development": "NODE_ENV=development vite",
 		"start:staging": "NODE_ENV=development vite",
-		"format": "eslint --fix . && npx prettier --write .",
+		"format": "NODE_OPTIONS='--max-old-space-size=8192' eslint --fix . && npx prettier --write .",
 		"build": "NODE_ENV=production vite build"
 	},
 	"dependencies": {
 		"@monaco-editor/react": "^4.7.0",
 		"@othent/kms": "^1.0.7",
-		"@permaweb/aoconnect": "https://arweave.net/5PSv2WQC8LIj6r8DgBGWLlHqLg-eDokcqzNmiTvVegg",
+		"@permaweb/aoconnect": "0.0.93",
 		"@permaweb/libs": "0.0.58",
 		"@phosphor-icons/react": "^2.1.10",
 		"@types/d3": "^7.4.3",

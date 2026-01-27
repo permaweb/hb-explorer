@@ -1,7 +1,7 @@
 import React from 'react';
+import { ReactSVG } from 'react-svg';
 
 import { Loader } from 'components/atoms/Loader';
-import { ReactSVG } from 'react-svg';
 import { ASSETS, HB_METRIC_CATEGORIES } from 'helpers/config';
 import { formatCount } from 'helpers/utils';
 
@@ -172,7 +172,11 @@ export default function Metrics(props: { metrics: any }) {
 	}
 
 	if (!props.metrics || !groups || !activeCategory) {
-		return <Loader sm relative />;
+		return (
+			<S.LoadingWrapper>
+				<Loader sm relative />
+			</S.LoadingWrapper>
+		);
 	}
 
 	return (

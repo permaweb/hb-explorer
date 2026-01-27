@@ -28,7 +28,7 @@ export const Placeholder = styled.div<{ hasStickyTop: boolean }>`
 `;
 
 export const PlaceholderFull = styled(Placeholder)`
-	margin: ${(props) => (props.hasStickyTop ? 'auto -26.5px -20px -26.5px' : 'auto -26.5px 0px -26.5px')};
+	margin: ${(props) => (props.hasStickyTop ? 'auto -26.5px -19.5px -26.5px' : 'auto -26.5px -19.5px -26.5px')};
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		margin: auto -14.5px 0px -14.5px;

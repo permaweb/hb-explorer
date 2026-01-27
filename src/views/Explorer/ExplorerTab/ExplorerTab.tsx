@@ -163,6 +163,8 @@ export default function ExplorerTab(props: {
 				/>
 			);
 
+		return <ExplorerTabPath tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
+
 		switch (props.tab.type) {
 			case 'process':
 				return <ExplorerTabProcess tab={props.tab} hyperBeamRequest={hyperBeamRequest} refreshKey={refreshKey} />;
@@ -213,7 +215,7 @@ export default function ExplorerTab(props: {
 						disabled={hyperBeamRequest.loading || !inputPath}
 						dimensions={{
 							wrapper: 32.5,
-							icon: 17.5,
+							icon: 14.5,
 						}}
 						tooltip={hyperBeamRequest.loading ? `${language.loading}...` : language.refresh}
 					/>
@@ -225,7 +227,7 @@ export default function ExplorerTab(props: {
 						disabled={!inputPath}
 						dimensions={{
 							wrapper: 32.5,
-							icon: 17.5,
+							icon: 14.5,
 						}}
 						tooltip={copied ? `${language.copied}!` : language.copyPath}
 					/>

@@ -6,7 +6,10 @@ export const Container = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	min-height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
+	min-height: calc(
+		100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} -
+			${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding}
+	);
 `;
 
 export const Header = styled.div`
@@ -48,7 +51,7 @@ export const SearchWrapper = styled.div`
 	display: flex;
 	align-items: center;
 	min-width: 500px;
-	
+
 	@media (max-width: ${STYLING.cutoffs.initial}) {
 		width: 100%;
 		min-width: auto;
@@ -165,4 +168,8 @@ export const EmptyState = styled.div`
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.alt1};
+`;
+
+export const LoadingWrapper = styled.div`
+	margin: 40px auto;
 `;

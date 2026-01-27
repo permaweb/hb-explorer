@@ -22,4 +22,3 @@ export interface ISearchInput {
 	submitTooltip?: string;
 	cacheStatus?: 'default' | 'success' | 'error';
 }
-

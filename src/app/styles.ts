@@ -1,9 +1,9 @@
 import styled, { createGlobalStyle } from 'styled-components';
 
-import { open, transition1, transition2 } from 'helpers/animations';
-import DMSansVariable from 'assets/DMSans-VariableFont_opsz,wght.ttf';
 import DMSansItalicVariable from 'assets/DMSans-Italic-VariableFont_opsz,wght.ttf';
+import DMSansVariable from 'assets/DMSans-VariableFont_opsz,wght.ttf';
 import GeistMonoVariable from 'assets/GeistMono-VariableFont_wght.ttf';
+import { open, transition1, transition2 } from 'helpers/animations';
 import { STYLING } from 'helpers/config';
 
 export const GlobalStyle = createGlobalStyle`

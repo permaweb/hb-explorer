@@ -3,5 +3,3 @@ export interface ICubeSpin {
 	relative?: boolean;
 	speed?: number;
 }
-
-

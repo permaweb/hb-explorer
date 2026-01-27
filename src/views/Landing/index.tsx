@@ -4,10 +4,11 @@ import { useTheme } from 'styled-components';
 import { ViewWrapper } from 'app/styles';
 import { Tabs } from 'components/atoms/Tabs';
 import { ViewHeader } from 'components/atoms/ViewHeader';
-import { ASSETS, HB_ENDPOINTS, STYLING } from 'helpers/config';
+import { ASSETS, HB_ENDPOINTS } from 'helpers/config';
 import { formatCount, hbFetch, stripUrlProtocol } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
+import { Console } from './Console';
 import { Devices } from './Devices';
 import { Ledger } from './Ledger';
 import { Metrics } from './Metrics';
@@ -195,6 +196,8 @@ export default function Landing() {
 								<p className={'metric-value'}>{systemLoad}</p>
 								<span>CPU Average</span>
 							</S.MetricsSection>
+						</S.MetricsRow>
+						<S.MetricsRow>
 							<S.MetricsSection className={'border-wrapper-alt3 fade-in'}>
 								<p>Read Requests Handled</p>
 								<p className={'metric-value'}>{reads}</p>
@@ -210,9 +213,12 @@ export default function Landing() {
 				</ViewWrapper>
 			</S.MetricsWrapper>
 			<S.TabsWrapper>
-				<Tabs onTabClick={() => {}} type={'alt1'} stickyTop={`calc(${STYLING.dimensions.nav.height} - 1px)`}>
+				<Tabs onTabClick={() => {}} type={'alt1'}>
 					<S.Tab label={'Metrics'}>
 						<Metrics metrics={metrics} />
+					</S.Tab>
+					<S.Tab label={'Console'}>
+						<Console />
 					</S.Tab>
 					<S.Tab label={'Devices'}>
 						<Devices />

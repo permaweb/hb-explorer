@@ -42,6 +42,8 @@ export default function Ledger() {
 			</S.Wrapper>
 		</S.Container>
 	) : (
-		<Loader sm relative />
+		<S.LoadingWrapper>
+			<Loader sm relative />
+		</S.LoadingWrapper>
 	);
 }
