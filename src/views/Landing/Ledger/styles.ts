@@ -6,7 +6,10 @@ export const Container = styled.div`
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	height: calc(100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} - ${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding});
+	height: calc(
+		100vh - ${STYLING.dimensions.nav.height} - ${STYLING.dimensions.landingTab.height} -
+			${STYLING.dimensions.footer.height} - ${STYLING.dimensions.landingHeader.padding}
+	);
 	background: ${(props) => props.theme.colors.container.primary.background};
 `;
 
@@ -58,4 +61,8 @@ export const ErrorWrapper = styled.div`
 		font-weight: ${(props) => props.theme.typography.weight.bold};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
+`;
+
+export const LoadingWrapper = styled.div`
+	margin: 40px auto;
 `;

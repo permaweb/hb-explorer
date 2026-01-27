@@ -8,9 +8,8 @@ export const Dropdown = styled.div`
 	z-index: 999999;
 	overflow: hidden;
 	outline: 0;
-	outline: 0.5px solid
-	${(props) => (props.theme.colors.form.default.outline)};
-	`;
+	outline: 0.5px solid ${(props) => props.theme.colors.form.default.outline};
+`;
 
 export const Option = styled.div<{ isSelected: boolean }>`
 	padding: 10px 12.5px;
@@ -27,8 +26,6 @@ export const Option = styled.div<{ isSelected: boolean }>`
 	&:hover {
 		background: ${(props) => props.theme.colors.container.alt1.background};
 	}
-
-
 `;
 
 export const TabHint = styled.span`

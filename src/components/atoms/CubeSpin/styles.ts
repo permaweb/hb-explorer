@@ -64,5 +64,3 @@ export const Face = styled.div<{ $face: 'front' | 'back' | 'right' | 'left' | 't
 	}};
 	transform-style: preserve-3d;
 `;
-
-

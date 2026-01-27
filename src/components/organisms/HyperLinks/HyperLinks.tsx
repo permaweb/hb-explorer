@@ -123,7 +123,7 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 	const [data, setData] = React.useState<any>(null);
 	const [scriptLoaded, setScriptLoaded] = React.useState(false);
 	const [graphReady, setGraphReady] = React.useState<number>(0);
-	const [viewType, setViewType] = React.useState<'table' | 'graph'>('table');
+	const [viewType, setViewType] = React.useState<'table' | 'graph'>('graph');
 
 	const [activeNode, setActiveNode] = React.useState<any | null>(null);
 	const [showActiveData, setShowActiveData] = React.useState<boolean>(false);
@@ -667,18 +667,6 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 								<S.InfoBlockFlex>
 									<IconButton
 										type={'alt1'}
-										src={ASSETS.table}
-										handlePress={() => setViewType('table')}
-										active={viewType === 'table'}
-										dimensions={{
-											wrapper: 25,
-											icon: 12.5,
-										}}
-										tooltip={'Table View'}
-										tooltipPosition={'top-right'}
-									/>
-									<IconButton
-										type={'alt1'}
 										src={ASSETS.graph}
 										handlePress={() => setViewType('graph')}
 										active={viewType === 'graph'}
@@ -687,6 +675,18 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 											icon: 12.5,
 										}}
 										tooltip={'Graph View'}
+										tooltipPosition={'top-right'}
+									/>
+									<IconButton
+										type={'alt1'}
+										src={ASSETS.table}
+										handlePress={() => setViewType('table')}
+										active={viewType === 'table'}
+										dimensions={{
+											wrapper: 25,
+											icon: 12.5,
+										}}
+										tooltip={'Table View'}
 										tooltipPosition={'top-right'}
 									/>
 								</S.InfoBlockFlex>

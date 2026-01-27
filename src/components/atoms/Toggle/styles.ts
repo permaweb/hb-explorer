@@ -27,7 +27,6 @@ export const Options = styled.div`
 	background: ${(props) => props.theme.colors.container.alt2.background};
 	border: 1px solid ${(props) => props.theme.colors.border.primary};
 
-
 	button {
 		flex: 1;
 		border: none !important;

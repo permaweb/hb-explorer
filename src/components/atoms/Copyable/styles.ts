@@ -9,9 +9,7 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 	height: 100%;
 	padding: 0 7.5px 0 8.5px;
 	background: ${(props) =>
-		props.disabled
-			? props.theme.colors.button.primary.disabled.background
-			: props.theme.colors.button.primary.alt1};
+		props.disabled ? props.theme.colors.button.primary.disabled.background : props.theme.colors.button.primary.alt1};
 	border: 1px solid
 		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.border.primary)};
 	border-radius: ${STYLING.dimensions.radius.primary};

@@ -65,6 +65,7 @@ export const ASSETS = {
 	networkStats: getTxEndpoint('jMBeMr4iyxHeGMxDOTU8zH1v6uJq4-uFhhyPZUuUxTc'),
 	newTab: getTxEndpoint('8rHxhGbWrv_jPk3Ku_mL6BvTbdTiRLvSNPwOU-neU_I'),
 	paragraph: getTxEndpoint('R18ieTzflNf8U8AGo4E__ZLUOvFjBBhOmRFUFll51Do'),
+	plusMinus: getTxEndpoint('5CpRM0gTrlg6cE8m_lFwduiboRFAF_pX2U-F6LtR5ow'),
 	post: getTxEndpoint('nPknvEex1uekCo-HZ-5uzsMw4u_rJzj8wZVK5QI3WKw'),
 	posts: getTxEndpoint('scJ-YfxBggKURU_lF7eLLrKSe9L7cBD1GB1bcIpzKJI'),
 	process: getTxEndpoint('XSoMPxwQ5GxKeodpvMkrA3lAYr9h7EK0YfMoHegpWus'),
@@ -151,7 +152,7 @@ export const STYLING = {
 	cutoffs: {
 		desktop: '1250px',
 		initial: '1024px',
-		max: '2000px',
+		max: '1460px',
 		tablet: '840px',
 		tabletSecondary: '768px',
 		secondary: '540px',

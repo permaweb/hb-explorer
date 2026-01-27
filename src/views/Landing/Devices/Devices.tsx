@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { CubeSpin } from 'components/atoms/CubeSpin';
 import { Loader } from 'components/atoms/Loader';
 import { SearchInput } from 'components/atoms/SearchInput';
-import { CubeSpin } from 'components/atoms/CubeSpin';
 import { HB_ENDPOINTS, URLS } from 'helpers/config';
 import { hbFetch } from 'helpers/utils';
 
@@ -107,6 +107,8 @@ export default function Devices() {
 			</S.Wrapper>
 		</S.Container>
 	) : (
-		<Loader sm relative />
+		<S.LoadingWrapper>
+			<Loader sm relative />
+		</S.LoadingWrapper>
 	);
 }
