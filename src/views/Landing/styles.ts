@@ -24,6 +24,10 @@ export const MetricsRow = styled.div`
 	width: 100%;
 	display: flex;
 	gap: 25px;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		flex-direction: column;
+	}
 `;
 
 export const MetricsSection = styled.div`
@@ -83,9 +87,9 @@ export const Subheader = styled.div`
 	gap: 12.5px;
 	border-radius: ${STYLING.dimensions.radius.primary};
 	span {
-		font-size: ${(props) => props.theme.typography.size.xxLg};
+		font-size: ${(props) => props.theme.typography.size.small};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.light};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;

@@ -37,7 +37,7 @@ export default function Landing() {
 			if (window.scrollY > 0) {
 				header.style.borderBottom = `1px solid ${theme.colors.border.primary}`;
 			} else {
-				header.style.borderBottom = 'none';
+				header.style.borderBottom = '1px solid transparent';
 			}
 		};
 

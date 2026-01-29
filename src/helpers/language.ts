@@ -1,7 +1,7 @@
 export const language = {
 	en: {
 		action: `Action`,
-		app: `Dashboard`,
+		app: `PermawebOS`,
 		apply: `Apply`,
 		applyFilters: `Apply Filters`,
 		aoLegacynet: `AO Legacynet`,

@@ -76,7 +76,7 @@ export const SidebarHeaderBody = styled.div`
 `;
 
 export const SidebarTitle = styled.h3`
-	font-size: ${(props) => props.theme.typography.size.lg};
+	font-size: ${(props) => props.theme.typography.size.base};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-weight: ${(props) => props.theme.typography.weight.bold};
 	color: ${(props) => props.theme.colors.font.primary};
@@ -285,7 +285,7 @@ export const ContentTitleWrapper = styled.div`
 `;
 
 export const ContentTitle = styled.h2`
-	font-size: ${(props) => props.theme.typography.size.xLg};
+	font-size: ${(props) => props.theme.typography.size.lg};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-weight: ${(props) => props.theme.typography.weight.bold};
 	color: ${(props) => props.theme.colors.font.primary};

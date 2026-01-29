@@ -52,13 +52,6 @@ const Input = React.forwardRef<
 		document.execCommand('insertText', false, text);
 	};
 
-	// React.useEffect(() => {
-	// 	// Auto focus on mount
-	// 	if (ref.current && !disabled) {
-	// 		ref.current.focus();
-	// 	}
-	// }, [disabled]);
-
 	return (
 		<S.Input
 			ref={ref}
@@ -391,6 +384,7 @@ export default function Console() {
 									icon: 15,
 								}}
 								tooltip={fullScreenMode ? language.exitFullScreen : language.enterFullScreen}
+								tooltipPosition={'bottom-left'}
 							/>
 						</S.InputActionsSection>
 						<S.InputActionsSection>

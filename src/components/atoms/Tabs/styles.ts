@@ -31,14 +31,14 @@ export const PlaceholderFull = styled(Placeholder)`
 	margin: ${(props) => (props.hasStickyTop ? 'auto -26.5px -19.5px -26.5px' : 'auto -26.5px -19.5px -26.5px')};
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
-		margin: auto -14.5px 0px -14.5px;
+		margin: auto -14.5px -19.5px -14.5px;
 
 		&[id='placeholder-start'] {
-			margin: auto -15.5px -1.5px 0;
+			margin: auto -15.5px -19.5px 0;
 		}
 
 		&[id='placeholder-end'] {
-			margin: auto 0 0px -15.5px;
+			margin: auto 0 -19.5px -15.5px;
 		}
 	}
 `;

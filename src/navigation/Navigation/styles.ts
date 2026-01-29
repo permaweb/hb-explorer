@@ -10,6 +10,7 @@ export const Header = styled.header<{ navigationOpen: boolean }>`
 	top: 0;
 	z-index: 4;
 	background: ${(props) => props.theme.colors.view.background};
+	border-bottom: 1px solid transparent;
 `;
 
 export const Content = styled.div`
@@ -292,7 +293,7 @@ export const C1Wrapper = styled.div`
 	width: fit-content;
 	display: flex;
 	align-items: center;
-	gap: 30px;
+	gap: 48px;
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		max-width: calc(100% - 60px);
@@ -300,22 +301,46 @@ export const C1Wrapper = styled.div`
 `;
 
 export const LogoWrapper = styled.div`
-	img {
-		height: 30px;
-		width: 30px;
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.75 : 0)});
-		padding: 2.5px 0 0 0;
-		margin: 5.5px 0 0 0;
+	margin: -5px 0 0 -3.5px;
 
-		&:hover {
+	a {
+		display: flex;
+		align-items: center;
+		gap: 8.5px;
+	}
+
+	img {
+		width: 27.5px;
+		padding: 0;
+		margin: 0;
+		transform: translateY(6.5px);
+	}
+
+	p {
+		color: ${(props) => props.theme.colors.font.alt1};
+		font-family: ${(props) => props.theme.typography.family.primary};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-weight: ${(props) => props.theme.typography.weight.bold};
+		margin: 10.5px 0 0 0;
+	}
+
+	&:hover {
+		a {
+			p {
+				color: ${(props) => props.theme.colors.font.primary};
+			}
 		}
+	}
+
+	@media (max-width: ${STYLING.cutoffs.desktop}) {
+		margin: -10px 0 0 -3.5px;
 	}
 `;
 
 export const DNavWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 25px;
+	gap: 48px;
 
 	@media (max-width: ${STYLING.cutoffs.tablet}) {
 		display: none;
@@ -326,7 +351,7 @@ export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.small};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
@@ -386,6 +411,7 @@ export const DOperator = styled.div`
 	display: flex;
 	align-items: center;
 	height: ${STYLING.dimensions.action.height};
+	transition: all 100ms;
 
 	span {
 		color: ${(props) => props.theme.colors.font.primary};
