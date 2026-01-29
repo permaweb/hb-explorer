@@ -24,6 +24,10 @@ export const MetricsRow = styled.div`
 	width: 100%;
 	display: flex;
 	gap: 25px;
+
+	@media (max-width: ${STYLING.cutoffs.initial}) {
+		flex-direction: column;
+	}
 `;
 
 export const MetricsSection = styled.div`

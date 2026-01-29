@@ -1,4 +1,5 @@
 import permawebOSLogo from 'assets/permawebOS-logo.svg';
+
 import { getTxEndpoint } from './endpoints';
 
 export const ASSETS = {
@@ -103,8 +104,8 @@ export const ASSETS = {
 };
 
 export const FAVICONS = {
-	light: 'yEzIy4fUp2LvpPWkZNDwZ9T8SUFG9QS0-76iKz8KwPo',
-	dark: 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis',
+	light: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
+	dark: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
 };
 
 export const TAGS = {

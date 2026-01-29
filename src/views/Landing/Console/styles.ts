@@ -20,7 +20,7 @@ export const Wrapper = styled.div<{ fullScreenMode: boolean; useFixedHeight: boo
 export const ConsoleWrapper = styled.div<{ editorMode: boolean }>`
 	height: 100%;
 	width: ${(props) => (props.editorMode ? '50%' : '100%')};
-	max-width: ${(props) => (props.editorMode ? 'none' : '850px')};
+	max-width: ${(props) => (props.editorMode ? 'none' : 'none')};
 	display: flex;
 	gap: 25px;
 	flex-direction: column;
@@ -49,7 +49,7 @@ export const ResultsWrapper = styled.div`
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		background: ${(props) => props.theme.colors.container.alt2.background};
 		border: 1px solid ${(props) => props.theme.colors.border.alt2};
-		border-radius: ${STYLING.dimensions.radius.alt2};
+		border-radius: ${STYLING.dimensions.radius.primary};
 		padding: 1.5px 7.5px;
 	}
 
@@ -136,7 +136,7 @@ export const SplashScreenHeader = styled.div`
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
 	font-weight: ${(props) => props.theme.typography.weight.bold};
-	color: ${(props) => props.theme.colors.editor.alt1};
+	color: ${(props) => props.theme.colors.font.alt1};
 	margin: 0 0 1.5px 0;
 `;
 
@@ -152,7 +152,7 @@ export const SplashScreenLine = styled.div`
 
 	span {
 		font-family: ${(props) => props.theme.typography.family.alt2};
-		color: ${(props) => props.theme.colors.editor.alt1};
+		color: ${(props) => props.theme.colors.font.alt1};
 		letter-spacing: -0.5px;
 	}
 
