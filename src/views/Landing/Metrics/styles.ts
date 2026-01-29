@@ -49,7 +49,7 @@ export const SidebarContent = styled.div`
 export const SidebarHeader = styled.div`
 	padding: ${STYLING.dimensions.landingHeader.padding};
 	display: flex;
-	min-height: 106px;
+	min-height: 98.5px;
 	flex-direction: column;
 	gap: 10px;
 	border-bottom: 1px solid ${(props) => props.theme.colors.border.primary};
@@ -187,14 +187,14 @@ export const SidebarItem = styled.button<{ $active: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background: ${(props) => (props.$active ? props.theme.colors.container.alt2.background : 'transparent')};
+	background: ${(props) => (props.$active ? props.theme.colors.container.alt1.background : 'transparent')};
 	border: none;
 	cursor: pointer;
 	text-align: left;
 
 	&:hover {
 		background: ${(props) =>
-			props.$active ? props.theme.colors.container.alt2.background : props.theme.colors.container.alt1.background};
+			props.$active ? props.theme.colors.container.alt1.background : props.theme.colors.container.alt1.background};
 	}
 
 	@media (max-width: ${STYLING.cutoffs.initial}) {
