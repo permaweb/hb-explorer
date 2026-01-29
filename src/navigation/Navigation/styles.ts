@@ -292,7 +292,7 @@ export const C1Wrapper = styled.div`
 	width: fit-content;
 	display: flex;
 	align-items: center;
-	gap: 30px;
+	gap: 48px;
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		max-width: calc(100% - 60px);
@@ -301,21 +301,19 @@ export const C1Wrapper = styled.div`
 
 export const LogoWrapper = styled.div`
 	img {
-		height: 30px;
-		width: 30px;
-		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.75 : 0)});
-		padding: 2.5px 0 0 0;
-		margin: 5.5px 0 0 0;
 
-		&:hover {
-		}
+		width: 125px;
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.75 : 0)});
+		padding: 0;
+		margin: 0;
+		transform: translateY(6px);
 	}
 `;
 
 export const DNavWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 25px;
+	gap: 48px;
 
 	@media (max-width: ${STYLING.cutoffs.tablet}) {
 		display: none;
@@ -326,7 +324,7 @@ export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.small};
+		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
