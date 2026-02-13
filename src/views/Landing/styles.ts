@@ -71,7 +71,7 @@ export const TabsWrapper = styled.div`
 	width: 100%;
 	position: relative;
 	z-index: 3;
-	margin: 25px 0 0 0;
+	margin: 40px 0 0 0;
 	background: ${(props) => props.theme.colors.container.primary.background};
 `;
 
@@ -94,12 +94,14 @@ export const Subheader = styled.div`
 	}
 `;
 
-export const Indicator = styled.div`
+export const Indicator = styled.div<{ $isOnline: boolean }>`
 	height: 10.5px;
 	width: 10.5px;
 	border-radius: ${STYLING.dimensions.radius.circle};
+	background: ${(props) =>
+		props.$isOnline ? props.theme.colors.indicator.active : props.theme.colors.warning.primary};
 
-	animation: pulse 1.075s infinite;
+	animation: ${(props) => (props.$isOnline ? 'pulse 1.075s infinite' : 'none')};
 
 	@keyframes pulse {
 		0%,
@@ -112,6 +114,22 @@ export const Indicator = styled.div`
 			transform: scale(1.15);
 		}
 	}
+`;
+
+export const ErrorWrapper = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 25px 0;
+	text-align: center;
+	margin: 0 auto;
+`;
+
+export const ErrorMessage = styled.div`
+	font-size: ${(props) => props.theme.typography.size.xSmall};
+	font-family: ${(props) => props.theme.typography.family.primary};
+	font-weight: ${(props) => props.theme.typography.weight.regular};
+	color: ${(props) => props.theme.colors.warning.primary};
 `;
 
 export const Graphic = styled.div`

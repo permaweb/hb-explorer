@@ -576,9 +576,10 @@ export default function initializeHyperBEAMGraph() {
 			const sourcePos = sourceNode.object.position;
 			const targetPos = targetNode.object.position;
 
-			// Create line geometry
+			// Create line geometry using line z-position from config
 			const geometry = new THREE.BufferGeometry();
-			const vertices = new Float32Array([sourcePos.x, sourcePos.y, sourcePos.z, targetPos.x, targetPos.y, targetPos.z]);
+			const lineZ = this.themeManager.config.zPos.line;
+			const vertices = new Float32Array([sourcePos.x, sourcePos.y, lineZ, targetPos.x, targetPos.y, lineZ]);
 			geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 
 			const material = new THREE.LineBasicMaterial({
@@ -649,13 +650,14 @@ export default function initializeHyperBEAMGraph() {
 					const sourcePos = sourceNode.object.position;
 					const targetPos = targetNode.object.position;
 
+					const lineZ = this.themeManager.config.zPos.line;
 					const positions = linkObj.object.geometry.attributes.position.array;
 					positions[0] = sourcePos.x;
 					positions[1] = sourcePos.y;
-					positions[2] = sourcePos.z;
+					positions[2] = lineZ;
 					positions[3] = targetPos.x;
 					positions[4] = targetPos.y;
-					positions[5] = targetPos.z;
+					positions[5] = lineZ;
 
 					linkObj.object.geometry.attributes.position.needsUpdate = true;
 				}

@@ -293,7 +293,7 @@ export const C1Wrapper = styled.div`
 	width: fit-content;
 	display: flex;
 	align-items: center;
-	gap: 48px;
+	gap: 40px;
 
 	@media (max-width: ${STYLING.cutoffs.desktop}) {
 		max-width: calc(100% - 60px);
@@ -310,18 +310,26 @@ export const LogoWrapper = styled.div`
 	}
 
 	img {
+		height: 30px;
+		width: 30px;
+		filter: invert(${(props) => (props.theme.scheme === 'dark' ? 0.75 : 0)});
+		padding: 2.5px 0 0 0;
+		margin: 5.5px 0 0 0;
+	}
+
+	/* img {
 		width: 27.5px;
 		padding: 0;
 		margin: 0;
 		transform: translateY(6.5px);
-	}
+	} */
 
 	p {
 		color: ${(props) => props.theme.colors.font.alt1};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-weight: ${(props) => props.theme.typography.weight.bold};
-		margin: 10.5px 0 0 0;
+		margin: 10.5px 0 0 7.5px;
 	}
 
 	&:hover {
@@ -340,7 +348,7 @@ export const LogoWrapper = styled.div`
 export const DNavWrapper = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 48px;
+	gap: 30px;
 
 	@media (max-width: ${STYLING.cutoffs.tablet}) {
 		display: none;
@@ -351,14 +359,14 @@ export const DNavLink = styled.div<{ active: boolean }>`
 	a {
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-size: ${(props) => props.theme.typography.size.xxSmall};
+		font-size: ${(props) => props.theme.typography.size.xSmall};
 		letter-spacing: 0.35px;
 
 		padding: 0 0 2.5px 0;
 		border-bottom: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt4 : 'transparent')};
 
 		&:hover {
-			color: ${(props) => props.theme.colors.font.primary};
+			color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt1)};
 			font-weight: ${(props) => props.theme.typography.weight.medium};
 			border-bottom: 2px solid
 				${(props) => (props.active ? props.theme.colors.border.alt4 : props.theme.colors.border.alt2)};
