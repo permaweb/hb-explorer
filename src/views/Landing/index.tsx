@@ -28,6 +28,8 @@ export default function Landing() {
 	const [writes, setWrites] = React.useState<string>('-');
 
 	const [metrics, setMetrics] = React.useState<any>(null);
+	const [metricsError, setMetricsError] = React.useState<boolean>(false);
+	const [isOnline, setIsOnline] = React.useState<boolean>(true);
 
 	React.useEffect(() => {
 		const header = document.getElementById('navigation-header');
@@ -55,28 +57,36 @@ export default function Landing() {
 		let rafId: number;
 
 		async function init() {
-			const text = await hbFetch(HB_ENDPOINTS.metrics);
-			const groups = parseMetrics(text);
-			setMetrics(groups);
+			try {
+				const text = await hbFetch(HB_ENDPOINTS.metrics);
+				const groups = parseMetrics(text);
+				setMetrics(groups);
+				setMetricsError(false);
+				setIsOnline(true);
 
-			const u = groups.gauge?.find((m) => m.name === 'process_uptime_seconds')?.values[0].data;
-			if (u == null) return;
+				const u = groups.gauge?.find((m) => m.name === 'process_uptime_seconds')?.values[0].data;
+				if (u == null) return;
 
-			seed = u;
-			if (uptimeRef.current) {
-				uptimeRef.current.textContent = formatCount(seed.toString());
-			}
-			startTime = Date.now();
-
-			function animate() {
-				const elapsed = (Date.now() - startTime) / 1000;
-				const current = seed + elapsed;
+				seed = u;
 				if (uptimeRef.current) {
-					uptimeRef.current.textContent = formatCount(current.toFixed(2));
+					uptimeRef.current.textContent = formatCount(seed.toString());
 				}
-				rafId = requestAnimationFrame(animate);
+				startTime = Date.now();
+
+				const animate = () => {
+					const elapsed = (Date.now() - startTime) / 1000;
+					const current = seed + elapsed;
+					if (uptimeRef.current) {
+						uptimeRef.current.textContent = formatCount(current.toFixed(2));
+					}
+					rafId = requestAnimationFrame(animate);
+				};
+				animate();
+			} catch (error) {
+				console.error('Failed to fetch metrics:', error);
+				setMetricsError(true);
+				setIsOnline(false);
 			}
-			animate();
 		}
 
 		init();
@@ -171,7 +181,7 @@ export default function Landing() {
 						actions={[
 							<S.Subheader>
 								<span>{stripUrlProtocol(window.hyperbeamUrl)}</span>
-								<S.Indicator />
+								<S.Indicator $isOnline={isOnline} />
 							</S.Subheader>,
 						]}
 					/>
@@ -213,20 +223,26 @@ export default function Landing() {
 				</ViewWrapper>
 			</S.MetricsWrapper>
 			<S.TabsWrapper>
-				<Tabs onTabClick={() => {}} type={'alt1'}>
-					<S.Tab label={'Metrics'}>
-						<Metrics metrics={metrics} />
-					</S.Tab>
-					<S.Tab label={'Console'}>
-						<Console />
-					</S.Tab>
-					<S.Tab label={'Devices'}>
-						<Devices />
-					</S.Tab>
-					<S.Tab label={'Ledger'}>
-						<Ledger />
-					</S.Tab>
-				</Tabs>
+				{metricsError ? (
+					<S.ErrorWrapper>
+						<S.ErrorMessage>Error connecting to node</S.ErrorMessage>
+					</S.ErrorWrapper>
+				) : (
+					<Tabs onTabClick={() => {}} type={'alt1'}>
+						<S.Tab label={'Metrics'}>
+							<Metrics metrics={metrics} />
+						</S.Tab>
+						<S.Tab label={'Console'}>
+							<Console />
+						</S.Tab>
+						<S.Tab label={'Devices'}>
+							<Devices />
+						</S.Tab>
+						<S.Tab label={'Ledger'}>
+							<Ledger />
+						</S.Tab>
+					</Tabs>
+				)}
 			</S.TabsWrapper>
 			<S.Graphic>
 				<video src={ASSETS.graphic} autoPlay loop muted playsInline />

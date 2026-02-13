@@ -174,7 +174,6 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 						<S.LogoWrapper>
 							<Link to={URLS.base}>
 								<img src={ASSETS.logo} />
-								<p>PermawebOS</p>
 							</Link>
 						</S.LogoWrapper>
 						<S.DNavWrapper>

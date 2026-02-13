@@ -1,5 +1,3 @@
-import permawebOSLogo from 'assets/permawebOS-logo.svg';
-
 import { getTxEndpoint } from './endpoints';
 
 export const ASSETS = {
@@ -59,7 +57,7 @@ export const ASSETS = {
 	linkedin: getTxEndpoint('8S2jArSLL2aZYZy9_sUkFlqbZUpGhYUNmFFVI4gMbPo'),
 	listOrdered: getTxEndpoint('LCGDNvNEerXlE8vE65J6XRuAMm54u2zNAyvwQbyoBEs'),
 	listUnordered: getTxEndpoint('lSpJ-R6JoI9J814Iy2JJZWnrkvKU8iFqVIWtVsmI4Os'),
-	logo: permawebOSLogo,
+	logo: getTxEndpoint('S3qpd4CF_VSPD9DfVaWD4McFQy6XAUto2FLidcjofpM'),
 	memory: getTxEndpoint('00pjp_HWg5HM7HYZTnyQvCkZNVyKh1hEcc1qASKPnu4'),
 	menu: getTxEndpoint('0La3-o2_gGMDbkfV4zVVUMjTYQ7Cn9YWQ2JO-FbjAIk'),
 	message: getTxEndpoint('GDlYmHD-I2AeYRx6VpZGxbRa0UaI1OcC_iBcl6FBOGw'),
@@ -104,9 +102,14 @@ export const ASSETS = {
 };
 
 export const FAVICONS = {
-	light: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
-	dark: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
+	light: 'yEzIy4fUp2LvpPWkZNDwZ9T8SUFG9QS0-76iKz8KwPo',
+	dark: 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis',
 };
+
+// export const FAVICONS = {
+// 	light: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
+// 	dark: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
+// };
 
 export const TAGS = {
 	keys: {

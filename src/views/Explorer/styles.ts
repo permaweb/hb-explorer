@@ -77,7 +77,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
-	border-top: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt5 : 'transparent')};
+	border-top: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt4 : 'transparent')};
 
 	white-space: nowrap;
 	transition: all 100ms;

@@ -344,8 +344,23 @@ export default function HyperLinks(props: { id?: string; path: string; onError?:
 				});
 
 				data.links.forEach((link: any) => {
-					if (!controller.dataManager.graphObjects.links.has(`${link.source}-${link.target}`)) {
-						controller.graphObjectManager.createLinkObject(link);
+					// Normalize link source and target to IDs (they might be objects or strings)
+					const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+					const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+
+					// Create a normalized link object with string IDs
+					const normalizedLink = {
+						...link,
+						source: sourceId,
+						target: targetId,
+					};
+
+					if (!controller.dataManager.graphObjects.links.has(`${sourceId}-${targetId}`)) {
+						const linkObj = controller.graphObjectManager.createLinkObject(normalizedLink);
+						// Ensure links are visible when created
+						if (linkObj) {
+							linkObj.visible = true;
+						}
 					}
 				});
 
