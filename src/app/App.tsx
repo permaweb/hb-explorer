@@ -1,11 +1,5 @@
-import React, { lazy, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
-
-const views = (import.meta as any).glob('../views/**/index.tsx');
-
-const Landing = getLazyImport('Landing');
-const Explorer = getLazyImport('Explorer');
-const NotFound = getLazyImport('NotFound');
 
 import { Loader } from 'components/atoms/Loader';
 import { DOM, FAVICONS, LINKS, URLS } from 'helpers/config';
@@ -14,21 +8,11 @@ import { arweaveEndpoint } from 'helpers/endpoints';
 import { Navigation } from 'navigation/Navigation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
+import Explorer from 'views/Explorer';
+import Landing from 'views/Landing';
+import NotFound from 'views/NotFound';
 
 import * as S from './styles';
-
-function getLazyImport(view: string) {
-	const key = `../views/${view}/index.tsx`;
-	const loader = views[key];
-	if (!loader) {
-		throw new Error(`View not found: ${view}`);
-	}
-
-	return lazy(async () => {
-		const module = await loader();
-		return { default: module.default };
-	});
-}
 
 export default function App() {
 	const location = useLocation();
@@ -38,33 +22,18 @@ export default function App() {
 
 	const { settings, updateSettings } = useSettingsProvider();
 
+	const hasHiddenLoaderRef = React.useRef(false);
+
 	React.useEffect(() => {
-		const setFavicon = () => {
-			const baseUrl = window.hyperbeamUrl || arweaveEndpoint;
-
-			const existingIcons = document.querySelectorAll('link[rel="icon"]');
-			existingIcons.forEach((icon) => icon.remove());
-
-			const defaultIcon = document.createElement('link');
-			defaultIcon.rel = 'icon';
-			defaultIcon.href = `${baseUrl}/${FAVICONS.light}`;
-			document.head.appendChild(defaultIcon);
-
-			const lightIcon = document.createElement('link');
-			lightIcon.rel = 'icon';
-			lightIcon.href = `${baseUrl}/${FAVICONS.light}`;
-			lightIcon.media = '(prefers-color-scheme: light)';
-			document.head.appendChild(lightIcon);
-
-			const darkIcon = document.createElement('link');
-			darkIcon.rel = 'icon';
-			darkIcon.href = `${baseUrl}/${FAVICONS.dark}`;
-			darkIcon.media = '(prefers-color-scheme: dark)';
-			document.head.appendChild(darkIcon);
-		};
-
-		setFavicon();
-	}, []);
+		if (!hasHiddenLoaderRef.current && settings) {
+			hasHiddenLoaderRef.current = true;
+			document.body.style.background = '';
+			const loader = document.getElementById('app-loader');
+			if (loader) {
+				loader.style.display = 'none';
+			}
+		}
+	}, [settings]);
 
 	// Initialize device names cache on app startup
 	React.useEffect(() => {

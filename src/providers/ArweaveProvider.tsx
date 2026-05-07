@@ -4,7 +4,7 @@ import { Modal } from 'components/atoms/Modal';
 import { ASSETS, LINKS, STORAGE } from 'helpers/config';
 import { getARBalanceEndpoint } from 'helpers/endpoints';
 import { WalletEnum } from 'helpers/types';
-import Othent from 'helpers/wallet';
+import { hasSubtleCrypto } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import * as S from './styles';
@@ -12,6 +12,9 @@ import * as S from './styles';
 const WALLET_PERMISSIONS = ['ACCESS_ADDRESS', 'ACCESS_PUBLIC_KEY', 'SIGN_TRANSACTION', 'DISPATCH', 'SIGNATURE'];
 
 const AR_WALLETS = [{ type: WalletEnum.wander, label: 'Wander', logo: ASSETS.wander }];
+
+const WEB_CRYPTO_WARNING =
+	'SubtleCrypto is unavailable. Serve this app over HTTPS or localhost to enable wallet connections.';
 
 interface ArweaveContextState {
 	wallets: { type: WalletEnum; logo: string }[];
@@ -118,6 +121,12 @@ export function ArweaveProvider(props: { children: React.ReactNode }) {
 	}
 
 	async function handleConnect(walletType: WalletEnum.arConnect | WalletEnum.othent) {
+		if (!hasSubtleCrypto()) {
+			console.warn(WEB_CRYPTO_WARNING);
+			setWalletModalVisible(false);
+			return null;
+		}
+
 		let walletObj: any = null;
 		switch (walletType) {
 			case WalletEnum.arConnect:
@@ -154,6 +163,8 @@ export function ArweaveProvider(props: { children: React.ReactNode }) {
 	}
 
 	async function handleOthent() {
+		const { default: Othent } = await import('helpers/wallet');
+
 		Othent.init();
 		await window.arweaveWallet.connect(WALLET_PERMISSIONS as any);
 		setWallet(window.arweaveWallet);

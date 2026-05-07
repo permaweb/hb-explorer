@@ -4,13 +4,11 @@ import { JSONReader } from 'components/molecules/JSONReader';
 import { JSONWriter } from 'components/molecules/JSONWriter';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 import { WalletBlock } from 'wallet/WalletBlock';
 
 import * as S from './styles';
 
 export default function ProcessEditor(props: { processId: string; type: 'read' | 'write' }) {
-	const permawebProvider = usePermawebProvider();
 	const arProvider = useArweaveProvider();
 
 	const languageProvider = useLanguageProvider();
@@ -31,40 +29,10 @@ export default function ProcessEditor(props: { processId: string; type: 'read' |
 
 	async function handleSubmit(message: object) {
 		setLoading(true);
-
-		let messageToSend: any = { ...message };
-		let connectFn: (message: object) => any;
-
-		switch (props.type) {
-			case 'read':
-				connectFn = permawebProvider.deps.ao.dryrun;
-				break;
-			case 'write':
-				connectFn = permawebProvider.deps.ao.message;
-				messageToSend.signer = permawebProvider.deps.signer;
-				break;
-		}
-
-		try {
-			const response = await connectFn(messageToSend);
-
-			switch (props.type) {
-				case 'read':
-					setOutput(response);
-					break;
-				case 'write':
-					const result = await permawebProvider.deps.ao.result({
-						process: messageToSend.process,
-						message: response,
-					});
-
-					if (result) setOutput(result);
-					else setOutput({ Error: 'Error sending write request' });
-					break;
-			}
-		} catch (e: any) {
-			setOutput({ Error: e.message ?? 'Error sending request' });
-		}
+		setOutput({
+			Error: 'AO read/write helpers are unavailable because the Permaweb SDK has been removed.',
+			Request: message,
+		});
 		setLoading(false);
 	}
 

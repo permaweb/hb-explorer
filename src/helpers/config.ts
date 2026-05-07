@@ -106,11 +106,6 @@ export const FAVICONS = {
 	dark: 'dXdeYzWRmWNq-yCyyRZTDeY6GPYkZXi9ILwGcHXtVis',
 };
 
-// export const FAVICONS = {
-// 	light: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
-// 	dark: '2GJaAbvocChqXxrmgrw-IzWWT7nfWhvpOX3hNhERlBY',
-// };
-
 export const TAGS = {
 	keys: {
 		onBoot: 'On-Boot',
@@ -248,7 +243,7 @@ export const LINKS = {
 export const HB_ENDPOINTS = {
 	info: `/~meta@1.0/info`,
 	cache: `/~cacheviz@1.0/json`,
-	devices: `/~meta@1.0/info/preloaded_devices`,
+	devices: `/~meta@1.0/info/preloaded-devices`,
 	metrics: `/~hyperbuddy@1.0/metrics`,
 	operator: `/~meta@1.0/info/address`,
 	ledger: `/ledger~node-process@1.0/now/balance`,

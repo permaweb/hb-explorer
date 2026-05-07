@@ -1,7 +1,5 @@
-import { ProfileType } from '@permaweb/libs';
-
 export interface IProps {
-	profile: ProfileType | null;
+	profile: any | null;
 	handleClose: () => void;
 	handleUpdate: () => void;
 }

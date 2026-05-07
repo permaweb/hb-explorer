@@ -5,15 +5,12 @@ import { JSONReader } from 'components/molecules/JSONReader';
 import { getTxEndpoint } from 'helpers/endpoints';
 import { checkValidAddress } from 'helpers/utils';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 
 import { Editor } from '../Editor';
 
 import * as S from './styles';
 
 export default function MessageResult(props: { processId: string; messageId: string; variant: any }) {
-	const permawebProvider = usePermawebProvider();
-
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -50,11 +47,9 @@ export default function MessageResult(props: { processId: string; messageId: str
 						}
 					}
 
-					const messageResult = await permawebProvider.deps.ao.result({
-						process: props.processId,
-						message: props.messageId,
+					setResult({
+						Notice: 'AO result lookup is unavailable because the Permaweb SDK has been removed.',
 					});
-					setResult(messageResult);
 				} catch (e: any) {
 					console.error(e);
 				}

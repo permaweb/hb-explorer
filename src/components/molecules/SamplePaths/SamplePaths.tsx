@@ -24,7 +24,7 @@ const SAMPLE_PATHS = [
 		icon: ASSETS.process,
 	},
 	{
-		path: '~meta@1.0/info/preloaded_devices',
+		path: '~meta@1.0/info/preloaded-devices',
 		label: 'Preloaded Devices',
 		description: 'List computational devices available on this node',
 		icon: ASSETS.tools,

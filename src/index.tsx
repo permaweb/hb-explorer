@@ -8,7 +8,6 @@ import { GlobalStyle } from 'app/styles';
 import { stripUrlProtocol } from 'helpers/utils';
 import { ArweaveProvider } from 'providers/ArweaveProvider';
 import { LanguageProvider } from 'providers/LanguageProvider';
-import { PermawebProvider } from 'providers/PermawebProvider';
 import { SettingsProvider } from 'providers/SettingsProvider';
 import { persistor, store } from 'store';
 
@@ -25,10 +24,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 				<SettingsProvider>
 					<LanguageProvider>
 						<ArweaveProvider>
-							<PermawebProvider>
-								<GlobalStyle />
-								<App />
-							</PermawebProvider>
+							<GlobalStyle />
+							<App />
 						</ArweaveProvider>
 					</LanguageProvider>
 				</SettingsProvider>

@@ -2,6 +2,7 @@ import React from 'react';
 
 import { base64UrlToUint8Array, parseSignatureInput, verifySignature } from 'helpers/signatures';
 import { ExplorerTabType, VariantEnum } from 'helpers/types';
+import { hasSubtleCrypto } from 'helpers/utils';
 
 export interface HyperBeamRequestState {
 	loading: boolean;
@@ -187,15 +188,24 @@ export function useHyperBeamRequest(): UseHyperBeamRequestReturn {
 			if (signature) {
 				const signatureInput = parsed['signature-input']?.data ?? '';
 				signer = signatureInput ? await getSignerAddress(signatureInput) : 'Unknown';
-				signatureValid = signatureInput ? await verifySignature(signature, signatureInput, response) : false;
 				signatureAlg = signatureInput ? getSignatureAlg(signatureInput) : null;
 				signatureKeyId = signatureInput ? getSignatureKeyId(signatureInput) : null;
 
-				try {
-					id = await getMessageIdFromSig(signature);
-				} catch (e) {
-					console.error('Error getting message ID:', e);
+				if (signatureInput && hasSubtleCrypto()) {
+					signatureValid = await verifySignature(signature, signatureInput, response);
+
+					try {
+						id = await getMessageIdFromSig(signature);
+					} catch (e) {
+						console.error('Error getting message ID:', e);
+						id = null;
+					}
+				} else {
+					signatureValid = signatureInput ? null : false;
 					id = null;
+					if (signatureInput) {
+						console.warn('Skipping signature verification because SubtleCrypto is unavailable.');
+					}
 				}
 			}
 

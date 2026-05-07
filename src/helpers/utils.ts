@@ -3,6 +3,15 @@ export function checkValidAddress(address: string | null) {
 	return /^[a-z0-9_-]{43}$/i.test(address);
 }
 
+export function hasSubtleCrypto(): boolean {
+	const subtle = globalThis.crypto?.subtle;
+	if (!subtle) return false;
+
+	return ['digest', 'exportKey', 'generateKey', 'importKey', 'sign', 'verify'].every(
+		(method) => typeof subtle[method] === 'function'
+	);
+}
+
 export function formatAddress(address: string | null, wrap: boolean) {
 	if (!address) return '';
 	if (!checkValidAddress(address)) return address;

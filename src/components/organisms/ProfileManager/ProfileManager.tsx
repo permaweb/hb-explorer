@@ -12,7 +12,6 @@ import { NotificationType } from 'helpers/types';
 import { checkValidAddress } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 import { WalletBlock } from 'wallet/WalletBlock';
 
 import * as S from './styles';
@@ -24,7 +23,6 @@ const ALLOWED_AVATAR_TYPES = 'image/png, image/jpeg, image/gif';
 
 export default function ProfileManager(props: IProps) {
 	const arProvider = useArweaveProvider();
-	const permawebProvider = usePermawebProvider();
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -51,8 +49,6 @@ export default function ProfileManager(props: IProps) {
 	}, [props.profile]);
 
 	function handleUpdate(response: string) {
-		permawebProvider.refreshProfile();
-
 		if (props.handleUpdate) props.handleUpdate();
 		if (props.handleClose) props.handleClose();
 
@@ -66,35 +62,10 @@ export default function ProfileManager(props: IProps) {
 		if (arProvider.wallet) {
 			setLoading(true);
 
-			try {
-				let data: any = {
-					username: username,
-					displayName: name,
-					description: description,
-				};
-
-				if (thumbnail) data.thumbnail = thumbnail;
-				if (banner) data.banner = banner;
-
-				if (props.profile && props.profile.id) {
-					const profileUpdateId = await permawebProvider.libs.updateProfile(data, props.profile.id, (status: any) =>
-						console.log(status)
-					);
-					console.log(`Profile update: ${profileUpdateId}`);
-					handleUpdate(`${language.profileUpdated}!`);
-				} else {
-					const profileId = await permawebProvider.libs.createProfile(data, (status: any) => console.log(status));
-
-					console.log(`Profile ID: ${profileId}`);
-
-					handleUpdate(`${language.profileCreated}!`);
-				}
-			} catch (e: any) {
-				setProfileResponse({
-					message: e.message ?? language.errorUpdatingProfile,
-					status: 'warning',
-				});
-			}
+			setProfileResponse({
+				message: 'Profile management is unavailable because the Permaweb SDK has been removed.',
+				status: 'warning',
+			});
 
 			setLoading(false);
 		}

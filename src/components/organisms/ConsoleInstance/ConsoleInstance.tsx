@@ -14,7 +14,6 @@ import { GQLNodeResponseType } from 'helpers/types';
 import { checkValidAddress, formatAddress, getTagValue } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 import { WalletBlock } from 'wallet/WalletBlock';
 
 import 'xterm/css/xterm.css';
@@ -30,7 +29,6 @@ export default function ConsoleInstance(props: {
 	const theme = useTheme();
 
 	const arProvider = useArweaveProvider();
-	const permawebProvider = usePermawebProvider();
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -326,7 +324,7 @@ export default function ConsoleInstance(props: {
 				terminalInstance.current.dispose();
 			}
 		};
-	}, [props.active, inputProcessId, props.owner, arProvider.walletAddress, permawebProvider.libs]);
+	}, [props.active, inputProcessId, props.owner, arProvider.walletAddress]);
 
 	function stripAnsi(input: string): string {
 		return input.replace(/\x1b\[[0-9;]*[A-Za-z]/g, '');
@@ -400,7 +398,7 @@ export default function ConsoleInstance(props: {
 				}
 
 				try {
-					const results = await permawebProvider.deps.ao.results(args);
+					const results = null;
 
 					if (results?.edges?.length) {
 						const newEdges = results.edges
@@ -492,17 +490,9 @@ export default function ConsoleInstance(props: {
 			startLoader();
 
 			try {
-				const message = await permawebProvider.libs.sendMessage({
-					processId: inputProcessId,
-					action: 'Eval',
-					data: data ?? '',
-					useRawData: true,
-				});
-
-				const response = await permawebProvider.deps.ao.result({
-					process: inputProcessId,
-					message: message,
-				});
+				const response = {
+					Error: 'AOS console messaging is unavailable because the Permaweb SDK has been removed.',
+				};
 
 				stopLoader();
 

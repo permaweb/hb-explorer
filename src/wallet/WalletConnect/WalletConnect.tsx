@@ -7,7 +7,6 @@ import { ASSETS } from 'helpers/config';
 import { formatAddress } from 'helpers/utils';
 import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
 import { CloseHandler } from 'wrappers/CloseHandler';
 
@@ -15,7 +14,6 @@ import * as S from './styles';
 
 export default function WalletConnect(_props: { callback?: () => void }) {
 	const arProvider = useArweaveProvider();
-	const permawebProvider = usePermawebProvider();
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
 
@@ -38,16 +36,12 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 			setLabel(`${language.fetching}...`);
 		} else {
 			if (arProvider.walletAddress) {
-				if (permawebProvider.profile && permawebProvider.profile.username) {
-					setLabel(permawebProvider.profile.username);
-				} else {
-					setLabel(formatAddress(arProvider.walletAddress, false));
-				}
+				setLabel(formatAddress(arProvider.walletAddress, false));
 			} else {
 				setLabel(language.connect);
 			}
 		}
-	}, [showWallet, arProvider.walletAddress, permawebProvider.profile]);
+	}, [showWallet, arProvider.walletAddress, language.connect, language.fetching]);
 
 	const copyAddress = React.useCallback(async (address: string) => {
 		if (address) {
@@ -87,13 +81,13 @@ export default function WalletConnect(_props: { callback?: () => void }) {
 			>
 				<S.Wrapper>
 					<S.PWrapper>
-						<Avatar owner={permawebProvider.profile} dimensions={{ wrapper: 35, icon: 21.5 }} callback={handlePress} />
+						<Avatar owner={null} dimensions={{ wrapper: 35, icon: 21.5 }} callback={handlePress} />
 					</S.PWrapper>
 					{showWalletDropdown && (
 						<S.Dropdown className={'border-wrapper-alt1 fade-in scroll-wrapper-hidden'}>
 							<S.DHeaderWrapper>
 								<S.DHeaderFlex>
-									<Avatar owner={permawebProvider.profile} dimensions={{ wrapper: 32.5, icon: 19.5 }} callback={null} />
+									<Avatar owner={null} dimensions={{ wrapper: 32.5, icon: 19.5 }} callback={null} />
 									<S.DHeader>
 										<p>{label}</p>
 									</S.DHeader>

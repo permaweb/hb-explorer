@@ -1,15 +1,12 @@
 import React from 'react';
 
 import { URLTabs } from 'components/atoms/URLTabs';
-import { ConsoleInstance } from 'components/organisms/ConsoleInstance';
 import { ProcessEditor } from 'components/organisms/ProcessEditor';
 import { ProcessSource } from 'components/organisms/ProcessSource';
 import { ASSETS, URLS } from 'helpers/config';
 import { ExplorerTabObjectType } from 'helpers/types';
 import { UseHyperBeamRequestReturn } from 'hooks/useHyperBeamRequest';
-import { useArweaveProvider } from 'providers/ArweaveProvider';
 import { useLanguageProvider } from 'providers/LanguageProvider';
-import { usePermawebProvider } from 'providers/PermawebProvider';
 
 import { ExplorerTabProcessMessages } from './ExplorerTabProcessMessages';
 import { ExplorerTabProcessOverview } from './ExplorerTabProcessOverview';
@@ -20,8 +17,6 @@ export default function ExplorerTabProcess(props: {
 	hyperBeamRequest: UseHyperBeamRequestReturn;
 	refreshKey?: number;
 }) {
-	const arProvider = useArweaveProvider();
-	const permawebProvider = usePermawebProvider();
 	const languageProvider = useLanguageProvider();
 	const language = React.useMemo(
 		() => languageProvider.object[languageProvider.current],
@@ -38,22 +33,6 @@ export default function ExplorerTabProcess(props: {
 		window.addEventListener('hashchange', handleHashChange);
 		return () => window.removeEventListener('hashchange', handleHashChange);
 	}, []);
-
-	const [owner, setOwner] = React.useState<string | null>(null);
-
-	React.useEffect(() => {
-		(async function () {
-			if (arProvider.walletAddress && props.tab?.id && permawebProvider.libs?.getGQLData) {
-				try {
-					const response = await permawebProvider.libs.getGQLData({ ids: [props.tab.id] });
-					const responseData = response?.data?.[0];
-					setOwner(responseData?.node?.owner?.address);
-				} catch (e: any) {
-					console.error(e);
-				}
-			}
-		})();
-	}, [arProvider.walletAddress, props.tab?.id, permawebProvider.libs?.getGQLData]);
 
 	// Memoize view components to prevent recreation
 	const overviewView = React.useCallback(
@@ -85,11 +64,6 @@ export default function ExplorerTabProcess(props: {
 	const sourceView = React.useCallback(
 		() => <ProcessSource processId={props.tab.id} onBoot={props.hyperBeamRequest?.headers?.['on-boot']?.data} />,
 		[props.tab.id, props.hyperBeamRequest?.headers]
-	);
-
-	const consoleView = React.useCallback(
-		() => <ConsoleInstance processId={props.tab.id} owner={owner} active={true} />,
-		[props.tab.id, owner]
 	);
 
 	const tabs = React.useMemo(() => {
@@ -131,29 +105,8 @@ export default function ExplorerTabProcess(props: {
 			},
 		];
 
-		// if (arProvider.walletAddress && owner === arProvider.walletAddress) {
-		// 	dynamicTabs.push({
-		// 		label: language.aos,
-		// 		icon: ASSETS.console,
-		// 		disabled: false,
-		// 		url: URLS.explorerAOS(props.tab.id),
-		// 		view: consoleView,
-		// 	});
-		// }
-
 		return dynamicTabs;
-	}, [
-		language,
-		props.tab.id,
-		owner,
-		arProvider.walletAddress,
-		overviewView,
-		messagesView,
-		readView,
-		writeView,
-		sourceView,
-		consoleView,
-	]);
+	}, [language, props.tab.id, overviewView, messagesView, readView, writeView, sourceView]);
 
 	const processTabs = React.useMemo(() => {
 		const matchingTab = tabs.find((tab) => tab.url === currentHash);
