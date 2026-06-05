@@ -31,7 +31,7 @@ export const HeaderMain = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.lg};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		display: flex;
 		align-items: center;
@@ -40,7 +40,7 @@ export const HeaderMain = styled.div`
 		span {
 			font-size: ${(props) => props.theme.typography.size.base};
 			font-family: ${(props) => props.theme.typography.family.primary};
-			font-weight: ${(props) => props.theme.typography.weight.bold};
+			font-weight: ${(props) => props.theme.typography.weight.medium};
 			color: ${(props) => props.theme.colors.font.alt1};
 		}
 	}
@@ -143,7 +143,7 @@ export const HeaderWrapper = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
 
@@ -197,7 +197,7 @@ export const ElementWrapper = styled.div<{ open: boolean; disabled?: boolean; la
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		white-space: nowrap;
 		overflow: hidden;
@@ -276,7 +276,7 @@ export const Slot = styled(ElementItem)`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 		white-space: nowrap;
 		overflow: hidden;
@@ -291,7 +291,7 @@ export const SlotValue = styled.div`
 		border-radius: ${STYLING.dimensions.radius.primary};
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		padding: 0.5px 10px 1px 10px;
 		min-width: 40px;
@@ -344,7 +344,7 @@ export const ActionValue = styled(Action)<{ background?: string; useMaxWidth: bo
 		max-width: 100%;
 		color: ${(props) => props.theme.colors.font.light1} !important;
 		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		text-align: center;
 		white-space: nowrap;
 		overflow: hidden;
@@ -455,13 +455,13 @@ export const OverlayTagsHeader = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.small};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 	span {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
 `;
@@ -523,7 +523,7 @@ export const OverlayInfoLineValue = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;
@@ -534,7 +534,7 @@ export const OverlayOutput = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;
@@ -586,7 +586,7 @@ export const PageCounter = styled.div`
 	input {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
 `;
@@ -621,7 +621,7 @@ export const UpdateWrapper = styled.div<{ childList?: boolean }>`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 	}
 `;

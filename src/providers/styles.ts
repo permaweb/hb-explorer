@@ -14,7 +14,6 @@ export const WalletListContainer = styled.div`
 export const WalletListItem = styled.button`
 	width: 200px;
 	display: flex;
-	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
@@ -22,23 +21,11 @@ export const WalletListItem = styled.button`
 	span {
 		color: ${(props) => props.theme.colors.font.primary};
 		font-size: ${(props) => props.theme.typography.size.base};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		font-family: ${(props) => props.theme.typography.family.primary};
 	}
 	&:hover {
 		background: ${(props) => props.theme.colors.container.primary.active};
-	}
-`;
-
-export const WalletLogo = styled.div`
-	height: 35px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	img {
-		width: 30px;
-
-		margin: 0 0 10px 0;
 	}
 `;
 

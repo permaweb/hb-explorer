@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Modal } from 'components/atoms/Modal';
-import { ASSETS, LINKS, STORAGE } from 'helpers/config';
+import { LINKS, STORAGE } from 'helpers/config';
 import { getARBalanceEndpoint } from 'helpers/endpoints';
 import { WalletEnum } from 'helpers/types';
 import { hasSubtleCrypto } from 'helpers/utils';
@@ -11,13 +11,15 @@ import * as S from './styles';
 
 const WALLET_PERMISSIONS = ['ACCESS_ADDRESS', 'ACCESS_PUBLIC_KEY', 'SIGN_TRANSACTION', 'DISPATCH', 'SIGNATURE'];
 
-const AR_WALLETS = [{ type: WalletEnum.wander, label: 'Wander', logo: ASSETS.wander }];
+type WalletOption = { type: WalletEnum; label: string };
+
+const AR_WALLETS: WalletOption[] = [{ type: WalletEnum.wander, label: 'Wander' }];
 
 const WEB_CRYPTO_WARNING =
 	'SubtleCrypto is unavailable. Serve this app over HTTPS or localhost to enable wallet connections.';
 
 interface ArweaveContextState {
-	wallets: { type: WalletEnum; logo: string }[];
+	wallets: WalletOption[];
 	wallet: any;
 	walletAddress: string | null;
 	walletType: WalletEnum | null;
@@ -46,18 +48,15 @@ export function useArweaveProvider(): ArweaveContextState {
 	return React.useContext(ARContext);
 }
 
-function WalletList(props: { handleConnect: any }) {
+function WalletList(props: { handleConnect: (walletType: WalletEnum) => void }) {
 	return (
 		<S.WalletListContainer>
-			{AR_WALLETS.map((wallet: any, index: number) => (
+			{AR_WALLETS.map((wallet: WalletOption, index: number) => (
 				<S.WalletListItem
 					key={index}
 					onClick={() => props.handleConnect(wallet.type)}
 					className={'border-wrapper-primary'}
 				>
-					<S.WalletLogo>
-						<img src={wallet.logo} alt={''} />
-					</S.WalletLogo>
 					<span>{wallet.label}</span>
 				</S.WalletListItem>
 			))}
@@ -120,7 +119,7 @@ export function ArweaveProvider(props: { children: React.ReactNode }) {
 		}
 	}
 
-	async function handleConnect(walletType: WalletEnum.arConnect | WalletEnum.othent) {
+	async function handleConnect(walletType: WalletEnum) {
 		if (!hasSubtleCrypto()) {
 			console.warn(WEB_CRYPTO_WARNING);
 			setWalletModalVisible(false);
@@ -130,6 +129,7 @@ export function ArweaveProvider(props: { children: React.ReactNode }) {
 		let walletObj: any = null;
 		switch (walletType) {
 			case WalletEnum.arConnect:
+			case WalletEnum.wander:
 				handleArConnect();
 				break;
 			case WalletEnum.othent:

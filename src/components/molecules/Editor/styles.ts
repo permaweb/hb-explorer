@@ -18,7 +18,7 @@ export const Header = styled.div`
 	p {
 		color: ${(props) => props.theme.colors.font.primary};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		font-size: ${(props) => props.theme.typography.size.lg};
 	}
 `;
@@ -48,16 +48,6 @@ export const Editor = styled.div<{ noWrapper: boolean }>`
 	> * {
 		font-family: ${(props) => props.theme.typography.family.alt2} !important;
 	}
-
-	.monaco-editor .mtk1 {
-		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.regular} !important;
-	}
-
-	.mtk1 {
-		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.regular} !important;
-	}
 `;
 
 export const ActionsWrapper = styled.div`
@@ -78,7 +68,7 @@ export const ErrorWrapper = styled.div`
 	span {
 		color: ${(props) => props.theme.colors.warning.primary};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 	}
 `;

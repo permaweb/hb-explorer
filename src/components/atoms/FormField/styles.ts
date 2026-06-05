@@ -25,7 +25,7 @@ export const TWrapper = styled.div`
 export const Label = styled.label`
 	color: ${(props) => props.theme.colors.font.alt1};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	margin: 0 0 7.5px 0;
 `;
 
@@ -106,7 +106,7 @@ export const ErrorContainer = styled.div`
 
 export const Error = styled.span`
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	border-left: 2.75px solid ${(props) => props.theme.colors.warning.primary};
 	padding-left: 5px;
 `;

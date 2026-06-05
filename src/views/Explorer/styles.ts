@@ -77,7 +77,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 	margin: 0 0 -1.5px 0;
 	background: ${(props) => (props.active ? props.theme.colors.view.background : 'transparent')};
 	border-bottom: 1px solid ${(props) => (props.active ? 'transparent' : props.theme.colors.border.primary)};
-	border-top: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt4 : 'transparent')};
+	border-top: 2px solid ${(props) => (props.active ? props.theme.colors.border.alt3 : 'transparent')};
 
 	white-space: nowrap;
 	transition: all 100ms;
@@ -140,7 +140,7 @@ export const TabAction = styled.div<{ active: boolean }>`
 		text-overflow: ellipsis;
 		overflow: hidden;
 		font-size: ${(props) => props.theme.typography.size.xSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		font-family: ${(props) => props.theme.typography.family.primary};
 		color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt3)};
 	}
@@ -242,7 +242,7 @@ export const ModalBodyWrapper = styled.div`
 	p {
 		color: ${(props) => props.theme.colors.font.alt1};
 		font-size: ${(props) => props.theme.typography.size.xSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 	}
 `;
@@ -258,7 +258,7 @@ export const ModalBodyElement = styled.div`
 	span {
 		color: ${(props) => props.theme.colors.font.primary};
 		font-size: ${(props) => props.theme.typography.size.xSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		text-transform: uppercase;
 	}

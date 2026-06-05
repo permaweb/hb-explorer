@@ -108,7 +108,7 @@ export const GlobalStyle = createGlobalStyle`
 
   h1, h2, h3, h4, h5, h6 {
     font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
     color: ${(props) => props.theme.colors.font.primary};
 		overflow-wrap: anywhere;
 		line-height: 1.25;
@@ -173,7 +173,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   b, strong {
-    font-weight: ${(props) => props.theme.typography.weight.bold};
+    font-weight: ${(props) => props.theme.typography.weight.medium};
   }
 
   .border-wrapper-primary {
@@ -227,7 +227,8 @@ export const GlobalStyle = createGlobalStyle`
     span {
       color: ${(props) => props.theme.colors.contrast.color} !important;
       font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-      font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+      font-family: ${(props) => props.theme.typography.family.primary} !important;
+      font-weight: ${(props) => props.theme.typography.weight.medium} !important;
       white-space: nowrap !important;
 	  }
   }
@@ -244,7 +245,7 @@ export const GlobalStyle = createGlobalStyle`
 		span {
 			font-size: ${(props) => props.theme.typography.size.xxSmall};
 			font-family: ${(props) => props.theme.typography.family.primary};
-			font-weight: ${(props) => props.theme.typography.weight.bold};
+			font-weight: ${(props) => props.theme.typography.weight.medium};
 			color: ${(props) => props.theme.colors.font.light1};
 			text-align: center;
 		}
@@ -369,7 +370,7 @@ export const MessageWrapper = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
 `;
@@ -386,14 +387,14 @@ export const Footer = styled.footer<{ navigationOpen: boolean }>`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt2};
 	}
 
 	a {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		text-decoration: underline;
 		text-decoration-thickness: 1.25px;

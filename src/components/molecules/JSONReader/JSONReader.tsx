@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import JSONbig from 'json-bigint';
 
+import { Button } from 'components/atoms/Button';
 import { IconButton } from 'components/atoms/IconButton';
 import { ASSETS, URLS } from 'helpers/config';
 import { checkValidAddress, stripAnsiChars } from 'helpers/utils';
@@ -8,13 +10,19 @@ import { useLanguageProvider } from 'providers/LanguageProvider';
 
 import * as S from './styles';
 
+const RANGE_SIZE = 2500;
+const AUTO_COLLAPSE_THRESHOLD = 2500;
+const INITIAL_RENDER_THRESHOLD = 25;
+
 export default function _JSONTree(props: {
 	data: any;
 	header?: string;
 	placeholder?: string;
 	maxHeight?: number;
+	fixedHeight?: number;
 	noWrapper?: boolean;
 	noFullScreen?: boolean;
+	filename?: string;
 }) {
 	const navigate = useNavigate();
 
@@ -56,6 +64,30 @@ export default function _JSONTree(props: {
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		}
+	}, [data, props.filename]);
+
+	const downloadData = React.useCallback(() => {
+		if (data) {
+			let textToDownload;
+			if (typeof data === 'object' && data !== null && 'result' in data && Object.keys(data).length === 1) {
+				// If it's our wrapped string object, download just the string value
+				textToDownload = data.result;
+			} else if (typeof data === 'string') {
+				textToDownload = data;
+			} else {
+				textToDownload = JSON.stringify(data, null, 4);
+			}
+
+			const blob = new Blob([textToDownload], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = props.filename ? `${props.filename}.json` : 'result.json';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+		}
 	}, [data]);
 
 	React.useEffect(() => {
@@ -87,7 +119,8 @@ export default function _JSONTree(props: {
 		if (typeof input === 'string') {
 			const strippedInput = stripAnsiChars(input);
 			try {
-				const parsed = JSON.parse(strippedInput);
+				// Use json-bigint to parse, which preserves large numbers as strings
+				const parsed = JSONbig({ storeAsString: true }).parse(strippedInput);
 				return parseJSON(parsed);
 			} catch (e) {
 				return strippedInput;
@@ -110,6 +143,41 @@ export default function _JSONTree(props: {
 		const allPathsRef = React.useRef<Set<string>>(new Set());
 		const dataRef = React.useRef<any>(null);
 
+		// Calculate initial render limits synchronously before first render
+		const initialRenderLimits = React.useMemo(() => {
+			const limits = new Map<string, number>();
+			const findLargeStructures = (value: any, path: string = 'root') => {
+				if (Array.isArray(value)) {
+					if (value.length > INITIAL_RENDER_THRESHOLD) {
+						limits.set(path, INITIAL_RENDER_THRESHOLD);
+					}
+					// Only traverse the first batch to avoid performance issues during initialization
+					const itemsToCheck = Math.min(value.length, INITIAL_RENDER_THRESHOLD);
+					for (let i = 0; i < itemsToCheck; i++) {
+						const item = value[i];
+						if (typeof item === 'object' && item !== null) {
+							findLargeStructures(item, `${path}[${i}]`);
+						}
+					}
+				} else if (typeof value === 'object' && value !== null) {
+					const entries = Object.entries(value);
+					if (entries.length > INITIAL_RENDER_THRESHOLD) {
+						limits.set(path, INITIAL_RENDER_THRESHOLD);
+					}
+					// Check all object properties
+					for (const [k, v] of entries) {
+						if (typeof v === 'object' && v !== null) {
+							findLargeStructures(v, `${path}.${k}`);
+						}
+					}
+				}
+			};
+			findLargeStructures(data);
+			return limits;
+		}, [data]);
+
+		const [renderLimits, setRenderLimits] = React.useState<Map<string, number>>(initialRenderLimits);
+
 		const handleCopy = React.useCallback(async (value: string) => {
 			await navigator.clipboard.writeText(value);
 			setCopiedValue(value);
@@ -129,7 +197,19 @@ export default function _JSONTree(props: {
 		}, []);
 
 		const collapseAll = React.useCallback(() => {
-			setCollapsed(new Set(allPathsRef.current));
+			// Collapse everything inside top-level keys, but keep the top-level keys themselves expanded
+			const pathsToCollapse = Array.from(allPathsRef.current).filter((path) => {
+				// Always keep root expanded
+				if (path === 'root') return false;
+
+				// Keep top-level keys expanded (root.Messages, root.Output, etc)
+				const isTopLevel = path.match(/^root\.[^.[\]]+$/) || path.match(/^root\[\d+\]$/);
+				if (isTopLevel) return false;
+
+				// Collapse everything else (nested content)
+				return true;
+			});
+			setCollapsed(new Set(pathsToCollapse));
 		}, []);
 
 		const expandAll = React.useCallback(() => {
@@ -137,7 +217,17 @@ export default function _JSONTree(props: {
 		}, []);
 
 		const getCollapsedState = React.useCallback(() => {
-			return { isFullyCollapsed: collapsed.size > 0 && collapsed.size === allPaths.size };
+			// Check if fully expanded (no collapsed items)
+			if (collapsed.size === 0) {
+				return { isFullyCollapsed: false };
+			}
+			// Check if all collapsible paths (except top-level) are collapsed
+			const topLevelPaths = Array.from(allPaths).filter((path) => {
+				return path === 'root' || path.match(/^root\.[^.[\]]+$/) || path.match(/^root\[\d+\]$/);
+			});
+			const collapsiblePathsCount = allPaths.size - topLevelPaths.length;
+			const isFullyCollapsed = collapsed.size >= collapsiblePathsCount;
+			return { isFullyCollapsed };
 		}, [collapsed, allPaths]);
 
 		React.useImperativeHandle(
@@ -149,6 +239,34 @@ export default function _JSONTree(props: {
 			}),
 			[collapseAll, expandAll, getCollapsedState]
 		);
+
+		const getDataSize = (value: any, maxDepth: number = 10, currentDepth: number = 0): number => {
+			// Stop recursion after maxDepth to avoid performance issues
+			if (currentDepth >= maxDepth) {
+				return 0;
+			}
+
+			if (Array.isArray(value)) {
+				let totalSize = value.length;
+				// Add sizes of nested structures
+				for (const item of value) {
+					if (typeof item === 'object' && item !== null) {
+						totalSize += getDataSize(item, maxDepth, currentDepth + 1);
+					}
+				}
+				return totalSize;
+			} else if (typeof value === 'object' && value !== null) {
+				let totalSize = Object.keys(value).length;
+				// Add sizes of nested structures
+				for (const v of Object.values(value)) {
+					if (typeof v === 'object' && v !== null) {
+						totalSize += getDataSize(v, maxDepth, currentDepth + 1);
+					}
+				}
+				return totalSize;
+			}
+			return 0;
+		};
 
 		const renderValue = (
 			value: any,
@@ -182,9 +300,32 @@ export default function _JSONTree(props: {
 				);
 			}
 			if (typeof value === 'number') {
+				// Format large numbers to avoid scientific notation
+				let displayValue: string;
+				if (Number.isInteger(value) && Math.abs(value) > 1e15) {
+					// For very large integers, use toFixed(0) to avoid scientific notation
+					displayValue = value.toFixed(0);
+				} else if (Math.abs(value) > 1e15 || (value !== 0 && Math.abs(value) < 1e-6)) {
+					// For very large or very small numbers in scientific notation
+					// Convert to string and display the full precision
+					const str = value.toString();
+					if (str.includes('e')) {
+						// Try to expand scientific notation for better readability
+						try {
+							displayValue = value.toLocaleString('fullwide', { useGrouping: false, maximumFractionDigits: 20 });
+						} catch {
+							displayValue = str;
+						}
+					} else {
+						displayValue = str;
+					}
+				} else {
+					displayValue = value.toString();
+				}
+
 				return (
 					<>
-						<S.JSONNumber>{value}</S.JSONNumber>
+						<S.JSONNumber>{displayValue}</S.JSONNumber>
 						{!isLast && <S.JSONComma>,</S.JSONComma>}
 					</>
 				);
@@ -197,12 +338,14 @@ export default function _JSONTree(props: {
 							<S.JSONStringIDFlex>
 								<S.JSONStringID
 									onClick={() => handleCopy(value)}
-									title={copiedValue === value ? 'Copied!' : 'Click to copy'}
+									title={copiedValue === value ? `${language.copied}!` : language.clickToCopy}
 									copied={copiedValue === value}
 								>
 									"{value}"
 								</S.JSONStringID>
-								<S.JSONStringIDOpen onClick={() => navigate(`${URLS.explorer}/${value}`)}>(Open)</S.JSONStringIDOpen>
+								<S.JSONStringIDOpen onClick={() => navigate(`${URLS.explorer}${value}`)}>
+									({language.open})
+								</S.JSONStringIDOpen>
 							</S.JSONStringIDFlex>
 							{!isLast && <S.JSONComma>,</S.JSONComma>}
 						</>
@@ -228,6 +371,12 @@ export default function _JSONTree(props: {
 					allPaths.add(path);
 				}
 				const isCollapsed = collapsed.has(path);
+
+				// Apply render limit to any large arrays
+				const currentLimit = renderLimits.get(path);
+				const shouldLimitRender = currentLimit !== undefined && value.length > currentLimit;
+				const itemsToRender = shouldLimitRender ? value.slice(0, currentLimit) : value;
+
 				return (
 					<>
 						{isCollapsed ? (
@@ -239,7 +388,7 @@ export default function _JSONTree(props: {
 							<>
 								<S.JSONBracket>[</S.JSONBracket>
 								<S.JSONIndent>
-									{value.map((item, index) => {
+									{itemsToRender.map((item, index) => {
 										const itemPath = `${path}[${index}]`;
 										const isCollapsible =
 											typeof item === 'object' &&
@@ -262,6 +411,24 @@ export default function _JSONTree(props: {
 											</S.JSONArrayItem>
 										);
 									})}
+									{shouldLimitRender && (
+										<S.LoadMoreItem>
+											<Button
+												type={'alt4'}
+												label={`Load ${Math.min(
+													INITIAL_RENDER_THRESHOLD,
+													value.length - (currentLimit ?? 0)
+												)} more items (${value.length - (currentLimit ?? 0)} remaining)`}
+												handlePress={() => {
+													setRenderLimits((prev) => {
+														const newLimits = new Map(prev);
+														newLimits.set(path, (currentLimit ?? 0) + INITIAL_RENDER_THRESHOLD);
+														return newLimits;
+													});
+												}}
+											/>
+										</S.LoadMoreItem>
+									)}
 								</S.JSONIndent>
 								<S.JSONBracket>]</S.JSONBracket>
 								{!isLast && <S.JSONComma>,</S.JSONComma>}
@@ -284,6 +451,16 @@ export default function _JSONTree(props: {
 					allPaths.add(path);
 				}
 				const isCollapsed = collapsed.has(path);
+
+				// Apply render limit to any large objects
+				const currentLimit = renderLimits.get(path);
+				const shouldLimitRender = currentLimit !== undefined && entries.length > currentLimit;
+				const entriesToRender = shouldLimitRender ? entries.slice(0, currentLimit) : entries;
+
+				// Check if this object has too many keys and should show collapsed ranges
+				const hasCollapsedRanges = entriesToRender.length > AUTO_COLLAPSE_THRESHOLD;
+				const rangeSize = RANGE_SIZE;
+
 				return (
 					<>
 						{isCollapsed ? (
@@ -295,31 +472,115 @@ export default function _JSONTree(props: {
 							<>
 								<S.JSONBracket>{'{'}</S.JSONBracket>
 								<S.JSONIndent>
-									{entries.map(([k, v], index) => {
-										const propPath = `${path}.${k}`;
-										const isCollapsible =
-											typeof v === 'object' &&
-											v !== null &&
-											(Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0);
-										const isCollapsed = collapsed.has(propPath);
+									{hasCollapsedRanges ? (
+										<>
+											{/* Render entries in ranges */}
+											{Array.from({ length: Math.ceil(entriesToRender.length / rangeSize) }, (_, rangeIndex) => {
+												const start = rangeIndex * rangeSize;
+												const end = Math.min(start + rangeSize, entriesToRender.length);
+												const rangeEntries = entriesToRender.slice(start, end);
+												const rangePath = `${path}.__range_${start}_${end}__`;
+												const isRangeCollapsed = collapsed.has(rangePath);
 
-										if (collectPaths && isCollapsible) {
-											allPaths.add(propPath);
-										}
+												return (
+													<React.Fragment key={`range-${start}`}>
+														<S.JSONProperty>
+															<S.CollapseArrow isCollapsed={isRangeCollapsed} onClick={() => toggleCollapse(rangePath)}>
+																›
+															</S.CollapseArrow>
+															<S.JSONKeyDefault>
+																{isRangeCollapsed
+																	? `[${start}–${end - 1}] (${rangeEntries.length} keys)`
+																	: `[${start}–${end - 1}]`}
+															</S.JSONKeyDefault>
+														</S.JSONProperty>
+														{!isRangeCollapsed &&
+															rangeEntries.map(([k, v], index) => {
+																const propPath = `${path}.${k}`;
+																const isCollapsible =
+																	typeof v === 'object' &&
+																	v !== null &&
+																	(Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0);
+																const isPropCollapsed = collapsed.has(propPath);
 
-										return (
-											<S.JSONProperty key={k}>
-												{isCollapsible && (
-													<S.CollapseArrow isCollapsed={isCollapsed} onClick={() => toggleCollapse(propPath)}>
-														›
-													</S.CollapseArrow>
-												)}
-												<S.JSONKey>"{k}"</S.JSONKey>
-												<S.JSONColon>: </S.JSONColon>
-												{renderValue(v, k, index === entries.length - 1, propPath, collectPaths)}
-											</S.JSONProperty>
-										);
-									})}
+																if (collectPaths && isCollapsible) {
+																	allPaths.add(propPath);
+																}
+
+																return (
+																	<S.JSONProperty key={k}>
+																		{isCollapsible && (
+																			<S.CollapseArrow
+																				isCollapsed={isPropCollapsed}
+																				onClick={() => toggleCollapse(propPath)}
+																			>
+																				›
+																			</S.CollapseArrow>
+																		)}
+																		<S.JSONKey>"{k}"</S.JSONKey>
+																		<S.JSONColon>: </S.JSONColon>
+																		{renderValue(
+																			v,
+																			k,
+																			start + index === entriesToRender.length - 1,
+																			propPath,
+																			collectPaths
+																		)}
+																	</S.JSONProperty>
+																);
+															})}
+													</React.Fragment>
+												);
+											})}
+										</>
+									) : (
+										<>
+											{/* Normal rendering for objects with < AUTO_COLLAPSE_THRESHOLD keys */}
+											{entriesToRender.map(([k, v], index) => {
+												const propPath = `${path}.${k}`;
+												const isCollapsible =
+													typeof v === 'object' &&
+													v !== null &&
+													(Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0);
+												const isPropCollapsed = collapsed.has(propPath);
+
+												if (collectPaths && isCollapsible) {
+													allPaths.add(propPath);
+												}
+
+												return (
+													<S.JSONProperty key={k}>
+														{isCollapsible && (
+															<S.CollapseArrow isCollapsed={isPropCollapsed} onClick={() => toggleCollapse(propPath)}>
+																›
+															</S.CollapseArrow>
+														)}
+														<S.JSONKey>"{k}"</S.JSONKey>
+														<S.JSONColon>: </S.JSONColon>
+														{renderValue(v, k, index === entriesToRender.length - 1, propPath, collectPaths)}
+													</S.JSONProperty>
+												);
+											})}
+										</>
+									)}
+									{shouldLimitRender && (
+										<S.LoadMoreItem>
+											<Button
+												type={'alt4'}
+												label={`Load ${Math.min(
+													INITIAL_RENDER_THRESHOLD,
+													entries.length - (currentLimit ?? 0)
+												)} more keys (${entries.length - (currentLimit ?? 0)} remaining)`}
+												handlePress={() => {
+													setRenderLimits((prev) => {
+														const newLimits = new Map(prev);
+														newLimits.set(path, (currentLimit ?? 0) + INITIAL_RENDER_THRESHOLD);
+														return newLimits;
+													});
+												}}
+											/>
+										</S.LoadMoreItem>
+									)}
 								</S.JSONIndent>
 								<S.JSONBracket>{'}'}</S.JSONBracket>
 								{!isLast && <S.JSONComma>,</S.JSONComma>}
@@ -343,66 +604,111 @@ export default function _JSONTree(props: {
 			}
 			dataRef.current = data;
 
-			const paths = new Set<string>();
+			// Sync render limits when data changes
+			setRenderLimits(initialRenderLimits);
 
-			const collectAllPaths = (value: any, path: string = 'root') => {
+			const paths = new Set<string>();
+			const pathsToAutoCollapse = new Set<string>();
+
+			const collectAllPaths = (value: any, path: string = 'root', _parentPath?: string) => {
 				if (Array.isArray(value)) {
 					if (value.length > 0) {
 						paths.add(path);
-						value.forEach((item, index) => {
-							const itemPath = `${path}[${index}]`;
-							if (typeof item === 'object' && item !== null) {
-								const isCollapsible = Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0;
-								if (isCollapsible) {
-									paths.add(itemPath);
-									collectAllPaths(item, itemPath);
+
+						// Auto-collapse items in arrays with many elements
+						if (value.length > AUTO_COLLAPSE_THRESHOLD) {
+							value.forEach((item, index) => {
+								if (typeof item === 'object' && item !== null) {
+									const itemPath = `${path}[${index}]`;
+									const isCollapsible = Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0;
+									if (isCollapsible) {
+										paths.add(itemPath);
+										collectAllPaths(item, itemPath, path);
+									}
+									// Collapse items beyond the first RANGE_SIZE
+									if (index >= RANGE_SIZE && isCollapsible) {
+										pathsToAutoCollapse.add(itemPath);
+									}
 								}
-							}
-						});
+							});
+						} else {
+							value.forEach((item, index) => {
+								if (typeof item === 'object' && item !== null) {
+									const itemPath = `${path}[${index}]`;
+									const isCollapsible = Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0;
+									if (isCollapsible) {
+										paths.add(itemPath);
+										collectAllPaths(item, itemPath, path);
+									}
+								}
+							});
+						}
 					}
 				} else if (typeof value === 'object' && value !== null) {
 					const entries = Object.entries(value);
 					if (entries.length > 0) {
 						paths.add(path);
-						entries.forEach(([k, v]) => {
-							const propPath = `${path}.${k}`;
-							if (typeof v === 'object' && v !== null) {
-								const isCollapsible = Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0;
-								if (isCollapsible) {
-									paths.add(propPath);
-									collectAllPaths(v, propPath);
+
+						// Auto-collapse ranges in objects with many keys
+						if (entries.length > AUTO_COLLAPSE_THRESHOLD) {
+							const rangeSize = RANGE_SIZE;
+							const numRanges = Math.ceil(entries.length / rangeSize);
+
+							// Create range paths and auto-collapse all except the first
+							for (let rangeIndex = 0; rangeIndex < numRanges; rangeIndex++) {
+								const start = rangeIndex * rangeSize;
+								const end = Math.min(start + rangeSize, entries.length);
+								const rangePath = `${path}.__range_${start}_${end}__`;
+								paths.add(rangePath);
+
+								// Auto-collapse all ranges except the first one
+								if (rangeIndex > 0) {
+									pathsToAutoCollapse.add(rangePath);
 								}
 							}
-						});
+
+							entries.forEach(([k, v]) => {
+								const propPath = `${path}.${k}`;
+								if (typeof v === 'object' && v !== null) {
+									const isCollapsible = Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0;
+									if (isCollapsible) {
+										paths.add(propPath);
+										collectAllPaths(v, propPath, path);
+									}
+								}
+							});
+						} else {
+							entries.forEach(([k, v]) => {
+								const propPath = `${path}.${k}`;
+								if (typeof v === 'object' && v !== null) {
+									const isCollapsible = Array.isArray(v) ? v.length > 0 : Object.keys(v).length > 0;
+									if (isCollapsible) {
+										paths.add(propPath);
+										collectAllPaths(v, propPath, path);
+									}
+								}
+							});
+						}
 					}
 				}
 			};
 
 			collectAllPaths(data);
 
-			// Check if paths actually changed (but allow first initialization)
+			// Check if this is first load or if paths actually changed
+			const isFirstLoad = allPathsRef.current.size === 0;
 			const pathsChanged =
-				allPathsRef.current.size > 0 &&
+				!isFirstLoad &&
 				(paths.size !== allPathsRef.current.size || Array.from(paths).some((p) => !allPathsRef.current.has(p)));
 
 			allPathsRef.current = paths;
 			setAllPaths(paths);
 
-			// Collapse all except root level (show top keys but not their contents)
-			const defaultCollapsed = new Set<string>();
-			paths.forEach((path) => {
-				// Don't collapse 'root' itself, but collapse everything else
-				if (path !== 'root') {
-					defaultCollapsed.add(path);
-				}
-			});
-
-			// Only reset collapsed if the structure of the data actually changed (not on first load)
-			if (pathsChanged) {
-				setCollapsed(defaultCollapsed);
-			} else if (allPathsRef.current.size > 0 && collapsed.size === 0) {
-				// On first load, show top keys but collapse their contents
-				setCollapsed(defaultCollapsed);
+			// Apply auto-collapse on first load, or reset on structure change
+			if (isFirstLoad && pathsToAutoCollapse.size > 0) {
+				setCollapsed(pathsToAutoCollapse);
+			} else if (pathsChanged) {
+				setCollapsed(new Set());
 			}
 		}, [data]);
 
@@ -410,6 +716,7 @@ export default function _JSONTree(props: {
 			<S.JSONViewerRoot
 				fullScreenMode={fullScreenMode}
 				maxHeight={!fullScreenMode ? props.maxHeight : undefined}
+				fixedHeight={!fullScreenMode ? props.fixedHeight : undefined}
 				className={'scroll-wrapper'}
 			>
 				{renderValue(data, undefined, true)}
@@ -434,8 +741,9 @@ export default function _JSONTree(props: {
 
 	return (
 		<S.Wrapper
-			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-alt3 '}`}
+			className={`${props.noWrapper && !fullScreenMode ? '' : 'border-wrapper-alt4 '}`}
 			noWrapper={props.noWrapper && !fullScreenMode}
+			fixedHeight={!fullScreenMode ? props.fixedHeight : undefined}
 			ref={readerRef}
 		>
 			<S.Header>
@@ -447,10 +755,7 @@ export default function _JSONTree(props: {
 						src={ASSETS.plusMinus}
 						handlePress={handleToggleCollapse}
 						disabled={!data}
-						dimensions={{
-							wrapper: 25,
-							icon: 12.5,
-						}}
+						dimensions={{ wrapper: 25, icon: 12.5 }}
 						tooltip={language.collapseExpandAll}
 						tooltipPosition={'bottom-right'}
 					/>
@@ -459,23 +764,26 @@ export default function _JSONTree(props: {
 							type={'alt1'}
 							src={ASSETS.fullscreen}
 							handlePress={toggleFullscreen}
-							dimensions={{
-								wrapper: 25,
-								icon: 12.5,
-							}}
+							dimensions={{ wrapper: 25, icon: 12.5 }}
 							tooltip={fullScreenMode ? language.exitFullScreen : language.enterFullScreen}
 							tooltipPosition={'bottom-right'}
 						/>
 					)}
 					<IconButton
 						type={'alt1'}
+						src={ASSETS.save}
+						handlePress={downloadData}
+						disabled={!data}
+						dimensions={{ wrapper: 25, icon: 12.5 }}
+						tooltip={language.downloadJSON ?? 'Download JSON'}
+						tooltipPosition={'bottom-right'}
+					/>
+					<IconButton
+						type={'alt1'}
 						src={ASSETS.copy}
 						handlePress={copyData}
 						disabled={!data}
-						dimensions={{
-							wrapper: 25,
-							icon: 12.5,
-						}}
+						dimensions={{ wrapper: 25, icon: 12.5 }}
 						tooltip={copied ? `${language.copied}!` : language.copyJSON}
 						tooltipPosition={'bottom-right'}
 					/>

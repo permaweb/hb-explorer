@@ -36,7 +36,7 @@ export const HeaderContent = styled.div`
 export const Title = styled.h2`
 	font-size: ${(props) => props.theme.typography.size.xLg};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.primary};
 `;
 

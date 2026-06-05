@@ -119,7 +119,7 @@ export const PathValue = styled.div`
 		background: ${(props) => props.theme.colors.container.primary.background};
 		color: ${(props) => props.theme.colors.font.primary};
 		font-family: ${(props) => props.theme.typography.family.alt2};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		font-size: 12px;
 		padding: 2px 6px;
 

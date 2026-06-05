@@ -73,7 +73,7 @@ export const ResultsWrapper = styled.div`
 export const ResultLine = styled.div`
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.primary};
 	white-space: pre-wrap;
 	word-wrap: break-word;
@@ -135,7 +135,7 @@ export const SplashScreenHeader = styled.div`
 	display: flex;
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.alt1};
 	margin: 0 0 1.5px 0;
 `;
@@ -147,7 +147,7 @@ export const SplashScreenLine = styled.div`
 	p,
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 	}
 
 	span {
@@ -193,7 +193,7 @@ export const Input = styled.div<{ disabled: boolean }>`
 	width: 100%;
 	font-family: ${(props) => props.theme.typography.family.primary};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) =>
 		props.disabled ? props.theme.colors.button.primary.disabled.color : props.theme.colors.font.primary};
 	opacity: ${(props) => (props.disabled ? 1 : 1)};

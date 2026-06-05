@@ -101,6 +101,7 @@ export const Primary = styled.button<{
 	align-items: center;
 	padding: 4.5px 0 0 0 !important;
 	pointer-events: ${(props) => (props.disabled ? 'none' : 'all')};
+	transition: all 100ms;
 
 	svg {
 		height: ${(props) => (props.dimensions ? `${props.dimensions.icon.toString()}px` : `24.5px`)};
@@ -129,7 +130,7 @@ export const Alt1 = styled(Primary)`
 			? props.theme.colors.button.primary.active.background
 			: props.disabled
 			? props.theme.colors.button.primary.disabled.background
-			: props.theme.colors.button.primary.background};
+			: props.theme.colors.container.alt1.background};
 	border: 1px solid
 		${(props) =>
 			props.active

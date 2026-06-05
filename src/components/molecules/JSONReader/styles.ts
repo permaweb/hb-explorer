@@ -1,12 +1,14 @@
 import styled from 'styled-components';
 
-export const Wrapper = styled.div<{ noWrapper?: boolean }>`
+export const Wrapper = styled.div<{ noWrapper?: boolean; fixedHeight?: number }>`
 	padding: ${(props) => (props.noWrapper ? '0' : '15px')};
 	font-family: ${(props) => props.theme.typography.family.alt2};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
 	letter-spacing: 0;
 	position: relative;
+	min-width: 0;
+	${(props) => props.fixedHeight && `height: ${props.fixedHeight}px;`}
 
 	ul {
 		margin: 0 0 0 1.5px !important;
@@ -25,9 +27,9 @@ export const Header = styled.div`
 	flex-wrap: wrap;
 	p {
 		color: ${(props) => props.theme.colors.font.primary};
-		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
-		font-size: ${(props) => props.theme.typography.size.xSmall};
+		font-family: ${(props) => props.theme.typography.family.alt1};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
+		font-size: ${(props) => props.theme.typography.size.lg};
 	}
 `;
 
@@ -36,7 +38,7 @@ export const Placeholder = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 		text-transform: uppercase;
 	}
@@ -46,19 +48,18 @@ export const ActionsWrapper = styled.div`
 	width: fit-content;
 	display: flex;
 	gap: 15px;
-
-	button {
-		padding: 5px 0 0 0 !important;
-	}
 `;
 
-export const JSONViewerRoot = styled.div<{ fullScreenMode: boolean; maxHeight: number }>`
-	height: calc(100% - 32.5px);
-	max-height: ${(props) => (props.maxHeight ? `${props.maxHeight.toString()}px` : 'none')};
+export const JSONViewerRoot = styled.div<{ fullScreenMode: boolean; maxHeight?: number; fixedHeight?: number }>`
+	height: ${(props) => (props.fixedHeight ? `calc(${props.fixedHeight}px - 32.5px - 30px)` : 'calc(100% - 32.5px)')};
+	max-height: ${(props) => (props.maxHeight ? `calc(${props.maxHeight.toString()}px - 32.5px - 30px)` : 'none')};
 	font-family: ${(props) => props.theme.typography.family.alt2};
 	font-size: ${(props) => props.theme.typography.size.xxSmall};
 	line-height: 1.6;
 	color: ${(props) => props.theme.colors.editor.primary};
+	min-width: 0;
+	overflow-x: auto;
+	overflow-y: auto;
 `;
 
 export const JSONIndent = styled.div`
@@ -95,9 +96,14 @@ export const JSONValue = styled.span`
 	display: inline;
 `;
 
+export const JSONKeyDefault = styled.span`
+	color: ${(props) => props.theme.colors.editor.alt10};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
+`;
+
 export const JSONKey = styled.span`
 	color: ${(props) => props.theme.colors.editor.alt5};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 `;
 
 export const JSONColon = styled.span`
@@ -182,7 +188,7 @@ export const JSONUndefined = styled.span`
 
 export const JSONBracket = styled.span`
 	color: ${(props) => props.theme.colors.font.alt1};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 `;
 
 export const JSONObjectWrapper = styled.div`
@@ -199,4 +205,9 @@ export const JSONObject = styled.span`
 
 export const JSONArray = styled.span`
 	color: ${(props) => props.theme.colors.font.alt1};
+`;
+
+export const LoadMoreItem = styled.div`
+	display: block;
+	margin: 10px 0;
 `;

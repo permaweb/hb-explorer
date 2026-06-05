@@ -69,6 +69,7 @@ export const Primary = styled.button<{
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	transition: all 100ms;
 	border: 1px solid
 		${(props) =>
 			props.warning
@@ -125,7 +126,7 @@ export const Primary = styled.button<{
 		text-overflow: ellipsis;
 		overflow: hidden;
 		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		letter-spacing: 0.5px;
 		color: ${(props) =>
@@ -275,7 +276,7 @@ export const Alt2 = styled(Alt1)`
 		text-overflow: ellipsis;
 		overflow: hidden;
 		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		text-decoration: underline;
 		text-decoration-thickness: 1.25px;
 		color: ${(props) =>
@@ -317,7 +318,7 @@ export const Alt3 = styled(Primary)`
 
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		font-family: ${(props) => props.theme.typography.family.primary} !important;
 		letter-spacing: 0.35px;
 		color: ${(props) =>
@@ -419,7 +420,7 @@ export const Alt4 = styled(Primary)`
 
 	span {
 		font-size: ${(props) => props.theme.typography.size.xxxSmall} !important;
-		font-weight: ${(props) => props.theme.typography.weight.bold} !important;
+		font-weight: ${(props) => props.theme.typography.weight.medium} !important;
 		color: ${(props) =>
 			props.warning
 				? props.theme.colors.font.light1

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { useTheme } from 'styled-components';
 
 import { Copyable } from 'components/atoms/Copyable';
 import { IconButton } from 'components/atoms/IconButton';
@@ -18,6 +19,7 @@ import * as S from './styles';
 export default function Navigation(props: { open: boolean; toggle: () => void }) {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const theme = useTheme();
 
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
@@ -31,6 +33,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	const [loadingPath, _setLoadingTx] = React.useState<boolean>(false);
 	const [panelOpen, setPanelOpen] = React.useState<boolean>(false);
 	const [cursorPosition, setCursorPosition] = React.useState<number>(0);
+	const headerRef = React.useRef<HTMLElement>(null);
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
 	// Use shared autocomplete hook
@@ -68,6 +71,10 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 				path: URLS.explorer,
 				label: language.explorer,
 			},
+			{
+				path: URLS.graphql,
+				label: language.graphql,
+			},
 		];
 	}, []);
 
@@ -80,6 +87,36 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 	}
 
 	const debouncedResize = React.useCallback(debounce(handleWindowResize, 0), []);
+
+	React.useEffect(() => {
+		const header = headerRef.current;
+		if (!header) return;
+
+		const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
+		const shouldUseEmbeddedHeader = pathname.startsWith(URLS.explorer) || pathname.startsWith(URLS.graphql);
+
+		if (shouldUseEmbeddedHeader) {
+			header.style.background = theme.colors.container.alt1.background;
+			header.style.position = 'relative';
+			header.style.boxShadow = `inset 0px 6px 6px -6px ${theme.colors.shadow.primary}`;
+			header.style.borderTop = `0.5px solid ${theme.colors.border.primary}`;
+			header.style.borderBottom = 'none';
+		} else {
+			header.style.background = '';
+			header.style.position = 'sticky';
+			header.style.boxShadow = 'none';
+			header.style.borderTop = 'none';
+			header.style.borderBottom = '';
+		}
+
+		return () => {
+			header.style.background = '';
+			header.style.position = 'sticky';
+			header.style.boxShadow = 'none';
+			header.style.borderTop = 'none';
+			header.style.borderBottom = '';
+		};
+	}, [location.pathname, theme]);
 
 	React.useEffect(() => {
 		window.addEventListener('resize', debouncedResize);
@@ -168,7 +205,7 @@ export default function Navigation(props: { open: boolean; toggle: () => void })
 
 	return (
 		<>
-			<S.Header id={'navigation-header'} navigationOpen={props.open} className={'fade-in'}>
+			<S.Header ref={headerRef} id={'navigation-header'} navigationOpen={props.open} className={'fade-in'}>
 				<S.Content>
 					<S.C1Wrapper>
 						<S.LogoWrapper>
