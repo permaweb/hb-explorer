@@ -91,7 +91,8 @@ export const AltTab = styled.div`
 
 export const AltTabAction = styled.div<{ active: boolean; icon: boolean }>`
 	font-size: ${(props) => props.theme.typography.size.xSmall};
-	font-weight: ${(props) => (props.active ? props.theme.typography.weight.bold : props.theme.typography.weight.medium)};
+	font-weight: ${(props) =>
+		props.active ? props.theme.typography.weight.medium : props.theme.typography.weight.medium};
 	font-family: ${(props) => props.theme.typography.family.primary};
 	color: ${(props) => (props.active ? props.theme.colors.font.primary : props.theme.colors.font.alt3)};
 	cursor: pointer;

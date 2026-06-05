@@ -78,7 +78,7 @@ export const SidebarHeaderBody = styled.div`
 export const SidebarTitle = styled.h3`
 	font-size: ${(props) => props.theme.typography.size.base};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.primary};
 `;
 
@@ -96,7 +96,7 @@ export const SidebarFilter = styled.button`
 	background: ${(props) => props.theme.colors.container.primary.background};
 	font-size: ${(props) => props.theme.typography.size.xxxSmall};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.alt1};
 	letter-spacing: 0.35px;
 	text-transform: uppercase;
@@ -287,7 +287,7 @@ export const ContentTitleWrapper = styled.div`
 export const ContentTitle = styled.h2`
 	font-size: ${(props) => props.theme.typography.size.lg};
 	font-family: ${(props) => props.theme.typography.family.primary};
-	font-weight: ${(props) => props.theme.typography.weight.bold};
+	font-weight: ${(props) => props.theme.typography.weight.medium};
 	color: ${(props) => props.theme.colors.font.primary};
 `;
 
@@ -356,7 +356,7 @@ export const GroupHeader = styled.div`
 	p {
 		font-size: ${(props) => props.theme.typography.size.xxSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.primary};
 		text-transform: uppercase;
 		letter-spacing: 0.55px;
@@ -389,7 +389,7 @@ export const GroupLine = styled.div`
 		justify-self: end;
 		font-size: ${(props) => props.theme.typography.size.xSmall};
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.bold};
+		font-weight: ${(props) => props.theme.typography.weight.medium};
 		color: ${(props) => props.theme.colors.font.alt1};
 	}
 `;

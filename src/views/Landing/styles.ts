@@ -52,7 +52,7 @@ export const MetricsSection = styled.div`
 	span {
 		font-size: clamp(0.65rem, 0.5rem + 0.05vw, ${(props) => props.theme.typography.size.xxSmall});
 		font-family: ${(props) => props.theme.typography.family.primary};
-		font-weight: ${(props) => props.theme.typography.weight.light};
+		font-weight: ${(props) => props.theme.typography.weight.regular};
 		color: ${(props) => props.theme.colors.font.alt1};
 		letter-spacing: 0.08em;
 		text-transform: uppercase;

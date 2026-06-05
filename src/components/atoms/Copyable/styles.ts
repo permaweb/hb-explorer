@@ -9,9 +9,11 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 	height: 100%;
 	padding: 0 7.5px 0 8.5px;
 	background: ${(props) =>
-		props.disabled ? props.theme.colors.button.primary.disabled.background : props.theme.colors.button.primary.alt1};
+		props.disabled
+			? props.theme.colors.button.primary.disabled.background
+			: props.theme.colors.button.primary.background};
 	border: 1px solid
-		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.border.primary)};
+		${(props) => (props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.border)};
 	border-radius: ${STYLING.dimensions.radius.primary};
 
 	p {
@@ -56,6 +58,38 @@ export const Wrapper = styled.div<{ disabled: boolean }>`
 			props.disabled
 				? props.theme.colors.button.primary.disabled.background
 				: props.theme.colors.button.primary.active.background};
+		border: 1px solid
+			${(props) =>
+				props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.active.border};
+
+		p,
+		span {
+			color: ${(props) =>
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
+		}
+		svg {
+			color: ${(props) =>
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
+			fill: ${(props) =>
+				props.disabled
+					? props.theme.colors.button.primary.disabled.color
+					: props.theme.colors.button.primary.active.color} !important;
+		}
+	}
+
+	&:focus {
+		cursor: ${(props) => (props.disabled ? 'default' : 'pointer')};
+		background: ${(props) =>
+			props.disabled
+				? props.theme.colors.button.primary.disabled.background
+				: props.theme.colors.button.primary.active.background};
+		border: 1px solid
+			${(props) =>
+				props.disabled ? props.theme.colors.border.primary : props.theme.colors.button.primary.active.border};
 
 		p,
 		span {

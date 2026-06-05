@@ -80,10 +80,12 @@ export type SelectOptionType = { id: string; label: string };
 
 export type UploadMethodType = 'default' | 'turbo';
 
-export type NotificationType = {
-	message: string;
-	status: 'success' | 'warning';
-};
+export interface BaseTabType {
+	id: string;
+	label: string;
+	tabKey: string;
+	untitledId?: string;
+}
 
 export type TransactionType = 'process' | 'message';
 

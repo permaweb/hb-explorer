@@ -2,7 +2,6 @@ import React from 'react';
 import { flushSync } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ReactSVG } from 'react-svg';
-import { useTheme } from 'styled-components';
 
 import { ViewWrapper } from 'app/styles';
 import { Button } from 'components/atoms/Button';
@@ -56,7 +55,6 @@ const MemoizedExplorerTab = React.memo(
 export default function Explorer() {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const theme = useTheme();
 
 	const languageProvider = useLanguageProvider();
 	const language = languageProvider.object[languageProvider.current];
@@ -113,26 +111,6 @@ export default function Explorer() {
 	const [isClearing, setIsClearing] = React.useState<boolean>(false);
 	const [hasInitialized, setHasInitialized] = React.useState<boolean>(false);
 	const [isUpdatingFromChild, setIsUpdatingFromChild] = React.useState<boolean>(false);
-
-	React.useEffect(() => {
-		const header = document.getElementById('navigation-header');
-		if (header) {
-			header.style.background = theme.colors.container.alt1.background;
-			header.style.position = 'relative';
-			header.style.boxShadow = `inset 0px 6px 6px -6px ${theme.colors.shadow.primary}`;
-			header.style.borderTop = `0.5px solid ${theme.colors.border.primary}`;
-			header.style.borderBottom = 'none';
-		}
-
-		return () => {
-			if (header) {
-				header.style.background = '';
-				header.style.position = 'sticky';
-				header.style.boxShadow = 'none';
-				header.style.borderTop = 'none';
-			}
-		};
-	}, [theme]);
 
 	React.useEffect(() => {
 		const el = tabsRef.current;

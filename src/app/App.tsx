@@ -2,13 +2,13 @@ import React, { Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import { Loader } from 'components/atoms/Loader';
-import { DOM, FAVICONS, LINKS, URLS } from 'helpers/config';
+import { DOM, LINKS, URLS } from 'helpers/config';
 import { getDeviceNames } from 'helpers/deviceNames';
-import { arweaveEndpoint } from 'helpers/endpoints';
 import { Navigation } from 'navigation/Navigation';
 import { useLanguageProvider } from 'providers/LanguageProvider';
 import { useSettingsProvider } from 'providers/SettingsProvider';
 import Explorer from 'views/Explorer';
+import GraphQL from 'views/GraphQL';
 import Landing from 'views/Landing';
 import NotFound from 'views/NotFound';
 
@@ -45,7 +45,13 @@ export default function App() {
 	React.useEffect(() => {
 		const { pathname, search, hash } = window.location;
 		if (hash.startsWith('#/explorer')) return;
+		if (hash.startsWith('#/graphql')) return;
+		if (pathname === '/~query@1.0/graphql' || pathname === '/~query@1.0/graphql/') {
+			window.location.replace(`${window.location.origin}${pathname}${search}#${URLS.graphql}`);
+			return;
+		}
 		if (pathname === '/' || pathname.includes('~hyperbuddy@1.0/index') || pathname === '') return;
+		if (pathname.startsWith(URLS.graphql)) return;
 		window.location.replace(`${window.location.origin}/#${URLS.explorerBase}${pathname}${search}`);
 	}, [location.pathname]);
 
@@ -68,7 +74,7 @@ export default function App() {
 	}
 
 	function getRoute(path: string, element: React.ReactNode) {
-		const baseRoutes = [URLS.docs, `URLS.docs/*`, `${URLS.docs}:active/*`, URLS.notFound, '*'];
+		const baseRoutes = [URLS.notFound, '*'];
 
 		if (baseRoutes.includes(path)) {
 			return <Route path={path} element={element} />;
@@ -99,7 +105,6 @@ export default function App() {
 	return (
 		<>
 			<div id={DOM.loader} />
-			<div id={DOM.notification} />
 			<div id={DOM.overlay} />
 			<Suspense fallback={<Loader />}>
 				<S.App>
@@ -109,6 +114,7 @@ export default function App() {
 						{getRoute(`${URLS.explorer}:id`, <Explorer />)}
 						{getRoute(`${URLS.explorer}:id/:active`, <Explorer />)}
 						{getRoute(`${URLS.explorer}:id/*`, <Explorer />)}
+						{getRoute(URLS.graphql, <GraphQL />)}
 						{getRoute(URLS.notFound, <NotFound />)}
 						{getRoute(`*`, <NotFound />)}
 					</Routes>
